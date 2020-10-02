@@ -1,5 +1,5 @@
 
-## RoganBot: Adjudicator Module
+# RoganBot: Adjudicator Module
 
 RoganBot is a bot for the 1v1 versions of the game Diplomacy currently under development. The current repository contains the adjudicator module of RoganBot, and any associated files. The adjudicator may be used as a stand alone module, to run a game of Diplomacy on you local device.
 
@@ -7,7 +7,7 @@ See the Jupyter notebooks in the folder 'examples/' for hands on instructions on
 
 For user not familiar with Jupyter notebooks, we recommend that you first install an Individual Edition of Anaconda. 
 
-# A few words on the algorithm
+## A few words on the algorithm
 
 Interesting notes on adjudicator algorithms in general can be found in the article by Kruijswijk:
 http://uk.diplom.org/pouch/Zine/S2009M/Kruijswijk/DipMath_Chp1.htm.
