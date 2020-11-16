@@ -68,7 +68,7 @@ def appearances(objects, string, first=False, require=0, label=True):
     answer = [ans for ans in answer if ans['position'] > -1]
     if len(answer) < require:
         raise OrderInputError(f'Could not find the required number ({require})'
-                              ' of objects.')
+                              f' of objects in the string {string}.')
     answer.sort(key=lambda entry: entry['position'])
     if not label:
         answer = [position['entry'] for position in answer]
@@ -129,10 +129,10 @@ class Game:
     """ A game of Diplomacy.
 
     Attributes:
-        host : string or None
-            Name of the host of the game, None if no host
+        page : string or None
+            Name of the webpage hosting the game, None if no host
         identifier : string or None
-            Identifier of the game at the host webpage, None if no host.
+            Identifier of the game at the host webpage, None if no page.
         variant : Variant
             The variant of the game.
         season : Season
@@ -170,22 +170,23 @@ class Game:
 
     orders_dict = {'-': 'move', 'S': 'support', 'C': 'convoy', 'H': 'hold',
                    'B': 'build', 'D': 'disband', 'R': 'retreat',
-                   'A': 'army', 'F': 'fleet'}
+                   'A': 'army', 'F': 'fleet', 'St': 'Saint', 
+                   'destroy': 'disband'}
 
-    def __init__(self, variant_name, host=None, identifier=None):
+    def __init__(self, variant_name, page=None, identifier=None):
         """ The constructor for the game class.
 
         Parameters
         ----------
         variant_name : string
             The name of the variant to be played.
-        host : string, optional
+        page : string, optional
             The name of the webpage where the game is/was played.
         identifier : string, optional
-            The identifier of the game at the host webpage.
+            The identifier of the game at the webpage.
 
         """
-        self.host = host
+        self.page = page
         self.identifier = identifier
         self.variant = vr.Variant(variant_name)
         self.variant.load()
@@ -266,18 +267,19 @@ class Game:
         """ Returns a dictionary with a copy of the game's current position.
 
         """
-        try:
-            winner = self.winner.name
-        except AttributeError:
-            winner = self.winner
-        dcnry = {'season': self.season.name, 'phase': self.season.phase,
-                 'winner': winner}
+        dcnry = {'season': self.season.name, 'phase': self.season.phase}
         units = {unit.location.name: f'{unit.owner.name} {unit.force.name}'
                  for unit in self.units}
         dcnry.update(units)
+        n_units = {f'{power.name}Units': len(self.units_of(power)) 
+                   for power in self.powers}
+        dcnry.update(n_units)
         for power in self.powers:
             dcnry.update({prov.name + '_sc': power.name
                           for prov in self.supply_centers[power]})
+        n_centers = {f'{power.name}Centers': len(self.supply_centers[power])
+                     for power in self.powers}
+        dcnry.update(n_centers)
         return dcnry
 
     def __archive_position__(self):
@@ -656,7 +658,8 @@ class Game:
             raise GameError('Could not identify the instance.')
         return answer
 
-    def locate(self, force, name, origin=None, specifier=None, require=False):
+    def locate(self, force, name, origin=None, specifier=None, require=False,
+               either=False):
         """ Returns the location of a unit in a given province, if uniquely
         determined by the parameters. Throws an error is an output is erquired
         but could not be determined.
@@ -679,7 +682,8 @@ class Game:
         location : Location or None
 
         """
-        location = self.variant.map.locate(force, name, origin, specifier)
+        location = self.variant.map.locate(force, name, origin, specifier,
+                                           either)
         if require and location is None:
             raise GameError(f'Could not locate {force.name} in {name}.')
         return location
@@ -880,7 +884,7 @@ class Game:
             spec = first(appearances(unit.specifiers, subtext, True, 0, False))
             province_name = target_prov['entry'].name
             target = self.locate(ob_unit.force, province_name,
-                                 ob_unit.location, spec, True)
+                                 ob_unit.location, spec, True, True)
             # Return
             return od.Support(unit, od.Move(ob_unit, False, target))
         else:
@@ -943,7 +947,8 @@ class Game:
         names = [power.name for power in self.powers]
         power = first(appearances(names, text, True, 1, False))
         old = self.adjustment_order(number, power, True)
-        if text.find(' postpone ') > -1 or text.find(' default ') > -1:
+        if (text.find(' postpone ') > -1 or text.find(' default ') > -1 
+            or text.find(' do not use ') > -1):
             if isinstance(old, od.Disband):
                 new = od.Disband(old.id, old.owner, None)
             elif isinstance(old, od.Build):
@@ -970,15 +975,15 @@ class Game:
     # Methods for the adjudication process
     # =========================================================================
 
-    def __resolve_orders__(self):
+    def __resolve_orders__(self, verbose=False):
         """ Method to resolve orders.
 
         """
         for order in self.orders:
             if not(order.resolved):
-                order.resolve(self.variant, self.orders)
+                order.resolve(self.variant, self.orders, verbose)
 
-    def __resolve_diplomacy__(self):
+    def __resolve_diplomacy__(self, verbose=False):
         """ Method to resolve orders during the diplomacy phase.
 
         """
@@ -989,7 +994,7 @@ class Game:
             # Set larger initial value  to start the second loop
             previous = unresolved + 1
             while previous > unresolved:
-                self.__resolve_orders__()
+                self.__resolve_orders__(verbose)
                 previous = unresolved
                 unresolved = self.__unresolved_count__()
                 if unresolved == 0:
@@ -1002,7 +1007,7 @@ class Game:
                 self.__resolve_circular_movement__()
             counter += 1
 
-    def __resolve_paradoxes__(self):
+    def __resolve_paradoxes__(self, verbose=False):
         """ Method to resolve paradoxes.
 
         """
@@ -1013,7 +1018,7 @@ class Game:
                 order.set_('cutting', False)
                 order.set_('dislodging', False)
 
-    def __resolve_circular_movement__(self):
+    def __resolve_circular_movement__(self, varbose=False):
         """ Method to resolve circular movement.
 
         """
@@ -1025,18 +1030,18 @@ class Game:
                 order.set_('failed', False)
                 order.set_resolved()
 
-    def __resolve_retreats__(self):
+    def __resolve_retreats__(self, verbose=False):
         """ Method to resolve retreats.
 
         """
         counter = 1  # Might need two for loops.
         while counter < len(self.orders) + 1:
-            self.__resolve_orders__()
+            self.__resolve_orders__(verbose)
             if self.__unresolved_count__() == 0:
                 break
             counter += 1
 
-    def __resolve_builds__(self):
+    def __resolve_builds__(self, verbose=False):
         """ Method to resolve builds.
 
         """
@@ -1074,8 +1079,8 @@ class Game:
 
         """
         for retreat in self.orders:
-            if isinstance(retreat.order, od.Disband):
-                self.delete_unit(retreat.unit)
+            if isinstance(retreat.order, od.Disband) or retreat.disbands:
+                self.delete_unit(retreat.order.unit)
             elif isinstance(retreat.order, od.Move):
                 retreat.unit.move_to(retreat.order.target)
 
@@ -1147,7 +1152,7 @@ class Game:
                 if not mute:
                     print(f'Game won by {power.name}.')
 
-    def adjudicate(self, conclude=True, mute=False):
+    def adjudicate(self, conclude=True, mute=False, verbose=False):
         """ Main method to adjudicat the game.
 
         Parameters
@@ -1166,7 +1171,7 @@ class Game:
         if self.winner is not None:
             print('Winner determined.')
         assert self.season.phase in ['Diplomacy', 'Retreats', 'Builds']
-        getattr(self, f'__resolve_{self.season.phase.lower()}__')()
+        getattr(self, f'__resolve_{self.season.phase.lower()}__')(verbose)
         self.__archive_orders__()
         if self.__unresolved_count__() != 0:
             raise AdjudicationError('Resolution ended with unresolved orders.')

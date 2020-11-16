@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import adjudicator.game as gm
+import adjudicator.board as bd
+import adjudicator.orders as od
 import unittest
 
-class TestAdjudicator(unittest.TestCase) :
+class TestAdjudicator(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -24,47 +26,47 @@ class TestAdjudicator(unittest.TestCase) :
     def tearDown(self):
         pass
 
-    def test_6_A_1(self) :
+    def test_6_A_1(self):
         self.game.order('Brest move to North Sea')
         self.game.adjudicate()        
         self.assertIn('French Fleet in Brest move to North Sea (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_A_2(self) :
-        with self.assertRaises(gm.GameError) :
+    def test_6_A_2(self):
+        with self.assertRaises(gm.GameError):
             self.game.order('Marseilles move to Gulf of Lyon')
 
-    def test_6_A_3(self) :
-        with self.assertRaises(gm.GameError) :
+    def test_6_A_3(self):
+        with self.assertRaises(gm.GameError):
             self.game.order('Trieste move to Tyrolia')
 
-    def test_6_A_4(self) :
-        with self.assertRaises(gm.OrderInputError) :
+    def test_6_A_4(self):
+        with self.assertRaises(gm.OrderInputError):
             self.game.order('Budapest move to Budapest')
 
-    def test_6_A_5(self) :
-        with self.assertRaises(gm.OrderInputError) :
+    def test_6_A_5(self):
+        with self.assertRaises(gm.OrderInputError):
             self.game.order('Marseilles move to Marseilles via convoy')
 
-    def test_6_A_7(self) :
-        with self.assertRaises(gm.OrderInputError) :
+    def test_6_A_7(self):
+        with self.assertRaises(gm.OrderInputError):
             self.gameFvA.add_unit('Fleet', 'Austria', 'Adriatic Sea')
             self.gameFvA.order('Trieste move to Apulia via Convoy')
             self.gameFvA.order('Adriatic Sea convoys Trieste move'
                                      ' to Apulia')
 
-    def test_6_A_8(self) :
-        with self.assertRaises(gm.OrderInputError) :
+    def test_6_A_8(self):
+        with self.assertRaises(gm.OrderInputError):
             self.game.order('Burgundy supports Burgundy holds')
 
-    def test_6_A_9(self) :
+    def test_6_A_9(self):
         self.gameFvA.add_unit('Fleet', 'France', 'Rome')
         self.gameFvA.order('Rome move to Venice')
         self.gameFvA.adjudicate()
         self.assertIn('French Fleet in Rome move to Venice (fails).', 
                       self.gameFvA.order_archive[0])
 
-    def test_6_A_10(self) :
+    def test_6_A_10(self):
         self.gameFvA.add_unit('Fleet', 'France',  'Rome')
         self.gameFvA.add_unit('Army',  'France',  'Apulia')
         self.gameFvA.add_unit('Army',  'Austria', 'Venice')
@@ -72,12 +74,12 @@ class TestAdjudicator(unittest.TestCase) :
         self.gameFvA.order('Apulia move to Venice')
         self.gameFvA.order('Rome supports Apulia move to Venice')
         self.gameFvA.adjudicate()
-        self.assertIn('French Fleet in Rome supports the move from Apulia '
+        self.assertIn('French Fleet in Rome supports the move Apulia '
                       'to Venice (fails).', self.gameFvA.order_archive[0])
         self.assertIn('French Army in Apulia move to Venice (fails).', 
                       self.gameFvA.order_archive[0])
 
-    def test_6_A_11(self) :
+    def test_6_A_11(self):
         self.game.order('Marseilles move to Burgundy')
         self.game.order('Paris move to Burgundy')
         self.game.adjudicate()
@@ -86,7 +88,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Burgundy (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_A_12(self) :
+    def test_6_A_12(self):
         self.game.order('Vienna move to Galicia')
         self.game.order('Budapest move to Galicia')
         self.game.order('Warsaw move to Galicia')
@@ -98,26 +100,26 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Warsaw move to Galicia (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_B_1(self) :
-        with self.assertRaises(AssertionError) :
+    def test_6_B_1(self):
+        with self.assertRaises(bd.MapError):
             self.game.add_unit('Fleet', 'France',  'Portugal')
             self.game.order('Portugal move to Spain')
 
-    def test_6_B_2(self) :
+    def test_6_B_2(self):
         self.game.add_unit('Fleet', 'France',  'Gascony')
         self.game.order('Gascony move to Spain')
         self.game.adjudicate()
         self.assertIn('French Fleet in Gascony move to Spain (north coast)'
                       ' (succeeds).', self.game.order_archive[0])
 
-    def test_6_B_3(self) :
+    def test_6_B_3(self):
         self.game.add_unit('Fleet', 'France',  'Gascony')
         self.game.order('Gascony move to Spain (south coast)')
         self.game.adjudicate()
         self.assertIn('French Fleet in Gascony move to Spain (north coast)'
                       ' (succeeds).', self.game.order_archive[0])
 
-    def test_6_B_4(self) :
+    def test_6_B_4(self):
         self.game.add_unit('Fleet', 'France', 'Gulf of Lyon')
         self.game.add_unit('Fleet', 'France', 'Gascony')
         self.game.add_unit('Army', 'Austria', 'Spain')
@@ -128,7 +130,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Gascony move to Spain (north coast)'
                       ' (succeeds).', self.game.order_archive[0])
 
-    def test_6_B_5(self) :
+    def test_6_B_5(self):
         self.game.add_unit('Fleet', 'Austria', 'Bulgaria (north coast)')
         self.game.add_unit('Army', 'Austria', 'Serbia')
         self.game.add_unit('Army', 'France', 'Greece')
@@ -137,12 +139,12 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.order('Greece H')
         self.game.adjudicate()
         self.assertIn('Austrian Fleet in Bulgaria (north coast) supports '
-                      'the move from Serbia to Greece (fails).', 
+                      'the move Serbia to Greece (fails).', 
                       self.game.order_archive[0])
         self.assertIn('Austrian Army in Serbia move to Greece (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_B_6(self) :
+    def test_6_B_6(self):
         self.game.add_unit('Fleet', 'France', 'Irish Sea')
         self.game.add_unit('Fleet', 'France', 'North Atlantic Ocean')
         self.game.add_unit('Fleet', 'France', 'Gulf of Lyon')
@@ -161,14 +163,18 @@ class TestAdjudicator(unittest.TestCase) :
                       'Mid-Atlantic Ocean (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_B_7(self) :
-        with self.assertRaises(AssertionError) :
-            self.game.delete_unit('Constantinople')
-            self.game.add_unit('Fleet', 'Austria', 'Black Sea')
-            self.game.add_unit('Fleet', 'Austria', 'Constantinople')
-            self.game.order('Black Sea supports move Con to Bul')
+    def test_6_B_7(self):
+        self.game.delete_unit('Constantinople')
+        self.game.add_unit('Fleet', 'Austria', 'Black Sea')
+        self.game.add_unit('Fleet', 'Austria', 'Constantinople')
+        self.game.add_unit('Army', 'France', 'Bulgaria')
+        self.game.order('Black Sea supports move Con to Bul')
+        self.game.order('F Con - Bul (s)')
+        self.game.adjudicate()
+        self.assertEqual(len(self.game.orders), 1)
+        self.assertTrue(isinstance(self.game.orders[0], od.Retreat))
 
-    def test_6_B_8(self) :
+    def test_6_B_8(self):
         self.game.add_unit('Fleet', 'Austria', 'Black Sea')
         self.game.add_unit('Army', 'England', 'Bulgaria')
         self.game.order('Black Sea move to Bulgaria')
@@ -177,7 +183,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Austrian Fleet in Black Sea move to Bulgaria '
                       '(north coast) (succeeds).', self.game.order_archive[0])
         
-    def test_6_B_9(self) :
+    def test_6_B_9(self):
         self.game.add_unit('Fleet', 'France', 'Portugal')
         self.game.add_unit('Fleet', 'France', 'Mid-Atlantic Ocean')
         self.game.add_unit('Fleet', 'Austria', 'Gulf of Lyon')
@@ -192,28 +198,28 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Mid-Atlantic Ocean move to Spain '
                       '(south coast) (fails).', self.game.order_archive[0])
 
-    def test_6_B_10(self) :
+    def test_6_B_10(self):
         self.game.add_unit('Fleet', 'Austria', 'Bulgaria (north coast)')
         self.game.order('Bulgaria (south coast) move to Black Sea')
         self.game.adjudicate()
         self.assertIn('Austrian Fleet in Bulgaria (north coast) move to Black '
                       'Sea (succeeds).', self.game.order_archive[0])
 
-    def test_6_B_11(self) :
+    def test_6_B_11(self):
         self.game.add_unit('Fleet', 'Austria', 'Bulgaria (north coast)')
         self.game.order('Bulgaria (south coast) move to Greece')
         self.game.adjudicate()
         self.assertIn('Austrian Fleet in Bulgaria (north coast) move to '
                       'Greece (fails).', self.game.order_archive[0])
 
-    def test_6_B_12(self) :
+    def test_6_B_12(self):
         self.game.add_unit('Army', 'Austria', 'Portugal')
         self.game.order('Portugal move to Spain (south coast)')
         self.game.adjudicate()
         self.assertIn('Austrian Army in Portugal move to Spain (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_B_13(self) :
+    def test_6_B_13(self):
         self.game.delete_unit('Constantinople')
         self.game.add_unit('Fleet', 'Austria', 'Constantinople')
         self.game.add_unit('Fleet', 'France', 'Bulgaria (north coast)')
@@ -225,14 +231,14 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Bulgaria (north coast) move to '
                       'Constantinople (fails).', self.game.order_archive[0])
 
-    def test_6_B_14(self) :
-        with self.assertRaises(AssertionError) :
+    def test_6_B_14(self):
+        with self.assertRaises(bd.MapError):
             self.game.delete_unit('Saint Petersburg')
             self.game.adjudicate()
             self.game.adjudicate()
             self.game.order('Russian build 1 Fleet Saint Petersburg')
 
-    def test_6_C_1(self) :
+    def test_6_C_1(self):
         self.game.add_unit('Army', 'France', 'Galicia')
         self.game.order('Vienna move to Galicia')
         self.game.order('Galicia move to Budapest')
@@ -245,12 +251,12 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Galicia move to Budapest (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_C_2(self) :
+    def test_6_C_2(self):
         self.game.add_unit('Army', 'France', 'Galicia')
         self.game.order('Vienna move to Galicia')
         self.game.order('Galicia move to Budapest')
         self.game.order('Budapest move to Vienna')
-        self.game.order('Warsaw supports move from Vienna to Galicia.')
+        self.game.order('Warsaw supports move Vienna to Galicia.')
         self.game.adjudicate()
         self.assertIn('Austrian Army in Budapest move to Vienna (succeeds).', 
                       self.game.order_archive[0])
@@ -259,7 +265,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Galicia move to Budapest (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_C_3(self) :
+    def test_6_C_3(self):
         self.game.add_unit('Army', 'France', 'Galicia')
         self.game.order('Vienna move to Galicia')
         self.game.order('Galicia move to Budapest')
@@ -273,7 +279,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Galicia move to Budapest (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_C_4(self) :
+    def test_6_C_4(self):
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
         self.game.add_unit('Army',  'Austria', 'Edinburgh')
@@ -294,7 +300,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Yorkshire move to Edinburgh '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_C_5(self) :
+    def test_6_C_5(self):
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
         self.game.add_unit('Army',  'Austria', 'Edinburgh')
@@ -319,7 +325,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Denmark move to North Sea (succeeds).',
                       self.game.order_archive[0])
 
-    def test_6_C_6(self) :
+    def test_6_C_6(self):
         self.game.delete_unit('London')
         self.game.add_unit('Army', 'France', 'Belgium')
         self.game.add_unit('Army', 'Austria', 'London')
@@ -335,7 +341,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Belgium move via convoy to London '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_C_7(self) :
+    def test_6_C_7(self):
         self.game.delete_unit('London')
         self.game.add_unit('Army', 'France', 'London')
         self.game.add_unit('Army', 'Austria', 'Yorkshire')
@@ -355,7 +361,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in London move via convoy to Belgium '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_D_1(self) :
+    def test_6_D_1(self):
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.order('Paris move to Burgundy')
         self.game.order('Marseilles supports Paris move to Burgundy')
@@ -365,7 +371,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Burgundy (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_D_2(self) :
+    def test_6_D_2(self):
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.add_unit('Army', 'France', 'Silesia')
         self.game.order('Paris move to Burgundy')
@@ -379,7 +385,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('German Army in Munich supports the Army in Burgundy '
                       'holds (fails).', self.game.order_archive[0])
 
-    def test_6_D_3(self) :
+    def test_6_D_3(self):
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.add_unit('Army', 'Austria', 'Spain')
         self.game.order('Paris move to Burgundy')
@@ -387,12 +393,12 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.order('Burgundy holds')
         self.game.order('Spain move to Marseilles')
         self.game.adjudicate()
-        self.assertIn('French Army in Marseilles supports the move from Paris '
+        self.assertIn('French Army in Marseilles supports the move Paris '
                       'to Burgundy (fails).', self.game.order_archive[0])
         self.assertIn('French Army in Paris move to Burgundy (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_D_4(self) :
+    def test_6_D_4(self):
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.order('Paris move to Burgundy')
         self.game.order('Marseilles supports Paris move to Burgundy')
@@ -402,7 +408,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Burgundy (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_D_5(self) :
+    def test_6_D_5(self):
         self.game.delete_unit('Kiel')
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.add_unit('Army', 'Austria', 'Kiel')
@@ -412,14 +418,14 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.order('Munich support hold Burgundy')
         self.game.order('Kiel move to Ruhr')
         self.game.adjudicate()
-        self.assertIn('Austrian Army in Burgundy supports the move from Kiel '
+        self.assertIn('Austrian Army in Burgundy supports the move Kiel '
                       'to Ruhr (fails).', self.game.order_archive[0])
         self.assertIn('German Army in Munich supports the Army in Burgundy '
                       'holds (succeeds).', self.game.order_archive[0])
         self.assertIn('French Army in Paris move to Burgundy (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_D_6(self) :
+    def test_6_D_6(self):
         self.game.add_unit('Fleet', 'France', 'Mid-Atlantic Ocean')
         self.game.add_unit('Army', 'Austria', 'Belgium')
         self.game.add_unit('Fleet', 'Austria', 'English Channel')
@@ -436,7 +442,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Brest move to English Channel (fails).',
                       self.game.order_archive[0])
 
-    def test_6_D_7(self) :
+    def test_6_D_7(self):
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.add_unit('Army', 'Austria', 'Ruhr')
         self.game.order('Paris move to Burgundy')
@@ -449,7 +455,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Burgundy (succeeds).',
                       self.game.order_archive[0])
 
-    def test_6_D_8(self) :
+    def test_6_D_8(self):
         self.game.delete_unit('London')
         self.game.add_unit('Army',  'Austria', 'London')
         self.game.add_unit('Army',  'France',  'Yorkshire')
@@ -468,7 +474,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Austrian Fleet in North Sea supports the Army in '
                       'London holds (fails).', self.game.order_archive[0])
 
-    def test_6_D_9(self) :
+    def test_6_D_9(self):
         self.game.add_unit('Army',  'Austria', 'Burgundy')
         self.game.add_unit('Army',  'Austria', 'Picardy')
         self.game.order('Paris move to Burgundy')
@@ -476,12 +482,12 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.order('Burgundy H')
         self.game.order('Picardy supports Burgundy move to Paris')
         self.game.adjudicate()
-        self.assertIn('Austrian Army in Picardy supports the move from '
+        self.assertIn('Austrian Army in Picardy supports the move '
                       'Burgundy to Paris (fails).', self.game.order_archive[0])
         self.assertIn('French Army in Paris move to Burgundy (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_D_10(self) :
+    def test_6_D_10(self):
         self.game.add_unit('Army',  'France', 'Burgundy')
         self.game.order('Paris move to Burgundy')
         self.game.order('Marseilles supports Paris move to Burgundy')
@@ -489,7 +495,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Burgundy (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_D_11(self) :
+    def test_6_D_11(self):
         self.game.delete_unit('Munich')
         self.game.add_unit('Army',  'France', 'Burgundy')
         self.game.add_unit('Army',  'Austria', 'Silesia')
@@ -503,7 +509,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Burgundy (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_D_12(self) :
+    def test_6_D_12(self):
         self.game.add_unit('Army',  'France', 'Burgundy')
         self.game.add_unit('Army',  'Austria', 'Gascony')
         self.game.order('Gascony move to Burgundy')
@@ -512,7 +518,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Austrian Army in Gascony move to Burgundy (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_D_13(self) :
+    def test_6_D_13(self):
         self.game.delete_unit('Munich')
         self.game.add_unit('Army',  'France', 'Burgundy')
         self.game.add_unit('Army',  'Austria', 'Gascony')
@@ -527,7 +533,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Austrian Army in Gascony move to Burgundy (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_D_14(self) :
+    def test_6_D_14(self):
         self.game.delete_unit('Munich')
         self.game.add_unit('Army',  'France', 'Burgundy')
         self.game.add_unit('Army',  'Austria', 'Gascony')
@@ -542,7 +548,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Austrian Army in Gascony move to Burgundy (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_D_15(self) :
+    def test_6_D_15(self):
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.order('Paris move to Burgundy')
         self.game.order('Marseilles supports Paris move to Burgundy')
@@ -551,7 +557,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Burgundy (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_D_16(self) :
+    def test_6_D_16(self):
         self.game.delete_unit('London')
         self.game.add_unit('Army',  'Austria', 'London')
         self.game.add_unit('Army',  'Austria', 'Holland')
@@ -566,7 +572,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in English Channel convoys London to '
                       'Belgium (succeeds).', self.game.order_archive[0])
 
-    def test_6_D_17(self) :
+    def test_6_D_17(self):
         self.game.delete_unit('Ankara')
         self.game.delete_unit('Constantinople')
         self.game.delete_unit('Smyrna')
@@ -586,7 +592,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Ankara move to Constantinople '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_D_18(self) :
+    def test_6_D_18(self):
         self.game.delete_unit('Ankara')
         self.game.delete_unit('Constantinople')
         self.game.delete_unit('Smyrna')
@@ -608,7 +614,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Ankara move to Constantinople (fails).',
                       self.game.order_archive[0])
 
-    def test_6_D_19(self) :
+    def test_6_D_19(self):
         self.game.delete_unit('Ankara')
         self.game.delete_unit('Constantinople')
         self.game.delete_unit('Smyrna')
@@ -626,7 +632,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Ankara move to Constantinople (fails).',
                       self.game.order_archive[0])
 
-    def test_6_D_20(self) :
+    def test_6_D_20(self):
         self.game.add_unit('Army', 'France',  'Gascony')
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.order('Paris move to Burgundy')
@@ -635,10 +641,10 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.assertIn('French Army in Paris move to Burgundy (succeeds).',
                       self.game.order_archive[0])
-        self.assertIn('French Army in Marseilles supports the move from Paris '
+        self.assertIn('French Army in Marseilles supports the move Paris '
                       'to Burgundy (succeeds).', self.game.order_archive[0])
 
-    def test_6_D_21(self) :
+    def test_6_D_21(self):
         self.game.add_unit('Army', 'Austria', 'Gascony')
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.add_unit('Army', 'France', 'Spain')
@@ -648,15 +654,15 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.order('Brest move to Gascony')
         self.game.order('Spain supports move Brest to Gascony')
         self.game.adjudicate()
-        self.assertIn('French Army in Marseilles supports the move from Paris '
+        self.assertIn('French Army in Marseilles supports the move Paris '
                       'to Burgundy (fails).', self.game.order_archive[0])
         self.assertIn('French Army in Paris move to Burgundy (fails).', 
                       self.game.order_archive[0])
         self.assertIn('French Fleet in Brest move to Gascony (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_D_22(self) :
-        with self.assertRaises(gm.GameError) :
+    def test_6_D_22(self):
+        with self.assertRaises(gm.GameError):
             self.game.delete_unit('Paris')
             self.game.add_unit('Army', 'Austria', 'Gascony')
             self.game.add_unit('Army', 'Austria', 'Paris')
@@ -667,7 +673,7 @@ class TestAdjudicator(unittest.TestCase) :
             self.game.order('Gascony supports move Paris to Brest')
             self.game.adjudicate()
 
-    def test_6_D_23(self) :
+    def test_6_D_23(self):
         self.game.delete_unit('Marseilles')
         self.game.add_unit('Fleet', 'France', 'Marseilles')
         self.game.add_unit('Fleet', 'France', 'Spain (north coast)')
@@ -683,8 +689,8 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Austrian Fleet in Gulf of Lyon move to Spain (south '
                       'coast) (succeeds).', self.game.order_archive[0])
 
-    def test_6_D_24(self) :
-        with self.assertRaises(gm.GameError) :
+    def test_6_D_24(self):
+        with self.assertRaises(gm.GameError):
             self.game.add_unit('Fleet', 'France', 'Spain (south coast)')
             self.game.add_unit('Fleet', 'France', 'Tyrrhenian Sea')
             self.game.add_unit('Fleet', 'France', 'Western Mediterranean')
@@ -695,7 +701,7 @@ class TestAdjudicator(unittest.TestCase) :
             self.game.order('WMS supports Tyrrhenian Sea move to GoL')
             self.game.adjudicate()
 
-    def test_6_D_25(self) :
+    def test_6_D_25(self):
         self.game.add_unit('Army', 'France', 'Burgundy')
         self.game.add_unit('Army', 'Austria', 'Piedmont')
         self.game.add_unit('Army', 'Austria', 'Gascony')
@@ -709,7 +715,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Burgundy supports the Army in Marseilles'
                       ' holds (succeeds).', self.game.order_archive[0])
 
-    def test_6_D_26(self) :
+    def test_6_D_26(self):
         self.game.add_unit('Army', 'France', 'Burgundy')
         self.game.add_unit('Army', 'Austria', 'Piedmont')
         self.game.add_unit('Army', 'Austria', 'Gascony')
@@ -723,7 +729,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Burgundy supports the Army in Marseilles'
                       ' holds (succeeds).', self.game.order_archive[0])
 
-    def test_6_D_27(self) :
+    def test_6_D_27(self):
         self.game.delete_unit('Berlin')
         self.game.add_unit('Army', 'France', 'Berlin')
         self.game.add_unit('Fleet', 'France', 'Baltic Sea')
@@ -741,7 +747,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Baltic Sea convoys Berlin to '
                       'Livonia (fails).', self.game.order_archive[0])
 
-    def test_6_D_28(self) :
+    def test_6_D_28(self):
         self.game.add_unit('Army', 'Austria', 'Burgundy')
         self.game.order('Burgundy move to Moscow')
         self.game.order('Munich supports Burgundy holds')
@@ -753,7 +759,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Burgundy (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_D_29(self) :
+    def test_6_D_29(self):
         self.game.add_unit('Army', 'France', 'Burgundy')
         self.game.add_unit('Fleet', 'Austria', 'Gascony')
         self.game.add_unit('Fleet', 'Italy', 'Spain (south coast)')
@@ -767,8 +773,8 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Gascony (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_D_30(self) :
-        with self.assertRaises(AssertionError) :
+    def test_6_D_30(self):
+        with self.assertRaises(bd.MapError):
             self.game.delete_unit('Constantinople')
             self.game.add_unit('Fleet', 'Austria', 'Aegean Sea')
             self.game.add_unit('Fleet', 'Austria', 'Constantinople')
@@ -780,7 +786,7 @@ class TestAdjudicator(unittest.TestCase) :
             self.game.order('Bulgaria S Black Sea - Constantinople')
             self.game.adjudicate()
 
-    def test_6_D_31(self) :
+    def test_6_D_31(self):
         self.game.delete_unit('Ankara')
         self.game.add_unit('Army', 'Austria', 'Rumania')
         self.game.add_unit('Fleet', 'Austria', 'Black Sea')
@@ -794,7 +800,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Ankara move to Armenia (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_D_32(self) :
+    def test_6_D_32(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('Edinburgh')
         self.game.delete_unit('London')
@@ -814,7 +820,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Austrian Army in Liverpool move to Yorkshire '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_D_33(self) :
+    def test_6_D_33(self):
         self.game.order('Paris move to Burgundy')
         self.game.order('Marseilles move to Burgundy')
         self.game.order('Munich supports Marseilles move to Burgundy')
@@ -822,13 +828,13 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Marseilles move to Burgundy (succeeds).',
                       self.game.order_archive[0])
 
-    def test_6_D_34(self) :
-        with self.assertRaises(gm.OrderInputError) :
+    def test_6_D_34(self):
+        with self.assertRaises(gm.OrderInputError):
             self.game.add_unit('Army', 'Austria', 'Burgundy')
-            self.game.order('Paris supports move from Burgundy to Paris')
+            self.game.order('Paris supports move Burgundy to Paris')
             self.game.adjudicate()
 
-    def test_6_E_1(self) :
+    def test_6_E_1(self):
         self.game.delete_unit('Munich')
         self.game.add_unit('Army', 'Germany', 'Silesia')
         self.game.add_unit('Army', 'Russia', 'Prussia')
@@ -844,7 +850,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('German Fleet in Kiel move to Berlin (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_E_2(self) :
+    def test_6_E_2(self):
         self.game.order('Berlin move to Kiel')
         self.game.order('Kiel move to Berlin')
         self.game.order('Munich supports move Berlin to Kiel')
@@ -854,7 +860,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('German Fleet in Kiel move to Berlin (fails).',
                       self.game.order_archive[0])
 
-    def test_6_E_3(self) :
+    def test_6_E_3(self):
         self.game.delete_unit('Kiel')
         self.game.add_unit('Fleet', 'Italy', 'Kiel')
         self.game.order('Berlin move to Kiel')
@@ -866,7 +872,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Italian Fleet in Kiel move to Berlin (fails).',
                       self.game.order_archive[0])
 
-    def test_6_E_4(self) :
+    def test_6_E_4(self):
         self.game.add_unit('Fleet', 'Austria', 'Holland')
         self.game.add_unit('Fleet', 'Austria', 'Heligoland Bight')
         self.game.add_unit('Fleet', 'Austria', 'Skagerrack')
@@ -901,7 +907,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in North Sea move to Holland (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_E_5(self) :
+    def test_6_E_5(self):
         self.game.add_unit('Fleet', 'Austria', 'Holland')
         self.game.add_unit('Fleet', 'Austria', 'Heligoland Bight')
         self.game.add_unit('Fleet', 'Austria', 'Skagerrack')
@@ -932,7 +938,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Austrian Fleet in Holland move to North Sea (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_E_6(self) :
+    def test_6_E_6(self):
         self.game.add_unit('Fleet', 'Austria', 'Holland')
         self.game.add_unit('Fleet', 'Austria', 'Heligoland Bight')
         self.game.add_unit('Fleet', 'France', 'North Sea')
@@ -956,7 +962,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Austrian Fleet in Holland move to North Sea (fails).',
                       self.game.order_archive[0])
 
-    def test_6_E_7(self) :
+    def test_6_E_7(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -981,7 +987,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Fleet in Norway move to North Sea (fails).',
                       self.game.order_archive[0])
 
-    def test_6_E_8(self) :
+    def test_6_E_8(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -1012,7 +1018,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Fleet in Norway move to North Sea (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_E_9(self) :
+    def test_6_E_9(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -1041,7 +1047,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Fleet in Norway move to North Sea (succeeds).',
                       self.game.order_archive[0])
 
-    def test_6_E_10(self) :
+    def test_6_E_10(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -1076,7 +1082,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Fleet in Norway move to North Sea (fails).',
                       self.game.order_archive[0])
 
-    def test_6_E_11(self) :
+    def test_6_E_11(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.add_unit('Army', 'France', 'Gascony')
@@ -1106,7 +1112,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Italian Fleet in Portugal move to Spain (north coast) '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_E_12(self) :
+    def test_6_E_12(self):
         self.game.delete_unit('Trieste')
         self.game.delete_unit('Vienna')
         self.game.add_unit('Army', 'Austria', 'Serbia')
@@ -1129,7 +1135,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Galicia move to Budapest (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_E_13(self) :
+    def test_6_E_13(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1162,7 +1168,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Fleet in Norwegian Sea move to North Sea '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_E_14(self) :
+    def test_6_E_14(self):
         self.game.delete_unit('Edinburgh')
         self.game.delete_unit('Warsaw')
         self.game.delete_unit('Saint Petersburg')
@@ -1176,7 +1182,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Fleet in Edinburgh move to Liverpool (fails).',
                       self.game.order_archive[0])
 
-    def test_6_E_15(self) :
+    def test_6_E_15(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -1218,8 +1224,8 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Prussia move to Berlin (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_F_1(self) :
-        with self.assertRaises(gm.OrderInputError) :
+    def test_6_F_1(self):
+        with self.assertRaises(gm.OrderInputError):
             self.game.delete_unit('Ankara')
             self.game.delete_unit('Constantinople')
             self.game.delete_unit('Smyrna')
@@ -1233,7 +1239,7 @@ class TestAdjudicator(unittest.TestCase) :
             self.game.order('Aegean Sea convoy Ankara move to Greece')
             self.game.adjudicate()
 
-    def test_6_F_2(self) :
+    def test_6_F_2(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Marseilles')
         self.game.delete_unit('Liverpool')
@@ -1250,7 +1256,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Brest (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_F_3(self) :
+    def test_6_F_3(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -1267,7 +1273,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Paris move to Brest (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_F_4(self) :
+    def test_6_F_4(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -1284,7 +1290,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Army in London move via convoy to Brest '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_F_5(self) :
+    def test_6_F_5(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1310,7 +1316,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Army in London move via convoy to Holland '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_F_6(self) :
+    def test_6_F_6(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1347,7 +1353,7 @@ class TestAdjudicator(unittest.TestCase) :
                       self.game.order_archive[0])
 
 
-    def test_6_F_7(self) :
+    def test_6_F_7(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -1368,7 +1374,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('The Fleet in North Sea retreats to Holland.', 
                       self.game.order_archive[1])
 
-    def test_6_F_8(self) :
+    def test_6_F_8(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -1389,7 +1395,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('German Army in Belgium move to Holland (succeeds).', 
                       self.game.order_archive[0])
 
-    def test_6_F_9(self) :
+    def test_6_F_9(self):
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
         self.game.add_unit('Fleet', 'France', 'Mid-Atlantic Ocean')
@@ -1408,7 +1414,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Army in London move via convoy to Belgium '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_F_10(self) :
+    def test_6_F_10(self):
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
         self.game.add_unit('Fleet', 'France', 'Mid-Atlantic Ocean')
@@ -1430,7 +1436,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Army in London move via convoy to Belgium '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_F_11(self) :
+    def test_6_F_11(self):
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
         self.game.add_unit('Fleet', 'France', 'Mid-Atlantic Ocean')
@@ -1452,7 +1458,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Army in London move via convoy to Belgium '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_F_12(self) :
+    def test_6_F_12(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1473,7 +1479,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Army in London move via convoy to Belgium '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_F_13(self) :
+    def test_6_F_13(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1497,7 +1503,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Army in London move via convoy to Belgium '
                       '(succeeds).', self.game.order_archive[0])
         
-    def test_6_F_14(self) :
+    def test_6_F_14(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1514,7 +1520,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Fleet in Wales move to English Channel '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_F_15(self) :
+    def test_6_F_15(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1542,7 +1548,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Italian Army in North Africa move via convoy to Wales '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_F_16(self) :
+    def test_6_F_16(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1570,7 +1576,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('German Fleet in Belgium move to English Channel '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_F_17(self) :
+    def test_6_F_17(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1600,7 +1606,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('German Fleet in Belgium move to English Channel '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_F_18(self) :
+    def test_6_F_18(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1628,7 +1634,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('German Fleet in Skagerrack move to North Sea (fails).',
                       self.game.order_archive[0])
 
-    def test_6_F_19(self) :
+    def test_6_F_19(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1644,12 +1650,12 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.order('Rome move to Tyrrhenian Sea')
         self.game.order('Naples supports Rome move to Tyrrhenian Sea')
         self.game.adjudicate()
-        self.assertIn('Italian Fleet in Naples supports the move from Rome '
+        self.assertIn('Italian Fleet in Naples supports the move Rome '
                       'to Tyrrhenian Sea (fails).', self.game.order_archive[0])
         self.assertIn('Italian Fleet in Rome move to Tyrrhenian Sea (fails).',
                       self.game.order_archive[0])
 
-    def test_6_F_20(self) :
+    def test_6_F_20(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1677,7 +1683,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Turkish Fleet in Eastern Mediterranean move to Ionian '
                       'Sea (succeeds).', self.game.order_archive[0])
 
-    def test_6_F_21(self) :
+    def test_6_F_21(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1706,7 +1712,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Fleet in Mid-Atlantic Ocean move to North '
                       'Atlantic Ocean (succeeds).', self.game.order_archive[0])
 
-    def test_6_F_22(self) :
+    def test_6_F_22(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1745,7 +1751,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Fleet in North Sea convoys Norway to Belgium '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_F_23(self) :
+    def test_6_F_23(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1790,7 +1796,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Norway move via convoy to Belgium '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_F_24(self) :
+    def test_6_F_24(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1825,7 +1831,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Norway move via convoy to Belgium '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_G_1(self) :
+    def test_6_G_1(self):
         self.game.add_unit('Fleet', 'England', 'Skagerrack')
         self.game.add_unit('Army', 'England', 'Norway')
         self.game.delete_unit('Saint Petersburg')
@@ -1840,7 +1846,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Sweden move to Norway (succeeds).',
                       self.game.order_archive[0])
 
-    def test_6_G_2(self) :
+    def test_6_G_2(self):
         self.game.add_unit('Fleet', 'England', 'Skagerrack')
         self.game.add_unit('Army', 'England', 'Norway')
         self.game.delete_unit('Saint Petersburg')
@@ -1855,7 +1861,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Sweden move to Norway (fails).', 
                       self.game.order_archive[0])
 
-    def test_6_G_3(self) :
+    def test_6_G_3(self):
         self.game.add_unit('Fleet', 'France', 'Mid-Atlantic Ocean')
         self.game.add_unit('Army', 'France', 'Picardy')
         self.game.add_unit('Army', 'France', 'Burgundy')
@@ -1872,7 +1878,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Picardy move to Belgium (succeeds).',
                       self.game.order_archive[0])
 
-    def test_6_G_4(self) :
+    def test_6_G_4(self):
         self.game.add_unit('Fleet', 'France', 'Mid-Atlantic Ocean')
         self.game.add_unit('Army', 'France', 'Picardy')
         self.game.add_unit('Army', 'France', 'Burgundy')
@@ -1891,7 +1897,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Picardy move to Belgium (succeeds).',
                       self.game.order_archive[0])
 
-    def test_6_G_5(self) :
+    def test_6_G_5(self):
         self.game.delete_unit('Naples')
         self.game.delete_unit('Rome')
         self.game.delete_unit('Venice')
@@ -1912,7 +1918,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Turkish Army in Apulia move via convoy to Rome '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_G_6(self) :
+    def test_6_G_6(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1945,7 +1951,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('German Army in Edinburgh move to Liverpool (succeeds).',
                       self.game.order_archive[0])
 
-    def test_6_G_7(self) :
+    def test_6_G_7(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -1967,7 +1973,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Sweden move via convoy to Norway '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_G_8(self) :
+    def test_6_G_8(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -1984,7 +1990,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('French Army in Belgium move via convoy to Holland '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_G_10(self) :
+    def test_6_G_10(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -2020,7 +2026,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Sweden move to Norway (fails).',
                       self.game.order_archive[0])
 
-    def test_6_G_11(self) :
+    def test_6_G_11(self):
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
         self.game.add_unit('Fleet', 'England', 'North Sea')
@@ -2043,7 +2049,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Fleet in Skagerrack convoys Sweden to Norway '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_G_12(self) :
+    def test_6_G_12(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -2070,7 +2076,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('German Army in Edinburgh move via convoy to Liverpool '
                       '(succeeds).', self.game.order_archive[0])
 
-    def test_6_G_13(self) :
+    def test_6_G_13(self):
         self.game.delete_unit('Trieste')
         self.game.delete_unit('Vienna')
         self.game.delete_unit('Budapest')
@@ -2086,10 +2092,10 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.order('Albania move to Trieste')
         self.game.order('Venice supports Albania move to Trieste')
         self.game.adjudicate()
-        self.assertIn('Italian Army in Venice supports the move from Albania '
+        self.assertIn('Italian Army in Venice supports the move Albania '
                       'to Trieste (succeeds).', self.game.order_archive[0])
 
-    def test_6_G_14(self) :
+    def test_6_G_14(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -2127,7 +2133,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('Russian Army in Sweden move via convoy to Norway '
                       '(fails).', self.game.order_archive[0])
 
-    def test_6_G_15(self) :
+    def test_6_G_15(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -2154,7 +2160,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Army in Yorkshire move to London (fails).',
                       self.game.order_archive[0])
 
-    def test_6_G_16(self) :
+    def test_6_G_16(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -2180,7 +2186,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Fleet in North Sea move to Norway (fails).',
                       self.game.order_archive[0])
         
-    def test_6_G_17(self) :
+    def test_6_G_17(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -2205,7 +2211,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Fleet in North Sea move to Norway (fails).',
                       self.game.order_archive[0])
 
-    def test_6_G_18(self) :
+    def test_6_G_18(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -2232,7 +2238,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('English Army in Yorkshire move to London (fails).',
                       self.game.order_archive[0])
 
-    def test_6_H_5(self) :
+    def test_6_H_5(self):
         self.game.delete_unit('Moscow')
         self.game.delete_unit('Warsaw')
         self.game.delete_unit('Saint Petersburg')
@@ -2249,10 +2255,10 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.game.order('Black Sea retreats to Ankara')   
         self.game.adjudicate()
-        self.assertIn('The Fleet in Black Sea disbands.', 
+        self.assertIn('The Fleet in Black Sea retreats to Ankara (fails).', 
                       self.game.order_archive[1])
 
-    def test_6_H_6(self) :
+    def test_6_H_6(self):
         self.game.delete_unit('Trieste')
         self.game.delete_unit('Vienna')
         self.game.delete_unit('Budapest')
@@ -2275,10 +2281,10 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.game.order('Vienna retreats to Bohemia')
         self.game.adjudicate()
-        self.assertIn('The Army in Vienna disbands.', 
+        self.assertIn('The Army in Vienna retreats to Bohemia (fails).', 
                       self.game.order_archive[1])
 
-    def test_6_H_7(self) :
+    def test_6_H_7(self):
         self.game.delete_unit('Trieste')
         self.game.delete_unit('Vienna')
         self.game.delete_unit('Budapest')
@@ -2304,12 +2310,12 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.order('Vienna retreats to Tyrolia')
         self.game.order('Bohemia retreats to Tyrolia')
         self.game.adjudicate()
-        self.assertIn('The Army in Vienna disbands.', 
+        self.assertIn('The Army in Vienna retreats to Tyrolia (fails).', 
                       self.game.order_archive[1])
-        self.assertIn('The Army in Bohemia disbands.', 
+        self.assertIn('The Army in Bohemia retreats to Tyrolia (fails).', 
                       self.game.order_archive[1])
 
-    def test_6_H_8(self) :
+    def test_6_H_8(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -2343,14 +2349,14 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.order('Edinburgh retreats to North Sea')
         self.game.order('Holland move to North Sea')
         self.game.adjudicate()
-        self.assertIn('The Fleet in Norway disbands.',
+        self.assertIn('The Fleet in Norway retreats to North Sea (fails).',
                       self.game.order_archive[1])
-        self.assertIn('The Fleet in Edinburgh disbands.', 
+        self.assertIn('The Fleet in Edinburgh retreats to North Sea (fails).', 
                       self.game.order_archive[1])
-        self.assertIn('The Fleet in Holland disbands.', 
+        self.assertIn('The Fleet in Holland retreats to North Sea (fails).', 
                       self.game.order_archive[1])
 
-    def test_6_H_9(self) :
+    def test_6_H_9(self):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
@@ -2379,7 +2385,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('The Fleet in Kiel retreats to Berlin.', 
                       self.game.order_archive[1])
 
-    def test_6_H_10(self) :
+    def test_6_H_10(self):
         self.game.delete_unit('Berlin')
         self.game.delete_unit('Kiel')
         self.game.delete_unit('Munich')
@@ -2407,9 +2413,10 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.assertIn('The Army in Prussia retreats to Berlin.', 
                       self.game.order_archive[1])
-        self.assertIn('The Army in Kiel disbands.', self.game.order_archive[1])
+        self.assertIn('The Army in Kiel retreats to Berlin (fails).',
+                      self.game.order_archive[1])
 
-    def test_6_H_11(self) :
+    def test_6_H_11(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -2433,7 +2440,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('The Army in Marseilles retreats to Gascony.', 
                       self.game.order_archive[1])
 
-    def test_6_H_12(self) :
+    def test_6_H_12(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -2468,7 +2475,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertIn('The Army in Liverpool retreats to Edinburgh.',
                       self.game.order_archive[1])
 
-    def test_6_H_15(self) :
+    def test_6_H_15(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -2484,10 +2491,10 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.game.order('Portugal retreats to Spain (north coast)')
         self.game.adjudicate()
-        self.assertIn('The Fleet in Portugal disbands.', 
-                      self.game.order_archive[1])
+        self.assertIn(('The Fleet in Portugal retreats to Spain (north coast)'
+                       ' (fails).'), self.game.order_archive[1])
 
-    def test_6_H_16(self) :
+    def test_6_H_16(self):
         self.game.delete_unit('Brest')
         self.game.delete_unit('Paris')
         self.game.delete_unit('Marseilles')
@@ -2506,11 +2513,11 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.game.order('WMS retreats to Spain (south coast)')
         self.game.adjudicate()
-        self.assertIn('The Fleet in Western Mediterranean disbands.', 
-                      self.game.order_archive[1])
+        self.assertIn(('The Fleet in Western Mediterranean retreats to Spain '
+                       '(south coast) (fails).'), self.game.order_archive[1])
 
-    def test_6_I_2(self) :
-        with self.assertRaises(gm.GameError) :
+    def test_6_I_2(self):
+        with self.assertRaises(gm.GameError):
             self.game.delete_unit('Moscow')
             self.game.delete_unit('Warsaw')
             self.game.adjudicate()
@@ -2520,7 +2527,7 @@ class TestAdjudicator(unittest.TestCase) :
             self.assertIn('The Fleet in Western Mediterranean disbands.',
                           self.game.order_archive[1])
 
-    def test_6_I_3(self) :
+    def test_6_I_3(self):
         self.game.delete_unit('Moscow')
         self.game.adjudicate()
         self.game.adjudicate()
@@ -2528,7 +2535,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.assertEqual(len(self.game.units), 21)
 
-    def test_6_I_4(self) :
+    def test_6_I_4(self):
         self.game.delete_unit('Moscow')
         self.game.adjudicate()
         self.game.adjudicate()
@@ -2536,7 +2543,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.assertEqual(len(self.game.units), 21)
 
-    def test_6_I_5(self) :
+    def test_6_I_5(self):
         self.game.delete_unit('Berlin')
         self.game.delete_unit('Munich')
         self.game.add_unit('Fleet', 'Russia', 'Baltic Sea')
@@ -2551,7 +2558,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.assertEqual(len(self.game.units), 21)
         
-    def test_6_I_6(self) :
+    def test_6_I_6(self):
         self.game.delete_unit('Berlin')
         self.game.delete_unit('Sevastopol')
         self.game.delete_unit('Saint Petersburg')
@@ -2567,7 +2574,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.assertEqual(len(self.game.units), 20)
         
-    def test_6_I_7(self) :
+    def test_6_I_7(self):
         self.game.delete_unit('Warsaw')
         self.game.delete_unit('Sevastopol')
         self.game.adjudicate()

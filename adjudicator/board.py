@@ -437,7 +437,7 @@ class Map:
         return [location for location in self.locations
                 if location.province is province]
 
-    def locate(self, force, name, origin=None, specifier=None):
+    def locate(self, force, name, origin=None, specifier=None, either=False):
         """ Returns a location identified by partial data.
 
         Parameters
@@ -465,9 +465,10 @@ class Map:
         if len(locations) >= 2 and specifier is not None:
             locations = [location for location in locations
                          if location.name == name + ' ' + specifier]
-        assert len(locations) < 2, ('There are at least two locations in '
-                                    f'{name} matching the given criteria.')
-        if len(locations) == 1:
+        if len(locations) > 1 and not either:
+            raise MapError(f'There are at least two locations in {name} '
+                           'matching the given criteria.')
+        if len(locations) > 0:
             return locations[0]
         else:
             return None  # Signals that there is no available location.

@@ -14,13 +14,12 @@ Methods which are not tested here, but tested by test_adjudicator_DATC
     game.__resolve_orders__()
     game.__resolve_paradoxes__()
     game.__resolve_circular_movement__()
-    game.__resolve_retreats__()
     game.__execute_diplomacy__()
-    game.__execute_retreats__()
     game.__setup_diplomacy__()
     game.__setup_retreats__()
     game.__setup_builds__()
     game.adjudicate()
+
 """
 
 # =============================================================================
@@ -104,15 +103,17 @@ class TestAdjudicator(unittest.TestCase) :
         string = ("RPS\nRPS\n['Conakry', 'Monrovia', 'Freetown']\n['Conakry', "
                   "'Monrovia', 'Freetown']\n"
                   "-   move\nS   support\nC   convoy\nH   hold\nB   build\n"
-                  "D   disband\nR   retreat\nA   army\nF   fleet\n"
-                  "Con Conakry\nMon Monrovia\nFre Fre"
+                  "D   disband\nR   retreat\nA   army\nF   fleet\nSt   Saint\n"
+                  "destroy   disband\nCon Conakry\nMon Monrovia\nFre Fre"
                   "etown\n")
         self.assertEqual(capturedOutput.getvalue(), string)
 
     def test_current_position(self):
         dcnry = {'Conakry': 'Guinea Army', 'Conakry_sc': 'Guinea',
                  'Monrovia': 'Liberia Army', 'Monrovia_sc': 'Liberia',
-                 'phase': 'Diplomacy', 'season': 'Spring', 'winner': None}
+                 'phase': 'Diplomacy', 'season': 'Spring',
+                 'GuineaCenters': 1, 'GuineaUnits': 1, 'LiberiaCenters': 1,
+                 'LiberiaUnits': 1,}
         answer = self.gameRPS.current_position()
         self.assertEqual(answer, dcnry)
 
@@ -156,7 +157,9 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertEqual(home,['Conakry'])
         dcnry = {'Conakry': 'Guinea Army', 'Conakry_sc': 'Guinea',
                  'Monrovia': 'Liberia Army', 'Monrovia_sc': 'Liberia',
-                 'phase': 'Diplomacy', 'season': 'Spring', 'winner': None}
+                 'phase': 'Diplomacy', 'season': 'Spring',
+                 'GuineaCenters': 1, 'GuineaUnits': 1, 'LiberiaCenters': 1,
+                 'LiberiaUnits': 1}
         self.assertEqual(game.position_archive[0], dcnry)
 
     def test_reset(self):
@@ -365,7 +368,7 @@ class TestAdjudicator(unittest.TestCase) :
                       order)
         self.assertIn('German Fleet in Gulf of Lyon convoys Marseilles to Tusc'
                       'any [unresolved].', order)
-        self.assertIn('French Army in Marseilles supports the move from Paris '
+        self.assertIn('French Army in Marseilles supports the move Paris '
                       'to Burgundy [unresolved].', order)
 
     def test___format_move__(self):
@@ -387,6 +390,15 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertEqual(type(answer.object_order), od.Hold)
         self.assertEqual(answer.object_order.unit.province.name, 'Budapest')
 
+    def test___format_support__implicit_(self):
+        self.game.add_unit('Fleet', 'France', 'Mid-Atlantic Ocean')
+        self.game.add_unit('Fleet', 'France', 'Portugal')
+        self.game.add_unit('Army', 'Germany', 'Spain')
+        self.game.order(['F MAO - Spa (s)', 'F Por S F MAO - Spa'])
+        self.game.adjudicate()
+        self.assertEqual(len(self.game.orders), 1)
+        self.assertTrue(isinstance(self.game.orders[0], od.Retreat))
+
     def test___format_convoy__(self):
         self.game.add_unit('Fleet', 'France', 'English Channel')
         text = 'english channel convoys paris move to moscow'
@@ -402,7 +414,7 @@ class TestAdjudicator(unittest.TestCase) :
         order = 'English Fleet in London holds [unresolved].'
         self.game.__input_diplomacy__('fleet london hold')
         self.assertIn(order, [order.__str__() for order in self.game.orders])
-        order = ('French Army in Marseilles supports the move from Paris to'
+        order = ('French Army in Marseilles supports the move Paris to'
                  ' Burgundy [unresolved].')
         self.game.__input_diplomacy__('army marseilles supports paris move '
                                       'burgundy')
@@ -453,6 +465,24 @@ class TestAdjudicator(unittest.TestCase) :
         order = self.game.orders[0].__str__()
         self.assertEqual(order, 'German build no. 1  is Army in Berlin.')
 
+    def test__resolve_retreats__(self):
+        self.game.order('A Mun - Bur')
+        self.game.order('A War - Sil')        
+        self.game.order('A Vie - Boh')  
+        self.game.order('A Bud - Gal')  
+        self.game.adjudicate()
+        self.game.order('A Par - Bur')
+        self.game.order('A Mar S A Par - Bur')
+        self.game.order('A Gal - Sil')
+        self.game.order('A Boh S A Gal - Sil')
+        self.game.adjudicate()
+        self.game.order('A Bur - Mun')
+        self.game.order('A Sil - Mun')
+        self.game.__resolve_retreats__()
+        orders = [order.__str__() for order in self.game.orders]
+        self.assertIn('The Army in Burgundy retreats to Munich (fails).', orders)
+        self.assertIn('The Army in Silesia retreats to Munich (fails).', orders)
+
     def test___execute_builds__(self):
         self.game.delete_unit('Berlin')
         self.game.adjudicate()
@@ -461,16 +491,32 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.__resolve_builds__()
         self.game.__execute_builds__()
         self.assertEqual(len(self.game.units), 22)
-        
-    def conclude(self):
-        self.game.conclude()
+    
+    def test__execute_retreats__(self):
+        self.game.order('A Mun - Bur')
+        self.game.order('A War - Sil')        
+        self.game.order('A Vie - Boh')  
+        self.game.order('A Bud - Gal')  
+        self.game.adjudicate()
+        self.game.order('A Par - Bur')
+        self.game.order('A Mar S A Par - Bur')
+        self.game.order('A Gal - Sil')
+        self.game.order('A Boh S A Gal - Sil')
+        self.game.adjudicate()
+        self.game.order('A Bur - Mun')
+        self.game.order('A Sil - Mun')
+        self.game.__resolve_retreats__()
+        self.game.__execute_retreats__()
+        self.assertEqual(len(self.game.units), 20)
+    
+    def test_conclude(self):
+        self.game.conclude(True)
         self.assertIsNone(self.game.winner)
         russia = self.game.instance('Russia', vr.Power)
         self.game.supply_centers[russia] = range(18)
-        self.game.conclude()
-        self.assertEqual(self.game.winner, russia)        
-        
-        
+        self.game.conclude(True)
+        self.assertEqual(self.game.winner, russia)      
+
 if __name__ == '__main__':
     unittest.main()
         

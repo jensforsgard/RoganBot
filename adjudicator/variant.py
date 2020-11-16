@@ -161,7 +161,7 @@ class Variant:
     """
 
     def __init__(self, name):
-        """ The constructor for the Positions_DB class.
+        """ The constructor for the Variant class.
 
         Parameters:
         -----------

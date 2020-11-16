@@ -23,4 +23,4 @@ The adjudication is treated as a dynamic process where partial information of or
 
 Paradoxes are resolved by marking all non-resolved moves via convoy as not cutting nor dislodging (i.e., the Szykman rule). Circular movement is resolved by marking all remaining moves as successful. Paradoxes must be resolved before circular movement, because a paradox can have a 'tail' of move orders depending on it, which is not circular and which are not part of the paradox, but whose resolution depends on the resolution of the paradox. A circular movement cannot have such a tail.
 
-The algorithm is currently not optimized. However, it is fast.# RoganBot
+The algorithm is currently not optimized. However, it is fast.

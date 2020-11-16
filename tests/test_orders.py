@@ -27,7 +27,6 @@ the test_adjudicator_DATC module:
     od.Convoy.__legalize__()
     od.Convoy.__resolve_dislodged__()
     od.Convoy.resolve()
-    od.Retreat.resolve()
     od.Disband.invalid_action()
     od.Build.invalid_action()
     
@@ -234,6 +233,58 @@ class TestOrders(unittest.TestCase):
         order3 = self.game.order_of(self.game.unit_in('Constantinople'))
         self.assertTrue(order3.__supports_attack_on_self__(order1))
         self.assertFalse(order3.__supports_attack_on_self__(order2))
-    
+
+    # =========================================================================
+    # The Retreat Class
+    # =========================================================================
+
+    def test_resolve(self):
+        self.game.delete_unit('Venice')
+        self.game.delete_unit('Naples')
+        self.game.add_unit('Fleet', 'Austria', 'Tyrrhenian Sea')
+        self.game.add_unit('Army', 'Austria', 'Venice')
+        self.game.add_unit('Army', 'France', 'Apulia')
+        self.game.add_unit('Fleet', 'France', 'Western Mediterranean')
+        self.game.add_unit('Fleet', 'France', 'Tunis')
+        self.game.order(['A Ven - Apu', 'A Rom S A Ven - Apu'])
+        self.game.order(['F WMS - TYS', 'F Tun S F WMS - TYS'])
+        self.game.adjudicate()
+        self.game.order(['F TYS - Nap', 'A Apu - Nap'])
+        self.game.adjudicate()
+        self.assertEqual(len(self.game.units), 24)
+
+    # =========================================================================
+    # Adjudicator scenarios tests
+    # =========================================================================
+
+    def test_bounced_when_opposed(self):
+        self.game.delete_unit('Rome')
+        self.game.delete_unit('Venice')
+        self.game.add_unit('Army', 'Austria', 'Tyrolia')
+        self.game.add_unit('Army', 'Austria', 'Venice')
+        self.game.add_unit('Army', 'France', 'Rome')
+        self.game.add_unit('Army', 'France', 'Piedmont')
+        self.game.order(['A Rom - Ven', 'A Pie S A Rom - Ven'])
+        self.game.order(['A Ven - Rom', 'F Tri - Ven', 'A Tyr S F Tri - Ven'])
+        self.game.adjudicate()
+        self.assertEqual(self.game.season.name, 'Fall')
+        self.assertEqual(self.game.season.phase, 'Diplomacy')
+
+    def test_no_self_dislodgent_after_bounced(self):
+        self.game.delete_unit('Saint Petersburg')
+        self.game.add_unit('Army', 'Russia', 'Saint Petersburg')
+        self.game.add_unit('Fleet', 'France', 'Norway')
+        self.game.add_unit('Fleet', 'France', 'Sweden')
+        self.game.order(['A Nwy S A Mos - StP', 'A Swe - Fin'])
+        self.game.order(['A StP - Fin', 'A Mos - StP'])
+        self.game.adjudicate()
+        self.assertEqual(self.game.season.name, 'Fall')
+        self.assertEqual(self.game.season.phase, 'Diplomacy')
+
+
+    # =========================================================================
+    # Test the Retreat class
+    # =========================================================================
+
 if __name__ == '__main__':
     unittest.main()
