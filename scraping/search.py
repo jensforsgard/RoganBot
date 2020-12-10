@@ -75,9 +75,11 @@ def get_results(html, powers):
     for k in db_numeric:
         preliminary.insert(k, 'Drawn')
     # Extract results; the entries preceeding numerical entries
+
     results = [preliminary[k-1] for k,x in enumerate(preliminary) 
                if x.isnumeric()]
-    return chunks(results, len(powers))
+    supplies = [int(x) for x in preliminary if x.isnumeric()]
+    return chunks(results, len(powers)), chunks(supplies, len(powers))
 
 
 def get_powers(html, powers):
@@ -140,7 +142,7 @@ def get_phases(html):
     return [string.replace(' /phase', '') for string in answer]
 
 
-def get_dates(html ):
+def get_dates(html):
     """ Retrieves the list of IRL end times for the games from a search page,
     in order of appearance
     
@@ -148,6 +150,31 @@ def get_dates(html ):
     return [x.get('unixtime') for x in html.find_all('span')
             if x.get('unixtime') is not None]
 
+
+def is_scoring_system(string):
+    """ Returns True if the string is a scoring system.
+    
+    """
+    return string in ['Draw-Size Scoring', 'Unranked',
+                      'Sum-of-Squares Scoring', 'Survivors-Win Scoring',
+                      'PPSC', 'WTA']
+
+def get_scoring_system(html):
+    """ Retrieves the scoring system.
+    
+    """
+    dctnry = {'Draw-Size Scoring': 'DSS', 
+              'Unranked': 'Unranked',
+              'Sum-of-Squares Scoring': 'SoS',
+              'Survivors-Win Scoring': 'PPSC',
+              'PPSC': 'PPSC',
+              'WTA': 'DSS'}
+    lines = [re.sub(re.compile('<.*?>'), '', str(span))
+            for span in html.find_all('span')
+            if str(span).startswith('<span class="gamePotType">')]
+    return [next((dctnry[x] for x in line.split(', ') if is_scoring_system(x)),
+                 '')
+            for line in lines]
 
 # =============================================================================
 # Functions to scrape lists of games form search page.
@@ -175,7 +202,7 @@ def integers(string):
 
 
 def game_dcnry(variant, info, game_php, users, powers, pot, results, turn,
-               phase, date, page):
+               phase, date, supplies, system, page):
     """ Returns a dictionary, which may be inserted into the opening analysis
     dataframe, out of the data representing a game.
 
@@ -188,10 +215,13 @@ def game_dcnry(variant, info, game_php, users, powers, pot, results, turn,
     if ignored_user(user_ids, ignored):
         return None
     dictionary = {'GameID': game_id, 'Page': page, 'Discarded': False, 
-                  'Pot': pot, 'Turn': turn, 'Phase': phase, 'Date': date}
+                  'Pot': pot, 'Turn': turn, 'Phase': phase, 'Date': date,
+                  'ScoringSystem': system}
     # Add entries for scores
     dictionary.update(dict(zip([f'{power}Score' for power in powers],
                                results)))
+    dictionary.update(dict(zip([f'{power}Centers' for power in powers],
+                               supplies)))
     # Add entrie for user id's
     dictionary.update(dict(zip([f'{power}User' for power in powers],
                                user_ids[:len(powers)])))
@@ -236,17 +266,19 @@ def search_page(variant, k, webpage, info):
     html = BeautifulSoup(search.content, 'html.parser')
     # Retrieve the relevant information
     games, players = get_games_players(html)
-    results = get_results(html, powers)
+    results, supplies = get_results(html, powers)
     powers = get_powers(html, powers)
     pots = get_pots(html)
     turns = get_turns(html)
     phases = get_phases(html)
     dates = get_dates(html)
+    system = get_scoring_system(html)
     # Retrieve the entries as dictionaries
     dictionaries = []
     for k, game in enumerate(games):
         dcnry = game_dcnry(variant, info, game, players[k], powers[k], pots[k],
-                           results[k], turns[k], phases[k], dates[k], webpage)
+                           results[k], turns[k], phases[k], dates[k], 
+                           supplies[k], system[k], webpage)
         if dcnry is not None:
             dictionaries.append(dcnry)
     return dictionaries

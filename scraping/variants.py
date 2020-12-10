@@ -31,10 +31,10 @@ def dataset_columns(powers, seasons):
     """    
     # Common columns
     columns = ['GameID', 'Pot', 'Page', 'Discarded', 'Phase', 'Turn', 'Date',
-               'Manual']
+               'Manual', 'ScoringSystem']
     # Power dependent columns
     columns.extend([power + suff for power in powers 
-                    for suff in ['Score', 'User']])
+                    for suff in ['Score', 'User', 'Centers']])
     # Power and season dependent columns
     columns.extend([power + midfix + str(k+1) for power in powers 
                     for midfix in ['S', 'RS', 'A', 'RA', 'W'] 
