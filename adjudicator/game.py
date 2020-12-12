@@ -1,213 +1,115 @@
 #!/usr/bin/env python3
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
+"""
+@author: jensforsgard
+"""
 
-# =============================================================================
-# Imports
-# =============================================================================
 
-import adjudicator.orders as od
-import adjudicator.variant as vr
-import adjudicator.board as bd
-import re
-import geopandas as geo
 import os
+
+import geopandas as geo
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon
 
 
-# =============================================================================
-# Functions
-# =============================================================================
-
-def appearances(objects, string, first=False, require=0, label=True):
-    """ Returns the appearances of objects in a string.  By default, the output
-    is a list of dictionaries with keys 'entry' and 'position', sorted by
-    positions. If the 'label' flag is turned off, the output is a list of all
-    appearances, sorted by order of appearance. If the first flag is turned on,
-    the output includes only the first appearance of _each_ object. A required
-    number of total appearances might be requested, in which case the function
-    will throw an OrderInputError if the requirement is not met.
-
-    Parameters
-    ----------
-    objects: list
-        List of objects of some class.
-    string: string
-    first: boolean, optional
-        Whether to return first isntances or all instances.
-        The default is False.
-    require: integer, optional
-        The number of required instances.
-    label: boolena, optional
-        Whether to return a dictionary with instances and positions, or a
-        list of instances ordered by positions.
-
-    Raises
-    ------
-    OrderInputError
-        If there is fewer entries than the required number.
-
-    Returns
-    -------
-    answer: dictionary or list.
-
-    """
-    answer = []
-    for entity in objects:
-        try:  # Retrieve the name of the object if possible.
-            word = entity.name.lower()
-        except AttributeError:
-            word = str(entity).lower()
-        if first:
-            postns = [string.lower().find(word)]
-        else:
-            postns = [obj.start() for obj in re.finditer(word, string.lower())]
-        answer = answer + [{'entry': entity, 'position': entry} 
-                           for entry in postns]
-    # Must sort before we can discard the 'position' value
-    answer = [ans for ans in answer if ans['position'] > -1]
-    if len(answer) < require:
-        raise OrderInputError(f'Could not find the required number ({require})'
-                              f' of objects in the string {string}.')
-    answer.sort(key=lambda entry: entry['position'])
-    if not label:
-        answer = [position['entry'] for position in answer]
-    return answer
+import adjudicator.orders as od
+import adjudicator.variant as vr
+import adjudicator.board as bd
+from adjudicator.auxiliary import *
+from adjudicator.errors import *
 
 
-def translate(lst, dictionary):
-    """ Translates words in a list according to a dictionary; words not
-    appearing in the dictionary are left unalteret.    
 
-    """
-    for k, string in enumerate(lst):
-        try:
-            lst[k] = dictionary[string]
-        except KeyError:
-            pass
-    return lst
-    
-
-def first(list_or_none):
-    """ Retrieves the first entry of a list; returns None if the list is
-    empty or if the input is not iterable.
-
-    """
-    try:
-        return list_or_none[0]
-    except (TypeError, IndexError):
-        return None
-
-
-# =============================================================================
-# Error classes
-# =============================================================================
-
-class AdjudicationError(Exception):
-
-    def __init__(self, message):
-        self.message = message
-
-
-class GameError(Exception):
-
-    def __init__(self, message):
-        self.message = message
-
-
-class OrderInputError(Exception):
-
-    def __init__(self, message):
-        self.message = message
-
-
-# =============================================================================
-# Game Class
-# =============================================================================
 
 class Game:
     """ A game of Diplomacy.
 
+    This monster class holds all information of a game, including the graphical
+    elements to draw a map. In addition, it holds all methods which govern
+    adjudicating the game.
+
     Attributes:
-        page : string or None
-            Name of the webpage hosting the game, None if no host
-        identifier : string or None
-            Identifier of the game at the host webpage, None if no page.
-        variant : Variant
-            The variant of the game.
-        season : Season
-            The current season of the game.
-        powers : list of Powers
-            List of the powers playing in the game.
-        forces : list of Forces
-            List of forces included in the game.
-        units : list of Units
-            List of current units in the game.
-        provinces : list of Provinces
-            List of provinces of the map.
-        home_centers : dictionary
-            Dictionary whose keys are the powers and whose values are lists of
-            provinces making out the home centers of the power in question.
-        supply_centers : dictionary
-            Dictionary whose keys are the powers and whose values are lists of
-            provinces making out the currently owned supply centers of the
-            power in question.
-        orders : list of orders
+        page: string or None
+            Name of host of the game.
+        identifier: string or None
+            Unique identifier of the game.
+        variant: Variant
+        season: Season
+        powers: list of Powers
+            The powers playing in the game.
+        forces: list of Forces
+            The forces included in the game.
+        units: list of Units
+            The current units in the game.
+        provinces: list of Provinces
+            The provinces of the map.
+        home_centers: dictionary
+            Dictionary encoding the home centers of each power.
+        supply_centers: dictionary
+            Dictionary encoding the currently owned centers of each power.
+        orders: list of orders
             List of orders for the units in the game in the current phase.
-        winner : Power or None
+        winner: Power or None
             The winner of the game, or None if no winner has been determined.
-        position_archive : list
+        position_archive: list
             List of all previous positions that occured in the game.
-        order_archive : list
-            List of all final order sets submitted to the game for each phase.
-        graphics : geopandas GeoDataFrame
+        order_archive: list
+            List of all order sets submitted each phase.
+        graphics: geopandas GeoDataFrame
             graphical information to plot the game
-        shift : float
+        shift: float
             The shift in position applied in various plotting features. Depends
             on the projection of the map.
 
     """
 
+
+    # Custom short forms, which are map and variant independent.
     orders_dict = {'-': 'move', 'S': 'support', 'C': 'convoy', 'H': 'hold',
                    'B': 'build', 'D': 'disband', 'R': 'retreat',
                    'A': 'army', 'F': 'fleet', 'St': 'Saint', 
                    'destroy': 'disband'}
 
+
     def __init__(self, variant_name, page=None, identifier=None):
-        """ The constructor for the game class.
+        """ Constructor.
 
         Parameters
         ----------
-        variant_name : string
-            The name of the variant to be played.
-        page : string, optional
-            The name of the webpage where the game is/was played.
-        identifier : string, optional
-            The identifier of the game at the webpage.
+        variant_name: string
+        page: string, optional
+            The name of host of the game.
+        identifier: string, optional
+            The unique identifier of the game.
 
         """
         self.page = page
         self.identifier = identifier
+
         self.variant = vr.Variant(variant_name)
         self.variant.load()
         self.season = bd.Season('Spring', 'Pregame',
                                 self.variant.starting_year)
+
+        # Immutablew 
         self.powers = self.variant.powers
         self.forces = self.variant.map.forces
-        self.units = []
         self.provinces = self.variant.map.provinces
-        self.home_centers = {}  # These will be loaded once the game begins
+
+        # Mutables; will be loaded once the game begins
+        self.units = []
+        self.home_centers = {}
         self.supply_centers = {}
         self.orders = []
         self.winner = None
         self.position_archive = []
         self.order_archive = []
+        
+        # Graphic objects; will be loaded if needed
         self.graphics = None
         self.shift = None
 
-    # =========================================================================
-    # Methods to print and archive information
-    # =========================================================================
+
 
     def __str__(self):
         """ Print method.
@@ -217,6 +119,8 @@ class Game:
                 f'Game map: {self.variant.map.name}.\n'
                 f'Season: {self.season.__str__()}')
 
+
+
     def info(self, string='units', number=-1):
         """ Print method.
 
@@ -224,63 +128,76 @@ class Game:
         options = ['abbreviations', 'archive', 'center counts', 'centers', 
                    'map', 'units', 'variant', 'orders', 'options', 'position',
                    'provinces', 'season', 'supply centers']
+
         if string not in options:
             print('Option not recognized.')
             return
+
         elif string == 'options':
             print(options)
+
         elif string == 'variant':
             print(self.variant)
+
         elif string == 'map':
             print(self.variant.map)
+
         elif string == 'season':
             print(self.season)
+
         elif string == 'position':
             self.show()
+
         elif string == 'abbreviations':
             for key in self.orders_dict.keys():
                 print(f'{key}   {self.orders_dict[key]}')
             self.variant.map.display('abbreviations')
+
         elif string in ['provinces', 'supply centers']:
             self.variant.map.display(string)
+
         elif self.season.phase == 'Pregame':
             raise GameError('Display option not available in Pregame phase.')
+
         elif string == 'centers':
             for power in self.powers:
                 provinces = [prov.name for prov in self.supply_centers[power]]
                 print(f'{power.name}: {provinces}')
+
         elif string == 'center counts':
             print({power.name: len(self.supply_centers[power]) 
                    for power in self.powers})
+
         elif string in ['units', 'orders']:
             self.__sort_units__()
             self.__sort_orders__()
             objects = getattr(self, string)
             for obj in objects:
                 print(obj)
+
         elif string == 'archive':
             for entry in self.order_archive[number]:
                 print(entry)
+
 
 
     def current_position(self):
         """ Returns a dictionary with a copy of the game's current position.
 
         """
-        dcnry = {'season': self.season.name, 'phase': self.season.phase}
-        units = {unit.location.name: f'{unit.owner.name} {unit.force.name}'
-                 for unit in self.units}
-        dcnry.update(units)
-        n_units = {f'{power.name}Units': len(self.units_of(power)) 
-                   for power in self.powers}
-        dcnry.update(n_units)
-        for power in self.powers:
-            dcnry.update({prov.name + '_sc': power.name
-                          for prov in self.supply_centers[power]})
-        n_centers = {f'{power.name}Centers': len(self.supply_centers[power])
-                     for power in self.powers}
-        dcnry.update(n_centers)
+        dcnry = {'season': self.season.name,
+                 'phase': self.season.phase,
+                 'year': self.season.year,
+                 'units': [{'owner': unit.owner.name,
+                            'force': unit.force.name,
+                            'location': unit.location.id}
+                           for unit in self.units],
+                 'centers': {power.name: [province.name for province in
+                                          self.supply_centers[power]]
+                             for power in self.powers}}
         return dcnry
+
+
 
     def __archive_position__(self):
         """ Archives the current position.
@@ -288,13 +205,16 @@ class Game:
         """
         self.position_archive.append(self.current_position())
 
+
+
     def __archive_orders__(self):
         """ Archives the current set of orders.
 
         """
         self.__sort_orders__()
-        entry = [str(order) for order in self.orders]
-        self.order_archive.append(entry.copy())
+        self.order_archive.append([str(order) for order in self.orders].copy())
+
+
 
     def __unit_color__(self, power):
         """ Returns the color the unit should be given when plotted.
@@ -302,50 +222,63 @@ class Game:
         """
         return self.variant.unit_colors[power.name]
 
+
+
     def __province_color__(self, province_or_name):
         """ Returns the color the province should be given in a plot of the
         current position of the game.
 
         """
-        try:
-            name = province_or_name.name
-        except AttributeError:
-            name = province_or_name
-        dcnry = self.variant.province_colors
-        if name in [prov.name for prov in self.variant.map.supply_centers]:
+        if type(province_or_name) is str:
+            province = self.variant.map.instance(province_or_name, bd.Province)
+        else:
+            province = province_or_name
+
+        if province.supply_center:
             color = 'snow'
         else:
             color = 'oldlace'
+
         if self.season.phase != 'Pregame':
             for power in self.powers:
-                supp = [prov.name for prov in self.supply_centers[power]]
-                if name in supp:
-                    color = dcnry[power.name]
+                if province in self.supply_centers[power]:
+                    color = self.variant.province_colors[power.name]
+
         return color
 
+
+
     def __plot_province__(self, index, gdf):
-        """ Returns a plt.fill of province of the given index of the geodataframe.
+        """ Returns a plt.fill of province of the given index of the
+        geodataframe.
 
         """
         geom = gdf.loc[index, 'geometry']
+
         # Load the colors.
         if gdf.loc[index, 'land'] == False:
             color = 'azure'
             edgecolor = 'cornflowerblue'
+
         elif gdf.loc[index, 'static']:
             color = 'lightgray'
             edgecolor = 'black'
+
         else:
             color = self.__province_color__(gdf.loc[index, 'name'])
             edgecolor = 'black'
-            # Plot
+
+        # Plot
         if type(geom) == Polygon:
             plt.fill(*geom.exterior.xy, facecolor=color, 
                      edgecolor=edgecolor, linewidth=.3)
+
         else:
             for poly in geom:
                 plt.fill(*poly.exterior.xy, facecolor=color, 
                          edgecolor=edgecolor, linewidth=.3)
+
+
 
     def __plot_unit__(self, unit, gdf, retreat=False):
         """ Returns a plt.plot of the units current location.
@@ -353,18 +286,22 @@ class Game:
         """
         markers = {'Army': 'o', 'Fleet': '^'}
         color = self.__unit_color__(unit.owner)
+
         point = gdf[gdf.name == unit.location.name].iloc[0].geometry
         size = self.variant.marker_size
+
         if retreat:
             plt.plot([point.x + self.shift], [point.y - self.shift], 
                      marker=markers[unit.force.name],
                      color=color, markersize=.75*size,
                      markeredgewidth=.3, markeredgecolor='red')
+
         else:
             plt.plot([point.x], [point.y], marker=markers[unit.force.name],
                      color=color, markersize=size,
                      markeredgewidth=.3, markeredgecolor='black')
-            
+
+
 
     def show(self):
         """ Plots the current position. 
@@ -372,17 +309,21 @@ class Game:
         """
         if self.graphics is None:
             self.load_graphics()
+
         gdf = self.graphics
+
         plt.figure(dpi=150)
         plt.axis('off')
         plt.margins(0)
-        # Plot the provinces
+
+        # Plot the provinces; Should plot sea provinces first
         sea = gdf[(gdf.point == False) & (gdf.land == False)]
         land = gdf[(gdf.point == False) & (gdf.land == True)]
         for k in sea.index:
             self.__plot_province__(k, sea)
         for k in land.index:
             self.__plot_province__(k, land)
+
         # Plot the units
         points = gdf[(gdf.point == True) & (gdf.text == False)]
         if self.season.phase == 'Retreats':
@@ -394,16 +335,17 @@ class Game:
             self.__plot_unit__(unit, points, True)
         for unit in units:
             self.__plot_unit__(unit, points)
+
         # Plot names of provinces
         points = gdf[(gdf.point == True) & (gdf.text == True)]
         for k in points.index:
             point = points.loc[k, 'geometry']
             plt.annotate(points.loc[k, 'name'], xy=(point.x, point.y))
+
         plt.show()
 
-    # =========================================================================
-    #  Methods to start the game
-    # =========================================================================
+
+
 
     def start(self):
         """ Starts the game. That is, moves phase Pregame to Spring at starting
@@ -412,15 +354,20 @@ class Game:
         """
         assert self.season.phase == 'Pregame', ('The Game is already started.')
         self.season.progress()
+
         for entry in self.variant.starting_positions:
             self.add_unit(entry['force'], entry['power'], entry['location'])
             # The add_unit method also adds a standard hold order.
+
         for power in self.powers:
             # Using that home centers are the supply centers holding a unit
             # at the beginning of the game.
             self.supply_centers[power] = set(self.occupied_provinces(power))
             self.home_centers[power] = self.supply_centers[power].copy()
+
         self.__archive_position__()
+
+
 
     def reset(self):
         """ Resets the game to Pregame settings.
@@ -429,30 +376,45 @@ class Game:
         self.season = bd.Season('Spring', 'Pregame', 
                                 self.variant.starting_year)
         self.units = []
-        self.supply_centers = {}
-        self.home_centers = {}
         self.orders = []
-        self.winner = None
         self.position_archive = []
         self.order_archive = []
+        self.supply_centers = {}
+        self.home_centers = {}
+        self.winner = None
+
+
 
     def rollback(self):
         """ Rolls back the game one turn. 
         
-        It does so by playing through the order archive. This is suboptimal,
-        but the adjudicator is sufficiently fast for this not to be a problem.
-
         """
-        archive = self.order_archive.copy()
-        while archive[-1] == []:
-            del archive[-1]
-        self.reset()
-        self.start()
-        for j, orders in enumerate(archive):
-            if orders != []:
-                self.order(orders)
-                if j + 1 != len(archive):
-                    self.adjudicate()
+        self.season.relapse()  # Includes consistency check
+        orders = self.order_archive[-1]
+        del self.order_archive[-1]
+        del self.position_archive[-1]
+        
+        self.winner = None
+        
+        position = self.position_archive[-1]
+        for power in self.powers:
+            centers = [self.variant.map.instance(name, bd.Province)
+                       for name in position['centers'][power.name]]
+            # Check if there was already a winner
+            if len(centers) >= self.variant.win_condition:
+                self.winner = power
+            self.supply_centers[power] = set(centers)
+
+        self.units = []
+        self.orders = []
+        for entry in position['units']:
+            self.add_unit(entry['force'], entry['owner'], entry['location'],
+                          overrule=True)
+        
+        self.order(orders)
+
+
+
 
     def load_graphics(self):
         """ Loads the GeoDataFrame from the 
@@ -499,7 +461,7 @@ class Game:
     # Methods to retrieve basic information.
     # =========================================================================
 
-    def unit_in(self, province, require=False):
+    def unit_in(self, province, require=False, any_=False):
         """ Retrieves the unit in a province. Throws and error if an output is
         required but no unit can be identified.
 
@@ -510,7 +472,7 @@ class Game:
             Encodes whether an output is required. Default is False.
 
         """
-        assert self.season.phase != 'Retreats'
+        assert any_ or self.season.phase != 'Retreats'
         if type(province) is str:
             province = self.instance(province, bd.Province)
         generator = (unit for unit in self.units if unit.province is province)
@@ -565,9 +527,9 @@ class Game:
 
         Parameters
         ----------
-        number : integer
-        power : Power
-        require : boolean, optional
+        number: integer
+        power: Power
+        require: boolean, optional
 
         Raises
         ------
@@ -576,7 +538,7 @@ class Game:
 
         Returns
         -------
-        order : order
+        order: order
 
         """
         assert self.season.phase == 'Builds'
@@ -626,9 +588,9 @@ class Game:
 
         Parameters
         ----------
-        name : string
-        class_or_class_name : string of class
-        require : boolena, optional
+        name: string
+        class_or_class_name: string of class
+        require: boolena, optional
 
         Raises
         ------
@@ -637,7 +599,7 @@ class Game:
 
         Returns
         -------
-        answer : class instance
+        answer: class instance
 
         """
         classes = {'power': vr.Power,
@@ -666,11 +628,11 @@ class Game:
 
         Parameters
         ----------
-        force : Force
-        name : string
-        origin : Location or None, optional
-        specifier : string or None, optional
-        require : boolean, optional
+        force: Force
+        name: string
+        origin: Location or None, optional
+        specifier: string or None, optional
+        require: boolean, optional
 
         Raises
         ------
@@ -679,7 +641,7 @@ class Game:
 
         Returns
         -------
-        location : Location or None
+        location: Location or None
 
         """
         location = self.variant.map.locate(force, name, origin, specifier,
@@ -711,18 +673,20 @@ class Game:
     # Methods to update information and/or edit the game
     # =========================================================================
 
-    def add_unit(self, force, owner, location):
+    def add_unit(self, force, owner, location, overrule=False):
         """ Adds a unit to the game in a given location. If we are in the
         Diplomacy phase, a standard order is also added.
 
         Parameters
         ----------
-        force : Force or force name.
-        owner : Power or power name.
-        location : Location or location name.
+        force: Force or force name.
+        owner: Power or power name.
+        location: Location or location name.
 
         """
-        assert self.season.phase != 'Retreats'
+        message = 'You cannot manually add unit during the retreat phase.'
+        assert overrule or self.season.phase != 'Retreats', message
+
         # Retrieve classes if input was strings.
         if not isinstance(force, bd.Force):
             force = self.instance(force, bd.Force, require=True)
@@ -731,7 +695,7 @@ class Game:
         if not isinstance(location, bd.Location):
             location = self.locate(force, location, require=True)
         # Check that the given location is available.
-        if not self.unit_in(location.province) is None:
+        if not self.unit_in(location.province, any_=True) is None:
             raise GameError('Named province already contains a unit.')
         unit = vr.Unit(self.__next_unit_id__(), owner, force, location)
         self.units.append(unit)
@@ -807,8 +771,8 @@ class Game:
         words = [word for word in string.split(' ') if len(word) > 0]
         # The first dictionary should perhaps not be hard-corded
         words = translate(words, self.orders_dict)
-        words = translate(words, self.variant.map.province_dict)
-        words = translate(words, self.variant.map.forces_dict)
+        words = translate(words, self.variant.map.prov_dict)
+        words = translate(words, self.variant.map.force_dict)
         return ' '.join(words).lower()
 
     def order(self, string_or_list):
@@ -1157,7 +1121,7 @@ class Game:
 
         Parameters
         ----------
-        conclude : boolean, optional
+        conclude: boolean, optional
             Whether the game should be concluded if a power reaches the win
             conditions. Might wanna set ot false if the bot is playing for
             prectice. The default is True.
@@ -1180,8 +1144,7 @@ class Game:
         getattr(self, f'__setup_{self.season.phase.lower()}__')()
         if conclude:
             self.conclude(mute)
-        if self.season.phase != 'Retreats':
-            self.__archive_position__()
+        self.__archive_position__()
         # If following phase requires no orders, then move on automatically
         if len(self.orders) == 0 and self.winner is None:
             self.adjudicate(conclude=conclude, mute=mute)

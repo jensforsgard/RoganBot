@@ -76,7 +76,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertEqual(answer, ['a', 'b'])
         answer = gm.appearances(self.game.powers, 'Austria England',
                                 label=False)
-        self.assertEqual(answer, self.game.powers[:2])
+        self.assertEqual(answer, list(self.game.powers)[:2])
     
     def test_translate(self):
         answer = gm.translate(['a', 'c'], {'a':'d'})
@@ -109,13 +109,9 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertEqual(capturedOutput.getvalue(), string)
 
     def test_current_position(self):
-        dcnry = {'Conakry': 'Guinea Army', 'Conakry_sc': 'Guinea',
-                 'Monrovia': 'Liberia Army', 'Monrovia_sc': 'Liberia',
-                 'phase': 'Diplomacy', 'season': 'Spring',
-                 'GuineaCenters': 1, 'GuineaUnits': 1, 'LiberiaCenters': 1,
-                 'LiberiaUnits': 1,}
         answer = self.gameRPS.current_position()
-        self.assertEqual(answer, dcnry)
+        unit = {'force': 'Army', 'location': 0, 'owner': 'Guinea'}
+        self.assertEqual(answer['units'][0], unit)
 
     def test___archive_position__(self):
         self.game.__archive_position__()
@@ -154,13 +150,8 @@ class TestAdjudicator(unittest.TestCase) :
         supplies = [supp.name for supp in game.supply_centers[game.powers[0]]]
         self.assertEqual(supplies,['Conakry'])
         home = [supp.name for supp in game.supply_centers[game.powers[0]]]
-        self.assertEqual(home,['Conakry'])
-        dcnry = {'Conakry': 'Guinea Army', 'Conakry_sc': 'Guinea',
-                 'Monrovia': 'Liberia Army', 'Monrovia_sc': 'Liberia',
-                 'phase': 'Diplomacy', 'season': 'Spring',
-                 'GuineaCenters': 1, 'GuineaUnits': 1, 'LiberiaCenters': 1,
-                 'LiberiaUnits': 1}
-        self.assertEqual(game.position_archive[0], dcnry)
+        self.assertEqual(home, ['Conakry'])
+        self.assertEqual(game.position_archive[0]['phase'], 'Diplomacy')
 
     def test_reset(self):
         self.game.adjudicate()
@@ -179,6 +170,7 @@ class TestAdjudicator(unittest.TestCase) :
     def test_rollback(self):
         self.gameRPS.order('A Mon - Fre')
         self.gameRPS.adjudicate()
+        self.gameRPS.rollback()
         self.gameRPS.rollback()
         units = [unit.__str__() for unit in self.gameRPS.units]
         orders = [order.__str__() for order in self.gameRPS.orders]

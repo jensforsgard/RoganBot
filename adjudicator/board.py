@@ -1,121 +1,53 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+@author: jensforsgard
+"""
 
-# =============================================================================
-# Imports
-# =============================================================================
+
+
 
 import json
 
-
-# =============================================================================
-# Functions
-# =============================================================================
-
-def flatten(lists):
-    """ Flattens a list of lists on the first level.
-
-    """
-    return [item for sublist in lists for item in sublist]
+from adjudicator.auxiliary import *
+from adjudicator.errors import MapError
 
 
-def despecify(string, geography):
-    """ Removes the specifiers of the geography from the string.
 
-    """
-    for specifier in geography.force.specifiers:
-        string = string.replace(f' {specifier}', '')
-    return string
-
-
-def first_named(objects, name):
-    """ From a list of objects, return the first object with a given name.
-
-    """
-    generator = (obj for obj in objects if obj.name == name)
-    return next(generator, None)
-
-
-def union(dictionary_list):
-    """ Joins a list of dictionaries into one dictionary.
-
-    """
-    answer = {}
-    for entry in dictionary_list:
-        answer.update(entry)
-    return answer
-
-
-def make_instances(dictnry, class_, obj=None):
-    """ Creates a list of instances of a class whose identifiers are the
-    keys of the dictionary and properties are given by the values of the
-    dictionary.
-
-    Parameters
-    ----------
-    dictionary : dictionary
-        A dictionary whose keys are identifiers of the instances and whose
-        values are dictionaries holding the properties of the instances.
-    class_ : type
-        The type of the instances which are to be created.
-    obj : object, optional
-        An object containing necessary information to initiate the instances.
-
-    """
-    if obj is None:
-        return [class_(key, dictnry[key]) for key in dictnry.keys()]
-    else:
-        return [class_(key, dictnry[key], obj) for key in dictnry.keys()]
-
-
-# =============================================================================
-# Error Classes
-# =============================================================================
-
-class MapError(Exception):
-
-    def __init__(self, message):
-
-        self.message = message
-
-
-# =============================================================================
-# The Province Class
-# =============================================================================
 
 class Province:
-    """ A province is a region of the map. Besides identifiers, the main
-    property of a province is whether it is a supply center or not.
+    """ A province is a ion of the map. 
 
     Attributes:
-        id : integer
-            The id of the province.
-        name : string
-            The name of the province. Names of provinces should be unique, and
-            are used as the primary identifier of a province.
-        short_form : string
-            The three letter abbreviation of the name of the province,
-            pssibly preceded and succeeded by spaces.
-        supply_center : boolean
-            Marks whether the province contains a supply center.
+        id: integer
+            Should be unique; is used as secondary identifier.
+        name: string
+            Sould be unique; is used as primary identifyer.
+        short: string
+            A three letter abbreviation of the name.
+        supply_center: boolean
+            Whether the province contains a supply center or not.
 
     """
 
-    def __init__(self, number, dctnry):
-        """ The constructor for the Province class.
 
+
+    def __init__(self, idn, dcnry):
+        """ Constructor.
+        
         Parameters
         ----------
-        number : integer
+        idn: integer
             The id number of the province.
-        dctnry : dictionary
-            A dictionary including the remaining properties.
+        dctnry: dictionary
+            A dictionary encoding the remaining properties.
 
         """
-        self.id = int(number)
-        self.name = dctnry['name']
-        self.short_form = dctnry['short']
-        self.supply_center = dctnry['supply center']
+        self.id = int(idn)
+        for key in dcnry:
+            setattr(self, key, dcnry[key])
+
+
 
     def __str__(self):
         """ Print format.
@@ -124,42 +56,41 @@ class Province:
         return self.name
 
 
-# =============================================================================
-# The Geography Class
-# =============================================================================
+
 
 class Geography:
-    """ A Geography is a container of a unit. The geography specifies which
-    classes of orders that are available for the unit it contains.
+    """ A Geography is a container of a unit associated with a province.
 
     Attributes:
-        name : string
-            The name of the geography. Names should be unique and are used
-            as identifiers for geographies.
-        force : Force
-            Specifying the class instance of attribut 'force' of a unit which
-            is contained in the geography.
-        orders : list of strings
-            The list of orders, encoded by their names as strings, which are
-            available for a unit currently contained in the Geography.
+        name: string
+            Should be unique; primary identifier for geographies.
+        force: Force
+            Only units of this force may be contained in the geography.
+        orders: list of strings
+            The type of orders, encoded by their names, which are available
+            for a unit contained in an instance of the geography.
 
     """
 
+
+
     def __init__(self, name, dctnry, map_):
-        """ The constructor for the Geography class.
+        """ Constructor.
 
         Parameters
         ----------
-        name : string
-        dctnry : dictionary
+        name: string
+        dctnry: dictionary
             Containing the remaining properties.
-        map_ : Map
+        map_: Map
             The game map, necessary to initate the force attribute.
         """
         self.name = name
         self.force = map_.instance(dctnry['unit'], Force)
         self.orders = dctnry['orders']
 
+
+
     def __str__(self):
         """ Print format.
 
@@ -167,149 +98,121 @@ class Geography:
         return self.name
 
 
-# =============================================================================
-# The Location Class
-# =============================================================================
+
 
 class Location:
-    """ A location is a geography attached to a province. That is, it's a
-    container of a unit attached to a province of the map. The location
-    spacifies which other locations that are adjacent (i.e., reachable).
+    """ A location is a geography attached to a province.
+    
+    The location specifies adjacent (i.e., reachable) locations.
 
     Attributes:
-        id : integer
-            The id of the location. The id should be unique and is used as the
-            identifier of the location.
-        name : string
-            The name of the location. Names of locations are not necessarily
-            unique and can not act as identifier for locations.
-        geography : Geography
-            The geography of the location.
-        force : Force
-            The unit type which may be present in the location. Agrees with
-            the unit type associated to the geography.
-        province : Province
-            The province associated with the location.
-        connections : list of integers
-            A list of all locations which can be reached (i.e., adjacent) from
-            the instance. Reachable locations are encoded by their id.
+        id: integer
+            Should be unique; is used as primary identifier.
+        name: string
+            Not necessarily unique.
+        geography: Geography
+        force: Force
+            Same as the force of the geography.
+        province: Province
+        connections: list of integers
+            A list of all adjacent locations encoded by their ids.
 
     """
 
-    def __init__(self, number, dctnry, map_):
-        """ The constructor for the Location class.
+
+
+    def __init__(self, idn, dctnry, map_):
+        """ Constructor.
 
         Parameters
         ----------
-        number : integer
+        idn: integer
             The id of the location.
-        dctnry : dictionary
+        dctnry: dictionary
             Containing the remaining defining properties.
-        map_ : Map
-            The current map, nessecary to find the geography instance and the
-            province instance associated with the location.
+        map_: Map
+            The game map, necessary to initate the geography and the
+            province attributes.
 
         """
-        self.id = int(number)
+
+        self.id = int(idn)
         self.name = dctnry['name']
-        self.connections = dctnry['connections']
-        # Retrieve the geography and the force
+        self.connections = tuple(dctnry['connections'])
+
         self.geography = map_.instance(dctnry['geography'], Geography)
         self.force = self.geography.force
-        # Retrieve the province
+
         province_name = despecify(self.name, self.geography)
         self.province = first_named(map_.provinces, province_name)
+
+
 
     def __str__(self):
         """ Print format.
 
         """
         return self.name
+    
+    
 
     def reaches_location(self, location):
         """ Tests if the instance reaches a given location.
 
-        Parameters
-        location : Location or integer
-            Either a location of a location id.
-
         """
-        if type(location) is int:
-            return location in self.connections
-        elif type(location) is Location:
+        try:
             return location.id in self.connections
-        raise TypeError('Input is neither a location nor a location id.')
 
-    def reaches_province(self, board, province):
+        except AttributeError:
+            return location in self.connections
+
+
+
+    def reaches_province(self, map_, province):
         """ Tests if the instance reaches any location associated to a given
-        province. Needs the current game map as input in order to find all
-        locations associated to the province.
-
-        Parameters
-        ----------
-        board : Map
-        province : Province or string
-            Either the province or the name of the province.
+        province. Needs the map to determine all locations of the province.
 
         """
-        province_locations = board.locations_of(province)
-        for location in province_locations:
-            if location.id in self.connections:
-                return True
-        return False
+        ids = [location.id for location in map_.locations_of(province)]
+        return next((True for nr in ids if nr in self.connections), False)
+
+
 
     def named(self, name):
-        """ Tests if the instance is associated with the given name; it may
-        either be the name of the instance or the name of the province
-        associated with the instance.
-
-        Parameters
-        ----------
-        name : string
+        """ Tests if the instance is associated with the given name.
 
         """
         return self.name == name or self.province.name == name
 
 
-# =============================================================================
-# The Force Class
-# =============================================================================
+
 
 class Force:
-    """ A Force is a type of unit. The force specifies which geographies the
-    unit can be located in, and it specifies which orders the unit can be the
-    object of.
-
+    """ A Force is a type of unit.
+    
     Attributes:
-        name : string
-            The name of the force.
-        may_receive : list of strings
-            List of orders, presented as strings, which a unit of the given
-            force can be the object of.
-        specifiers : list of strings
-            List of specifiers of locations which can hold a unit of the given
-            force. Specifiers are only used if a province has multiple
-            locations that can hold units of a force.
-        short_forms : dictionary
-            A dictionary with specifier short forms as keys and specifier full
-            forms as values.
+        name: string
+        may_receive: list of strings
+            List of orders, as strings, which the force may be object of.
+        specifiers: list of strings
+            List of specifiers of locations that can contain the force.
+        short_forms: dictionary
+            Short forms of the specifiers.
 
     """
 
-    def __init__(self, name, dctnry):
-        """ The constructor for the Force class.
 
-        Parameters
-        ----------
-        name : string
-        dctnry : dictionary
-            A dictionary containing the remaining information.
+
+    def __init__(self, name, dctnry):
+        """ Constructor.
 
         """
         self.name = name
-        self.may_receive = dctnry['may receive']
-        self.specifiers = dctnry['specifiers']
+        self.may_receive = tuple(dctnry['may receive'])
+        self.specifiers = tuple(dctnry['specifiers'])
         self.short_forms = dict(zip(dctnry['short forms'], self.specifiers))
+
+
 
     def __str__(self):
         """ Print format.
@@ -318,56 +221,42 @@ class Force:
         return self.name
 
 
-# =============================================================================
-# The Map Class
-# =============================================================================
+
 
 class Map:
     """ A game map.
 
     Attributes:
-        name : string
-            The name of the map. Identifies the JSON file form which the
-            information will be retrieved.
-        forces : list of forces
-            A list of possible forces of units on the map.
-        orders : list of strings
-            A list of orders which may be used on the given map.
-        geographies : list of Geographies
-            A list of geographies appearing on the map.
-        provinces : list of Provinces
-            A list of provinces appearing on the map.
-        locations : list of Locatinos
-            A list of locations appearing on the map.
-        forces_dict : dictionary
-            A dictionary with short forms of geography specifiers as keys
-            and full forms as values.
-        province_dict : dictionary
-            A dictionary of short forms of province names as keys (preceded
-            and succeeded by spaces) and full form province names (preceded
-            ans succeeded by spaces) as values.
-        supply_centers : list of Provinces
-            A list of the provinces which contain supply centers.
+        name: string
+            Identifies the JSON file form which we'll load information.
+        forces: list of forces
+            Allowed forces.
+        orders: list of strings
+            Allowed orders.
+        geographies: list of Geographies
+        provinces: list of Provinces
+        locations: list of Locatinos
+        force_dict: dictionary
+            A dictionary with short forms of geography specifiers.
+        prov_dict: dictionary
+            A dictionary of short forms of province names.
+        supply_centers: list of Provinces
+            A list of the supply centers provinces.
+        loaded: boolean
+            Whether the map has been loaded or not.
 
     """
 
-    def __init__(self, name):
-        """ The constructor for the Map class.
 
-        Parameters
-        ----------
-        name : string
+
+    def __init__(self, name):
+        """ Constructor.
 
         """
         self.name = name
-        self.forces = []
-        self.orders = []
-        self.geographies = []
-        self.provinces = []
-        self.locations = []
-        self.forces_dict = {}
-        self.province_dict = {}
-        self.supply_centers = []
+        self.loaded = False
+
+
 
     def __str__(self):
         """ Print format.
@@ -375,205 +264,209 @@ class Map:
         """
         return self.name
 
+
+
+    # def __loaded__(func):
+    #     """ Wrapper function that test if a map object has been loaded. Only
+    #         necessary if a map object is accessed on its own.
+
+    #     """
+    #     def wrapper(*args, **kwargs):
+            
+    #         try:
+    #             if not args[0].loaded:
+    #                 raise MapError('Map has not been loaded.')
+        
+    #         except AttributeError:
+    #             raise TypeError(f'{args[0]} cannot be marked as loaded.')
+        
+    #         return func(*args, **kwargs)
+        
+    #     return wrapper
+
+
+
+#    @__loaded__
     def display(self, string):
         """ Prints some entities associated to the map.
 
-        Parameters
-        ----------
-        string : string
-            The entities to be displayed.
-
         """
-        if string == 'provinces':
+        lower = string.lower()
+        
+        if lower == 'provinces':
             print([province.name for province in self.provinces])
-            return
-        if string == 'supply centers':
-            print([province.name for province in self.provinces if
-                    province.supply_center])
-            return
-        if string == 'abbreviations':
-            for entry in self.province_dict.keys():
-                print(f'{entry} {self.province_dict[entry]}')
-            return
+
+        elif lower == 'supply centers':
+            print([province.name for province in self.supply_centers])
+
+        elif lower == 'abbreviations':
+            for entry in self.prov_dict:
+                print(f'{entry} {self.prov_dict[entry]}')
+        
+        else:
+            raise ValueError(f'Cannot display {string}.')
+            
+
 
     def load(self):
-        """ Loads the map information from the JSON file in the maps folder
-        with the name of the map in the maps folder.
+        """ Loads the map information from the JSON file in the maps folder.
 
         """
         with open(f'maps/{self.name}.json') as file:
             data = json.load(file)
-            file.close()
         assert self.name == data['name']  # Check that the file is not corrupt
-        self.orders = data['orders']
-        self.forces = make_instances(data['forces'], Force)
-        self.geographies = make_instances(data['geographies'], Geography, self)
-        self.provinces = make_instances(data['provinces'], Province)
-        self.locations = make_instances(data['locations'], Location, self)
-        # Compute the short form dictionaries.
-        self.forces_dict = union([force.short_forms for force in self.forces])
-        self.province_dict = {province.short_form: f'{province.name}'
-                              for province in self.provinces}
-        # Compute the list of supply centers.
-        self.supply_centers = [province for province in self.provinces
-                               if province.supply_center]
 
+        self.orders = tuple(data['orders'])
+
+        # Create all class instances
+        self.forces = make_instances(data['forces'], Force)
+        self.provinces = make_instances(data['provinces'], Province)
+        self.geographies = make_instances(data['geographies'], Geography, self)
+        self.locations = make_instances(data['locations'], Location, self)
+
+        # Retrieve the short form dictionaries.
+        self.force_dict = dict_union([fce.short_forms for fce in self.forces])
+        self.prov_dict = {prv.short: f'{prv.name}' for prv in self.provinces}
+
+        # Retrieve the list of supply centers.
+        self.supply_centers = tuple(attr_select(self.provinces,
+                                                'supply_center'))
+
+        self.loaded = True
+
+
+    
     def instance(self, name, class_type):
         """ Finds the instance of a given class with a given name.
 
         """
-        # This list should maybe not be hard coded. Location does not appear
-        # in the list as they are not identified by name.
+        # This list should maybe not be hard coded...
         attributes = {Force: 'forces',
                       Geography: 'geographies',
                       Province: 'provinces'}
         objects = getattr(self, attributes[class_type])
         return next((obj for obj in objects if obj.name == name), None)
 
+
+
+#    @__loaded__
     def locations_of(self, province):
         """ Returns all locations attached to a given province.
 
         """
-        return [location for location in self.locations
-                if location.province is province]
+        return attr_select(self.locations, 'province', province)
 
+
+
+#    @__loaded__    
     def locate(self, force, name, origin=None, specifier=None, either=False):
         """ Returns a location identified by partial data.
 
         Parameters
         ----------
-        force : Force
-            The force associated with the location.
-        name : string
-        origin : Location, optional
-            An origin location which the returned location must reach.
-        specifier : string, optional
-            A specifier which the location should have.
+        force: Force
+        name: string or integer
+        origin: Location, optional
+        specifier: string, optional
+        either: boolean
+            Whether an ambiguous return is allowed.
 
-        Returns
-        -------
-        Location or None
         """
-        locations = [location for location in self.locations
-                     if location.named(name)
-                     and location.force == force]
-        # Filter by reachable from origin location
-        if len(locations) >= 2 and origin is not None:
-            locations = [location for location in locations
-                         if origin.id in location.connections]
-        # Filter by specified coast.
-        if len(locations) >= 2 and specifier is not None:
-            locations = [location for location in locations
-                         if location.name == name + ' ' + specifier]
+        if type(name) == str:
+
+            locations = [location for location in self.locations
+                         if location.named(name) and location.force == force]
+
+            # Filter by reachable from origin location
+            if len(locations) >= 2 and origin is not None:
+                locations = [location for location in locations
+                             if origin.id in location.connections]
+
+            # Filter by specifier.
+            if len(locations) >= 2 and specifier is not None:
+                locations = [location for location in locations
+                             if location.name == f'{name} {specifier}']
+
+        else:
+            
+            locations = [location for location in self.locations
+                         if location.id == name]
+
         if len(locations) > 1 and not either:
             raise MapError(f'There are at least two locations in {name} '
                            'matching the given criteria.')
-        if len(locations) > 0:
+
+        try:
             return locations[0]
-        else:
-            return None  # Signals that there is no available location.
 
+        except IndexError:
+            return None  # No available location.
+
+
+
+#    @__loaded__
+    def one_adjacent(self, locations, province):
+        """ Tests if one location from a list of locaions is adjacent to
+        one location associated to a given province.
+        
+        """
+        return next((True for location in locations
+                     if location.reaches_province(self, province)),
+                    False)
+        
+
+#    @__loaded__
     def has_path(self, source, target, via):
-        """ Tests if there is a path from source to target via the given
-        locations. N.B., it does not suffice that source is adjacent to target.
-
-        Parameters
-        ----------
-        source : Province
-        target : Province
-        via : list of Locations
-
-        Raises
-        ------
-        MapError : If the algorithm does not terminate.
-
-        Returns
-        -------
-        arrived : boolean
+        """ Tests if there is a path from a source to target provinces via a
+        set of given locations. N.B., it *does not* suffice that source is
+        adjacent to the target.
 
         """
-        # Find the locations we can reach in one step.
-        reached = [location for location in via
-                   if location.reaches_province(self, source)]
-        # Test if we can reach the target from one of those locations.
-        arrived = True in [location.reaches_province(self, target)
-                           for location in reached]
-        counter = 1  # Counting, in case the algorithm does not terminate.
-        while not arrived and counter <= len(via) + 2:
+        # The first step is special because we're checking adjacency to the
+        # source province, and not the other locations.
+        new = [location for location in via
+               if location.reaches_province(self, source)]
+        reached = new.copy()
+        arrived = self.one_adjacent(reached, target)
+
+        while not arrived and len(new) > 0:
             ids = flatten([location.connections for location in reached])
-            # Find the new reached locations in this step.
-            new = [location for location in via
-                   if location.id in ids and location not in reached]
-            # If no new locations was reached, then the search failed.
-            if len(new) == 0:
-                break
-            # Test if we can reach the target from any of the new locataions.
-            arrived = True in [location.reaches_province(self, target)
-                               for location in new]
-            # Update the list of already reached locations.
+            # Find the newly reached locations in this step.
+            new = [location for location in via if location.id in ids 
+                   and location not in reached]
+            arrived = self.one_adjacent(new, target)
             reached = reached + new
-            counter += 1
-        if counter >= len(via) + 2:
-            raise MapError('Map method has_path algorithm was inconclusive.')
+
         return arrived
 
-    def check_consistency(self):
-        """ Checks whether the attributes of the map are consistent with
-        eachother. The purpose is to find errors in the map files.
-
-        Raises
-        ------
-        MapError : If there are inconsistencies.
-
-        """
-        for geography in self.geographies:
-            if geography.force not in self.forces:
-                raise MapError(f'Geography {geography} allows a force which is'
-                               ' not recognized by the map.')
-            if not set(geography.orders).issubset(self.orders):
-                raise MapError(f'Geography {geography} allow a set of orders '
-                               'which is not recognized by the map.')
-        provinces = {location.province for location in self.locations}
-        if set(self.provinces) != provinces:
-            raise MapError('There is a location whose province is not listed.')
-        for location in self.locations:
-            reached = [self.locations[k].connections
-                       for k in location.connections]
-            if False in [location.id in entry for entry in reached]:
-                raise MapError(f'Location with id {location.id} has an '
-                               'inconsistent connection.')
 
 
-# =============================================================================
-# The Season Class
-# =============================================================================
 
 class Season:
     """ The class that keeps track of the season of the game.
 
     Attributes:
-        name : string
-            The name of the season.
-        phase : string
+        name: string
+        phase: string
             The name of the phase.
-        year : integer
-            The year.
+        year: integer
+        count: integer
+            The order of the season.
 
     """
 
-    def __init__(self, name, phase, year):
-        """ The constructor for the Season class.
 
-        Parameters
-        ----------
-        name : string
-        phase : string
-        year : integer
+
+    def __init__(self, name, phase, year, count=0):
+        """ Constructor.
 
         """
-        self.name = name  # ['Spring', 'Fall']
-        self.phase = phase  # ['Pregame', 'Diplomacy', 'Retreats', 'Builds', 'Postgame']
-        self.year = year  # integer
+        self.count = count
+        self.name = name
+        self.phase = phase
+        self.year = year
+
+
 
     def __str__(self):
         if self.phase == 'Pregame':
@@ -583,43 +476,51 @@ class Season:
         else:
             return f'{self.phase} in {self.name} {str(self.year)}.'
 
+
+
+    def __set_name_phase__(self):
+        """ Deduces name and phase from the count.
+
+        """
+        k = self.count % 5
+
+        if k in [1, 3]:
+            self.phase = 'Diplomacy'
+        elif k in [2, 4]:
+            self.phase = 'Retreats'
+        else:
+            self.phase = 'Builds'
+        
+        if k in [1, 2]:
+            self.name = 'Spring'
+        else:
+            self.name = 'Fall'
+
+
+
     def progress(self):
         """ Moves the season forward one phase.
 
         """
-        if self.phase == 'Diplomacy':
-            self.phase = 'Retreats'
-        elif self.phase == 'Retreats' and self.name == 'Spring':
-            self.name = 'Fall'
-            self.phase = 'Diplomacy'
-        elif self.phase == 'Retreats' and self.name == 'Fall':
-            self.phase = 'Builds'
-        elif self.phase == 'Builds':
-            self.name = 'Spring'
-            self.phase = 'Diplomacy'
-            self.year += 1
-        elif self.phase == 'Pregame':
-            self.phase = 'Diplomacy'
+        self.year += (self.phase == 'Builds')
+        self.count += 1
+        self.__set_name_phase__()
 
-    def regress(self):
-        """ Moves the season backwards one phase. Possible bug: will not
-        recognize when it hits 'Pregame'.
 
+
+    def relapse(self):
+        """ Moves the season backwards one phase. 
+        
         """
-        if self.phase == 'Builds':
-            self.phase = 'Retreats'
-        elif self.phase == 'Retreats':
-            self.phase = 'Diplomacy'
-        elif self.phase == 'Diplomacy' and self.name == 'Fall':
-            self.phase = 'Retreats'
-            self.name = 'Spring'
-        elif self.phase == 'Diplomacy' and self.name == 'Spring':
-            self.name = 'Fall'
-            self.phase = 'Builds'
-            self.year -= 1
-    
+        assert self.count > 1, ('Cannot relapse to before starting season.')
+        self.count -= 1
+        self.__set_name_phase__()
+        self.year -= (self.phase == 'Builds')
+
+
+
     def conclude(self):
         self.phase = 'Postgame'
         self.name = '-'
-        
-        
+        self.count += 1
+

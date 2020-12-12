@@ -37,39 +37,39 @@ class TestBoard(unittest.TestCase):
         pass
     
     def setUp(self):
-        self.season = bd.Season('Spring', 'Diplomacy', 1900)
+        self.season = bd.Season('Spring', 'Diplomacy', 1900, count=1)
     
     def tearDown(self):
         pass
 
-    def test_flatten(self):
-        answer = bd.flatten([[1], [2, 3], [[4]]])
-        self.assertEqual(answer, [1,2,3,[4]])
+    # def test_flatten(self):
+    #     answer = bd.flatten([[1], [2, 3], [[4]]])
+    #     self.assertEqual(answer, [1,2,3,[4]])
 
-    def test_despecify(self):
-        geo = self.geography
-        string = 'Fleet (south coast).'
-        self.assertEqual(bd.despecify(string, geo), 'Fleet.')
+    # def test_despecify(self):
+    #     geo = self.geography
+    #     string = 'Fleet (south coast).'
+    #     self.assertEqual(bd.despecify(string, geo), 'Fleet.')
 
-    def test_first_named(self):
-        first = bd.first_named(self.map.provinces, 'Burgundy')
-        self.assertEqual(first.name, 'Burgundy')
-        self.assertIsInstance(first, bd.Province)
-        self.assertFalse(first.supply_center)
+    # def test_first_named(self):
+    #     first = bd.first_named(self.map.provinces, 'Burgundy')
+    #     self.assertEqual(first.name, 'Burgundy')
+    #     self.assertIsInstance(first, bd.Province)
+    #     self.assertFalse(first.supply_center)
 
-    def test_union(self):
-        union = bd.union([{1:2}, {3:4}])
-        self.assertEqual(union, {1:2, 3:4})
+    # def test_union(self):
+    #     union = bd.union([{1:2}, {3:4}])
+    #     self.assertEqual(union, {1:2, 3:4})
 
-    def test_make_instances(self):
-        dicnry = {1: {'name': '10', 'short': '11', 'supply center': '12'},
-                  2: {'name': '20', 'short': '21', 'supply center': '22'}}
-        answer = bd.make_instances(dicnry, bd.Province)
-        self.assertEqual(type(answer[0]), bd.Province)
-        self.assertEqual(type(answer[1]), bd.Province)
-        self.assertEqual(answer[0].name,'10')
-        self.assertEqual(answer[1].short_form,'21')
-        self.assertEqual(answer[0].supply_center,'12')
+    # def test_make_instances(self):
+    #     dicnry = {1: {'name': '10', 'short': '11', 'supply center': '12'},
+    #               2: {'name': '20', 'short': '21', 'supply center': '22'}}
+    #     answer = bd.make_instances(dicnry, bd.Province)
+    #     self.assertEqual(type(answer[0]), bd.Province)
+    #     self.assertEqual(type(answer[1]), bd.Province)
+    #     self.assertEqual(answer[0].name,'10')
+    #     self.assertEqual(answer[1].short,'21')
+    #     self.assertEqual(answer[0].supply_center,'12')
 
 
     # =========================================================================
@@ -80,8 +80,6 @@ class TestBoard(unittest.TestCase):
         self.assertTrue(self.location.reaches_location(5))
         self.assertTrue(self.location.reaches_location(self.map.locations[91]))
         self.assertFalse(self.location.reaches_location(15))
-        with self.assertRaises(TypeError) :
-            self.location.reaches_location('Finland')
 
     def test_reaches_province(self):
         province = self.map.locations[91].province
@@ -99,16 +97,16 @@ class TestBoard(unittest.TestCase):
 
     def test_load(self):
         self.assertEqual(self.map.orders,
-                         ['Hold', 'Move', 'Support', 'Convoy'])
+                         ('Hold', 'Move', 'Support', 'Convoy'))
         self.assertEqual([force.name for force in self.map.forces],
                           ['Army', 'Fleet'])
         self.assertEqual([geo.name for geo in self.map.geographies],
                          ['Inland', 'Coast', 'Sea'])
         self.assertEqual(self.map.provinces[0].name, 'Adriatic Sea')
         self.assertEqual(self.map.locations[89].name, 'Skagerrack')
-        self.assertEqual(self.map.forces_dict,
+        self.assertEqual(self.map.force_dict,
                          {'(s)': '(south coast)', '(n)': '(north coast)'})
-        self.assertEqual(self.map.province_dict['AEG'], 'Aegean Sea')
+        self.assertEqual(self.map.prov_dict['AEG'], 'Aegean Sea')
         self.assertEqual(self.map.supply_centers[8].name, 'Edinburgh')
         self.assertEqual(len(self.map.supply_centers), 34)
         self.assertEqual(len(self.map.provinces), 75)
@@ -118,7 +116,7 @@ class TestBoard(unittest.TestCase):
         force = self.map.forces[1]
         self.assertIsInstance(force, bd.Force)
         self.assertEqual(force.name, 'Fleet')
-        self.assertEqual(force.specifiers, ['(south coast)', '(north coast)'])
+        self.assertEqual(force.specifiers, ('(south coast)', '(north coast)'))
         self.assertIsInstance(force.short_forms, dict)
         self.assertEqual(force.short_forms['(s)'], '(south coast)')
     
@@ -139,7 +137,7 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(len(provs), 75)
         self.assertIsInstance(pro, bd.Province)
         self.assertEqual(pro.name, 'Constantinople')
-        self.assertEqual(pro.short_form, 'Con')
+        self.assertEqual(pro.short, 'Con')
         self.assertTrue(pro.supply_center)
 
     def test_locations(self):
@@ -150,16 +148,16 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(loc.name, 'Ionian Sea')
         self.assertIsInstance(loc.geography, bd.Geography)
         self.assertIsInstance(loc.province, bd.Province)
-        self.assertIsInstance(loc.connections, list)
-        self.assertEqual(loc.connections, [0, 1, 3, 7, 31, 41, 63, 105, 109])
+        self.assertIsInstance(loc.connections, tuple)
+        self.assertEqual(loc.connections, (0, 1, 3, 7, 31, 41, 63, 105, 109))
         self.assertEqual(loc.province.name, 'Ionian Sea')
     
-    def test_forces_dict(self):
-        dictionary = self.map.forces_dict
+    def test_force_dict(self):
+        dictionary = self.map.force_dict
         self.assertEqual(dictionary['(s)'], '(south coast)')
 
-    def test_province_dict(self):
-        dictionary = self.map.province_dict
+    def test_prov_dict(self):
+        dictionary = self.map.prov_dict
         self.assertEqual(dictionary['ADR'], 'Adriatic Sea')
     
     def test_supplies(self):
