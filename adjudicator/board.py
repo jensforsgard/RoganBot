@@ -9,9 +9,10 @@
 
 import json
 
-from adjudicator.auxiliary import *
-from adjudicator.errors import MapError
-
+#from adjudicator.auxiliary import *
+from auxiliary.errors import MapError
+from auxiliary.lists import (flatten, first_named, attr_select, dict_union)
+from auxiliary.classes import (despecify, make_instances, dict_string)
 
 
 
@@ -287,25 +288,27 @@ class Map:
 
 
 #    @__loaded__
+    def info(self, string, require=False):
+        """ Retrieves information as a string.
+
+        """
+        lower = string.lower()
+        if lower == 'provinces':
+            return str([province.name for province in self.provinces])
+        elif lower == 'supply centers':
+            return str([province.name for province in self.supply_centers])
+        elif lower == 'abbreviations':
+            return dict_string(self.prov_dict)
+        raise ValueError(f'Cannot display {string}.')
+            
+
+
     def display(self, string):
         """ Prints some entities associated to the map.
 
         """
-        lower = string.lower()
-        
-        if lower == 'provinces':
-            print([province.name for province in self.provinces])
+        print(self.info(string))
 
-        elif lower == 'supply centers':
-            print([province.name for province in self.supply_centers])
-
-        elif lower == 'abbreviations':
-            for entry in self.prov_dict:
-                print(f'{entry} {self.prov_dict[entry]}')
-        
-        else:
-            raise ValueError(f'Cannot display {string}.')
-            
 
 
     def load(self):
@@ -336,7 +339,7 @@ class Map:
 
 
     
-    def instance(self, name, class_type):
+    def instance(self, name, class_):
         """ Finds the instance of a given class with a given name.
 
         """
@@ -344,8 +347,16 @@ class Map:
         attributes = {Force: 'forces',
                       Geography: 'geographies',
                       Province: 'provinces'}
-        objects = getattr(self, attributes[class_type])
+        objects = getattr(self, attributes[class_])
         return next((obj for obj in objects if obj.name == name), None)
+
+
+
+    def instances(self, lst, class_):
+        """ Finds instances of a given class with given names.
+        
+        """
+        return [self.instance(name, class_) for name in lst]
 
 
 
@@ -372,10 +383,10 @@ class Map:
             Whether an ambiguous return is allowed.
 
         """
-        if type(name) == str:
+        if type(name) in (str, Province):
 
             locations = [location for location in self.locations
-                         if location.named(name) and location.force == force]
+                         if location.named(str(name)) and location.force == force]
 
             # Filter by reachable from origin location
             if len(locations) >= 2 and origin is not None:

@@ -6,6 +6,8 @@ import adjudicator.board as bd
 import adjudicator.orders as od
 import unittest
 
+from auxiliary.errors import GameError
+
 class TestAdjudicator(unittest.TestCase):
 
     @classmethod
@@ -33,11 +35,11 @@ class TestAdjudicator(unittest.TestCase):
                       self.game.order_archive[0])
 
     def test_6_A_2(self):
-        with self.assertRaises(gm.GameError):
+        with self.assertRaises(GameError):
             self.game.order('Marseilles move to Gulf of Lyon')
 
     def test_6_A_3(self):
-        with self.assertRaises(gm.GameError):
+        with self.assertRaises(GameError):
             self.game.order('Trieste move to Tyrolia')
 
     def test_6_A_4(self):
@@ -662,7 +664,7 @@ class TestAdjudicator(unittest.TestCase):
                       self.game.order_archive[0])
 
     def test_6_D_22(self):
-        with self.assertRaises(gm.GameError):
+        with self.assertRaises(GameError):
             self.game.delete_unit('Paris')
             self.game.add_unit('Army', 'Austria', 'Gascony')
             self.game.add_unit('Army', 'Austria', 'Paris')
@@ -690,7 +692,7 @@ class TestAdjudicator(unittest.TestCase):
                       'coast) (succeeds).', self.game.order_archive[0])
 
     def test_6_D_24(self):
-        with self.assertRaises(gm.GameError):
+        with self.assertRaises(GameError):
             self.game.add_unit('Fleet', 'France', 'Spain (south coast)')
             self.game.add_unit('Fleet', 'France', 'Tyrrhenian Sea')
             self.game.add_unit('Fleet', 'France', 'Western Mediterranean')
@@ -2517,7 +2519,7 @@ class TestAdjudicator(unittest.TestCase):
                        '(south coast) (fails).'), self.game.order_archive[1])
 
     def test_6_I_2(self):
-        with self.assertRaises(gm.GameError):
+        with self.assertRaises(GameError):
             self.game.delete_unit('Moscow')
             self.game.delete_unit('Warsaw')
             self.game.adjudicate()

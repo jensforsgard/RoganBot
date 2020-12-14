@@ -42,35 +42,6 @@ class TestBoard(unittest.TestCase):
     def tearDown(self):
         pass
 
-    # def test_flatten(self):
-    #     answer = bd.flatten([[1], [2, 3], [[4]]])
-    #     self.assertEqual(answer, [1,2,3,[4]])
-
-    # def test_despecify(self):
-    #     geo = self.geography
-    #     string = 'Fleet (south coast).'
-    #     self.assertEqual(bd.despecify(string, geo), 'Fleet.')
-
-    # def test_first_named(self):
-    #     first = bd.first_named(self.map.provinces, 'Burgundy')
-    #     self.assertEqual(first.name, 'Burgundy')
-    #     self.assertIsInstance(first, bd.Province)
-    #     self.assertFalse(first.supply_center)
-
-    # def test_union(self):
-    #     union = bd.union([{1:2}, {3:4}])
-    #     self.assertEqual(union, {1:2, 3:4})
-
-    # def test_make_instances(self):
-    #     dicnry = {1: {'name': '10', 'short': '11', 'supply center': '12'},
-    #               2: {'name': '20', 'short': '21', 'supply center': '22'}}
-    #     answer = bd.make_instances(dicnry, bd.Province)
-    #     self.assertEqual(type(answer[0]), bd.Province)
-    #     self.assertEqual(type(answer[1]), bd.Province)
-    #     self.assertEqual(answer[0].name,'10')
-    #     self.assertEqual(answer[1].short,'21')
-    #     self.assertEqual(answer[0].supply_center,'12')
-
 
     # =========================================================================
     # Tests for the Location class.
@@ -176,6 +147,13 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(type(answer), bd.Force)
         self.assertEqual(answer.name, 'Army')
 
+    def test_intances(self):
+        answer = self.map.instances(['Denmark', 'Burgundy'], bd.Province)
+        self.assertEqual(len(answer), 2)
+        self.assertEqual(answer[0].name, 'Denmark')
+        self.assertEqual(answer[1].name, 'Burgundy')
+        self.assertEqual(type(answer[0]), bd.Province)
+
     def test_locations_of(self):
         province = self.map.instance('Spain', bd.Province)
         answer = [loc.name for loc in self.map.locations_of(province)]
@@ -220,14 +198,17 @@ class TestBoard(unittest.TestCase):
         self.season.progress()
         self.assertEqual(self.season.year, 1901)    
 
-    def test_regress(self):
-        self.season.regress()
-        self.assertEqual(self.season.year, 1899) 
-        self.assertEqual(self.season.phase, 'Builds')  
-        self.season.regress()
+    def test_relapse(self):
+        self.season.progress()
+        self.season.progress()
+        self.season.progress()
+        self.season.relapse()
+        self.assertEqual(self.season.year, 1900) 
+        self.assertEqual(self.season.phase, 'Diplomacy')  
+        self.season.relapse()
         self.assertEqual(self.season.phase, 'Retreats')
-        self.season.regress()
-        self.assertEqual(self.season.name, 'Fall')         
+        self.season.relapse()
+        self.assertEqual(self.season.name, 'Spring')         
 
     def test_conclude(self):
         self.season.conclude()

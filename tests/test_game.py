@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+@author: jensforsgard
+"""
 
-# =============================================================================
-# Comments
-# =============================================================================
 """ Methods which are currently not tested:
     game.show()
     game.__sort_units__()
-    game.__sort_orders__()
     
 Methods which are not tested here, but tested by test_adjudicator_DATC
     game.__resolve_diplomacy__()
@@ -22,24 +21,18 @@ Methods which are not tested here, but tested by test_adjudicator_DATC
 
 """
 
-# =============================================================================
-# Imports
-# =============================================================================
 
+import unittest
+import io
+import sys
+from geopandas import GeoDataFrame
 import adjudicator.board as bd
 import adjudicator.game as gm
 import adjudicator.orders as od
 import adjudicator.variant as vr
-import unittest
-import io
-import sys
-
-from geopandas import GeoDataFrame
+from auxiliary.itemlist import ItemList
 
 
-# =============================================================================
-# Tests
-# =============================================================================
 
 class TestAdjudicator(unittest.TestCase) :
 
@@ -64,47 +57,22 @@ class TestAdjudicator(unittest.TestCase) :
     def tearDown(self):
         pass
 
-    def test_appearances(self):
-        answer = gm.appearances(['a', 'b'], 'abcdefgab')
-        self.assertEqual(answer, 
-                         [{'entry': 'a', 'position': 0},
-                          {'entry': 'b', 'position': 1},
-                          {'entry': 'a', 'position': 7},
-                          {'entry': 'b', 'position': 8}])
-        answer = gm.appearances(['a', 'b'], 'abcdefgab',
-                                first=True, label=False)
-        self.assertEqual(answer, ['a', 'b'])
-        answer = gm.appearances(self.game.powers, 'Austria England',
-                                label=False)
-        self.assertEqual(answer, list(self.game.powers)[:2])
     
-    def test_translate(self):
-        answer = gm.translate(['a', 'c'], {'a':'d'})
-        self.assertEqual(answer, ['d', 'c'])
-
-    def test_first(self):
-        answer = gm.first([1,2,3])
-        self.assertEqual(answer, 1)
-        answer = gm.first([])
-        self.assertIs(answer, None)
-        answer = gm.first(None)
-        self.assertIs(answer, None)
-
     def test_info(self):
         capturedOutput = io.StringIO()
         out = sys.stdout
         sys.stdout = capturedOutput
-        self.gameRPS.info('variant')
-        self.gameRPS.info('map')
-        self.gameRPS.info('provinces')
-        self.gameRPS.info('supply centers')
-        self.gameRPS.info('abbreviations')
+        self.gameRPS.display('variant')
+        self.gameRPS.display('map')
+        self.gameRPS.display('provinces')
+        self.gameRPS.display('supply centers')
+        self.gameRPS.display('abbreviations')
         sys.stdout = out
         string = ("RPS\nRPS\n['Conakry', 'Monrovia', 'Freetown']\n['Conakry', "
                   "'Monrovia', 'Freetown']\n"
-                  "-   move\nS   support\nC   convoy\nH   hold\nB   build\n"
-                  "D   disband\nR   retreat\nA   army\nF   fleet\nSt   Saint\n"
-                  "destroy   disband\nCon Conakry\nMon Monrovia\nFre Fre"
+                  "- move\nS support\nC convoy\nH hold\nB build\n"
+                  "D disband\nR retreat\nA army\nF fleet\nSt Saint\n"
+                  "destroy disband\nCon Conakry\nMon Monrovia\nFre Fre"
                   "etown\n")
         self.assertEqual(capturedOutput.getvalue(), string)
 
@@ -116,7 +84,7 @@ class TestAdjudicator(unittest.TestCase) :
     def test___archive_position__(self):
         self.game.__archive_position__()
         self.assertEqual(self.game.position_archive[-1], 
-                         self.game.current_position())
+                          self.game.current_position())
 
     def test___archive_orders__(self):
         self.gameRPS.__archive_orders__()
@@ -127,14 +95,6 @@ class TestAdjudicator(unittest.TestCase) :
     def test___unit_color__(self):
         answer = self.gameRPS.__unit_color__(self.gameRPS.powers[0])
         self.assertEqual(answer, 'royalblue')
-
-    def test___province_color__(self):
-        answer = [self.gameRPS.__province_color__(prov.name) for prov in
-                  self.gameRPS.provinces]
-        self.assertEqual(answer, ['skyblue', 'lightpink', 'snow'])
-        answer = [self.gameRPS.__province_color__(prov) for prov in
-                  self.gameRPS.provinces]
-        self.assertEqual(answer, ['skyblue', 'lightpink', 'snow'])
 
     def test_start(self):
         game = gm.Game('RPS')
@@ -181,7 +141,7 @@ class TestAdjudicator(unittest.TestCase) :
 
     def test_load_graphics(self):
         self.assertIsNone(self.game.graphics)
-        self.game.load_graphics()
+        self.game.__load_graphics__()
         self.assertEqual(type(self.game.graphics), GeoDataFrame)
         names = list(self.game.graphics.name)
         for location in self.game.variant.map.locations:
@@ -202,7 +162,7 @@ class TestAdjudicator(unittest.TestCase) :
 
     def test_unit_in(self):
         province = next((prov for prov in self.game.provinces
-                         if prov.name == 'Berlin'), None)
+                          if prov.name == 'Berlin'), None)
         unit = self.game.unit_in(province)
         self.assertEqual(unit.owner.name, 'Germany')
         self.assertEqual(unit.force.name, 'Army')
@@ -218,7 +178,7 @@ class TestAdjudicator(unittest.TestCase) :
     def test_order_in(self):
         self.game.order('A Budapest move to Vienna.')
         province = next((prov for prov in self.game.provinces
-                         if prov.name == 'Budapest'), None)
+                          if prov.name == 'Budapest'), None)
         order = self.game.order_in(province)
         self.assertEqual(type(order), od.Move)
         self.assertEqual(order.target.name, 'Vienna')
@@ -354,7 +314,7 @@ class TestAdjudicator(unittest.TestCase) :
     def test_order(self):
         self.game.add_unit('Fleet', 'Germany', 'Gulf of Lyon')
         self.game.order(['A Berlin move to Kiel.', 'A Mar S Par - Bur', 
-                         'F GoL C Mar - Tus'])
+                          'F GoL C Mar - Tus'])
         order = [order.__str__() for order in self.game.orders]
         self.assertIn('German Army in Berlin move to Kiel [unresolved].',
                       order)
@@ -377,7 +337,8 @@ class TestAdjudicator(unittest.TestCase) :
 
     def test___format_support__(self):
         text = 'vienna supports budapest holds'
-        answer = self.game.__format_support__(text, ['Support', 'Hold'])
+        lst = ItemList(text, ['Support', 'Hold'])
+        answer = self.game.__format_support__(text, lst)
         self.assertEqual(type(answer), od.Support)
         self.assertEqual(type(answer.object_order), od.Hold)
         self.assertEqual(answer.object_order.unit.province.name, 'Budapest')
@@ -407,7 +368,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.__input_diplomacy__('fleet london hold')
         self.assertIn(order, [order.__str__() for order in self.game.orders])
         order = ('French Army in Marseilles supports the move Paris to'
-                 ' Burgundy [unresolved].')
+                  ' Burgundy [unresolved].')
         self.game.__input_diplomacy__('army marseilles supports paris move '
                                       'burgundy')
         self.assertIn(order, [order.__str__() for order in self.game.orders])
@@ -415,12 +376,12 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.__input_diplomacy__('army liverpool move to yorkshire')
         self.game.adjudicate()
         order = ('English Fleet in North Sea convoys Yorkshire to Norway '
-                 '[unresolved].')
+                  '[unresolved].')
         self.game.__input_diplomacy__('fleet north sea convoy yorkshire move '
                                       'to norway')
         self.assertIn(order, [order.__str__() for order in self.game.orders])
         order = ('English Army in Yorkshire move via convoy to Norway '
-                 '[unresolved].')
+                  '[unresolved].')
         self.game.__input_diplomacy__('army yorkshire move to norway via '
                                       'convoy')
         self.assertIn(order, [order.__str__() for order in self.game.orders])
@@ -441,9 +402,9 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.game.__input_builds__('russia 1 disband sevastopol')
         self.game.__input_builds__('germany 1 build army berlin')
-        order = 'Russian disband no. 1  is Fleet in Sevastopol.'
+        order = 'Russian disband no. 1 is Fleet in Sevastopol.'
         self.assertIn(order, [o.__str__() for o in self.game.orders])
-        order = 'German build no. 1  is Army in Berlin.'
+        order = 'German build no. 1 is Army in Berlin.'
         self.assertIn(order, [o.__str__() for o in self.game.orders])
 
     def test___resolve_builds__(self):
@@ -455,7 +416,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.__resolve_builds__()
         self.assertTrue(self.game.orders[0].resolved)
         order = self.game.orders[0].__str__()
-        self.assertEqual(order, 'German build no. 1  is Army in Berlin.')
+        self.assertEqual(order, 'German build no. 1 is Army in Berlin.')
 
     def test__resolve_retreats__(self):
         self.game.order('A Mun - Bur')
@@ -508,6 +469,23 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.supply_centers[russia] = range(18)
         self.game.conclude(True)
         self.assertEqual(self.game.winner, russia)      
+
+    def test___sort_orders__(self):
+        self.game.order(['A Bud - Gal', 'F Lon - NTH', 'A Lvp - Yor',
+                         'A Par - Bur', 'A Mar S Par - Bur', 'A Mun - Bur',
+                         'A Ven - Tyr'])
+        self.game.adjudicate()
+        self.game.order(['A Yor - Nwy via C', 'F NTH C Yor - Nwy', 
+                         'A Tyr - Mun', 'A Bur S A Tyr - Mun'])
+        self.game.adjudicate()
+        self.game.order('A Mun - Boh')
+        self.game.adjudicate()
+        info = self.game.info('orders')
+        expected = ('English build no. 1 is postponed.\nGerman disband no. 1 '
+                    'is by default.\nItalian build no. 1 is postponed.')
+        self.assertEqual(info, expected)
+        self.game.__sort_orders__()
+        self.assertEqual(info, expected)
 
 if __name__ == '__main__':
     unittest.main()

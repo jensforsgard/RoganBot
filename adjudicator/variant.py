@@ -58,20 +58,6 @@ class Power:
         """
         return self.name
 
-    def check_consistency(self, board):
-        """ Checks that all home centers are supply centers of board.
-
-        Raises
-        ------
-        VariantError : If a home center is not a cupply center.
-
-        """
-        mismatch = [center for center in self.home_center if
-                    center not in board.supply_centers()]
-        if len(mismatch) != 0:
-            raise VariantError(f'{self.genitive} home centers {mismatch} are'
-                               ' not supply centers.')
-
 
 # =============================================================================
 # The Unit Class

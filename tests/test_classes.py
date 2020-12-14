@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-""" Functions/Mehtods not tested here:
-    
-    bd.Map.check_consistency()
-        Method to check that the information stored in a .json file is ok.
-
-"""
     
 
 
@@ -17,7 +10,7 @@
 import unittest
 
 import adjudicator.board as bd
-from adjudicator.auxiliary import *
+from auxiliary.classes import (despecify, make_instances)
 
 
 # =============================================================================
@@ -44,24 +37,10 @@ class TestBoard(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_flatten(self):
-        answer = flatten([[1], [2, 3], [[4]]])
-        self.assertEqual(answer, [1,2,3,[4]])
-
     def test_despecify(self):
         geo = self.geography
         string = 'Fleet (south coast).'
         self.assertEqual(bd.despecify(string, geo), 'Fleet.')
-
-    def test_first_named(self):
-        first = first_named(self.map.provinces, 'Burgundy')
-        self.assertEqual(first.name, 'Burgundy')
-        self.assertIsInstance(first, bd.Province)
-        self.assertFalse(first.supply_center)
-
-    def test_union(self):
-        union = dict_union([{1:2}, {3:4}])
-        self.assertEqual(union, {1:2, 3:4})
 
     def test_make_instances(self):
         dicnry = {1: {'name': '10', 'short': '11', 'supply_center': '12'},
