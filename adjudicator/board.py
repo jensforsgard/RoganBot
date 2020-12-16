@@ -347,7 +347,10 @@ class Map:
         attributes = {Force: 'forces',
                       Geography: 'geographies',
                       Province: 'provinces'}
-        objects = getattr(self, attributes[class_])
+        try:
+            objects = getattr(self, attributes[class_])
+        except KeyError:
+            objects = getattr(self, class_)            
         return next((obj for obj in objects if obj.name == name), None)
 
 

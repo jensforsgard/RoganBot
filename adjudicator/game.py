@@ -5,11 +5,6 @@ of Diplomacy.
 
 The game class is currently a 'monster class', which contains most methods
 to parse input and resolve orders.
-
-Attributes:
-----------
-    Game
-
 """
 
 
@@ -25,6 +20,7 @@ from auxiliary.lists import (first, translate)
 from auxiliary.errors import (OrderInputError, GameError, AdjudicationError)
 from auxiliary.itemlist import ItemList
 from auxiliary.classes import dict_string
+from auxiliary.archive import (OrderArchive, PositionArchive)
 
 
 
@@ -32,9 +28,8 @@ from auxiliary.classes import dict_string
 class Game:
     """ A game of Diplomacy.
 
-    This monster class holds all information of a game, including the graphical
-    elements to draw a map. In addition, it holds all methods which govern
-    adjudicating the game.
+    This class holds all information of a game, including the methods to
+    parse and resolve orders, and to adjudicate.
 
     Attributes:
         page: string or None
@@ -46,7 +41,7 @@ class Game:
         powers: list of Powers
             The powers playing in the game.
         forces: list of Forces
-            The forces included in the game.
+            The forces appering in the variant.
         units: list of Units
             The current units in the game.
         provinces: list of Provinces
@@ -105,8 +100,8 @@ class Game:
         self.supply_centers = {}
         self.orders = []
         self.winner = None
-        self.position_archive = []
-        self.order_archive = []
+        self.position_archive = PositionArchive()
+        self.order_archive = OrderArchive()
         # Graphic objects; will be loaded if needed
         self.graphics = None
         self.shift = None
@@ -122,12 +117,12 @@ class Game:
 
 
     def info(self, string='units', pos=-1):
-        """ Retrieves informatino as a string.
+        """ Retrieves information in a string format.
 
         """
-        options = {'abbreviations', 'archive', 'center counts', 'centers', 
-                   'map', 'units', 'variant', 'orders', 'options',
-                   'provinces', 'season', 'supply centers'}
+        options = {'abbreviations', 'center counts', 'centers', 'map', 'units',
+                   'variant', 'order archive', 'orders', 'options',
+                   'position archive', 'provinces', 'season', 'supply centers'}
         if string not in options:
             raise ValueError(f'Option "{string}" not recognized.')
         elif string == 'options':
@@ -156,8 +151,10 @@ class Game:
         elif string == 'orders':
             self.__sort_orders__()
             return '\n'.join([f'{order}' for order in self.orders])
-        elif string == 'archive':
-            return '\n'.join([f'{entry}' for entry in self.order_archive[pos]])
+        elif string == 'order archive':
+            return str(self.order_archive)
+        elif string == 'position archive':
+            return str(self.position_archive)
 
 
     def display(self, string, pos=-1):
@@ -174,31 +171,21 @@ class Game:
         """ Returns a dictionary with a copy of the game's current position.
 
         """
-        return {'season': self.season.name,
-                'phase': self.season.phase,
-                'year': self.season.year,
-                'units': [{'force': unit.force.name,
-                           'owner': unit.owner.name,
-                           'location': unit.location.id}
-                          for unit in self.units],
-                'centers': {power.name: [province.name for province in
-                                         self.supply_centers[power]]
-                            for power in self.powers}}
+        return self.position_archive.last()
 
 
     def __archive_position__(self):
         """ Archives the current position.
 
         """
-        self.position_archive.append(self.current_position())
+        self.position_archive.enter(self)
 
 
     def __archive_orders__(self):
         """ Archives the current set of orders.
 
         """
-        self.__sort_orders__()
-        self.order_archive.append([str(order) for order in self.orders])
+        self.order_archive.enter(self)
 
 
     def __unit_color__(self, power):
@@ -222,16 +209,11 @@ class Game:
         """
         assert self.season.phase == 'Pregame', ('The Game is already started.')
         self.season.progress()
-
         for entry in self.variant.starting_positions:
-            self.add_unit(entry['force'], entry['power'], entry['location'])
-            # The add_unit method also adds a standard hold order.
-
+            self.add_unit(**entry)  # Also adds standard orders.
         for power in self.powers:
-            # Home centers are starting positions
             self.supply_centers[power] = set(self.occupied_provinces(power))
             self.home_centers[power] = self.supply_centers[power].copy()
-
         self.__archive_position__()
 
 
@@ -242,8 +224,8 @@ class Game:
         self.season = bd.Season('Spring', 'Pregame', self.variant.starting_year)
         self.units = []
         self.orders = []
-        self.position_archive = []
-        self.order_archive = []
+        self.position_archive = PositionArchive()
+        self.order_archive = OrderArchive()
         self.supply_centers = {}
         self.home_centers = {}
         self.winner = None
@@ -254,22 +236,17 @@ class Game:
         
         """
         self.season.relapse()  # Includes consistency check
-        orders = self.order_archive[-1]  # Remeber last phase's orders
-        del self.order_archive[-1]
-        del self.position_archive[-1]
+        orders = self.order_archive.last()  # Remeber last phase's orders
+        self.order_archive.rollback()
+        self.position_archive.rollback()
+        # Reset supply centers and winner
+        self.supply_centers = self.position_archive.centers(self)
         self.winner = None
-        position = self.position_archive[-1]
-        for power in self.powers:
-            # Reset supply ceter ownership
-            self.supply_centers[power] = set(self.variant.map.instances(
-                position['centers'][power.name], bd.Province))
-            # Check if there was already a winner
-            if len(self.supply_centers[power]) >= self.variant.win_condition:
-                self.winner = power
+        self.conclude(mute=True)
         # Reset the lists of units and orders
         self.units = []
         self.orders = []
-        for entry in position['units']:
+        for entry in self.position_archive.units():
             self.add_unit(**entry, overrule=True)
         # Add the unresolved orders for the last phase
         self.order(orders)
@@ -279,8 +256,9 @@ class Game:
         """ Computes the shift for the plotting retreating units.
         
         """
+        assert self.graphics is not None
         ycoords = [point.y for point in 
-                   self.graphics[self.graphics.point == True].geometry]
+                   self.graphics[self.graphics.point==True].geometry]
         self.shift = (max(ycoords) - min(ycoords))*.01        
 
 
@@ -304,27 +282,22 @@ class Game:
         self.units.sort(key=lambda unit: f'{unit.owner.name}{unit.id}')
 
 
-    def __sort_orders__(self):
+    def __sort_orders__(self, by='normal'):
         """ Sorts the list of orders.
 
         """
-        def rank_string(order):
+        def name_id(order):
             if self.season.phase == 'Builds':
                 owner = order.owner.name
                 idn = order.id
             else:
                 owner = order.unit.owner.name  
                 idn = order.unit.id
-            return f'{owner}{idn}'        
-        self.orders.sort(key=rank_string)
-
-
-    def __sort_by_relevance__(self):
-        """ Sorts the list of orders by order type; for a faster adjudication
-        procedure.
-
-        """
-        self.orders.sort(key=lambda order: order.relevance)
+            return f'{owner}{idn}'
+        if by == 'relevance':
+            self.orders.sort(key=lambda order: order.relevance)
+        else:
+            self.orders.sort(key=name_id)
 
 
     def unit_in(self, province, require=False, any_=False):
@@ -473,7 +446,7 @@ class Game:
             return max([unit.id for unit in self.units]) + 1
 
 
-    def add_unit(self, force, owner, location, overrule=False):
+    def add_unit(self, force, power, location, overrule=False):
         """ Adds a unit to the game in a given location. If we are in the
         Diplomacy phase, a standard order is also added.
 
@@ -483,14 +456,14 @@ class Game:
         # Retrieve classes if input was strings.
         if not isinstance(force, bd.Force):
             force = self.instance(force, bd.Force, require=True)
-        if not isinstance(owner, vr.Power):
-            owner = self.instance(owner, vr.Power, require=True)
+        if not isinstance(power, vr.Power):
+            power = self.instance(power, vr.Power, require=True)
         if not isinstance(location, bd.Location):
             location = self.locate(force, location, require=True)
         # Check that the given location is available.
         if not self.unit_in(location.province, any_=True) is None:
             raise GameError('Named province already contains a unit.')
-        unit = vr.Unit(self.__next_unit_id__(), owner, force, location)
+        unit = vr.Unit(self.__next_unit_id__(), power, force, location)
         self.units.append(unit)
         if self.season.phase == 'Diplomacy':
             self.orders.append(od.Hold(unit))
@@ -661,7 +634,6 @@ class Game:
         self.__update_order__(order)
 
 
-
     def __input_retreats__(self, text):
         """ Method to input orders during the Retreat phase.
 
@@ -719,7 +691,7 @@ class Game:
         """ Method to resolve orders during the diplomacy phase.
 
         """
-        self.__sort_by_relevance__()
+        self.__sort_orders__(by='relevance')
         counter = 1
         while counter < 3:
             unresolved = self.__unresolved_count__()

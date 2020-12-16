@@ -208,7 +208,10 @@ class Variant:
         """
         # This list should maybe not be hard coded
         classes = {Power: 'powers'}
-        objects = getattr(self, classes[class_type])
+        try:
+            objects = getattr(self, classes[class_type])
+        except KeyError:
+            objects = getattr(self, class_type)            
         return next((obj for obj in objects if obj.name == name), None)
 
     def check_consistency(self):
