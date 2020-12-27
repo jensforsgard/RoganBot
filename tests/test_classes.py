@@ -1,21 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-    
-
-
-# =============================================================================
-# Imports
-# =============================================================================
+""" Unittetst for the classes module.
+"""
 
 import unittest
 
 import adjudicator.board as bd
-from auxiliary.classes import (despecify, make_instances)
+from auxiliary.classes import make_instances
 
-
-# =============================================================================
-# Tests
-# =============================================================================
 
 class TestBoard(unittest.TestCase):
 

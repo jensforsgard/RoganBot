@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-@author: jensforsgard
-"""
+""" This module contains minor functions for object manipulation and
+information extraction.
 
+"""
 
 def despecify(string, geography):
     """ Removes the specifiers of the geography from the string.
@@ -15,8 +15,6 @@ def despecify(string, geography):
     return string
 
 
-
-
 def make_instances(dctnry, class_, *args):
     """ Creates a tuple of instances of a class whose identifiers are the
     keys of the dictionary and properties are given by the values of the
@@ -24,8 +22,6 @@ def make_instances(dctnry, class_, *args):
 
     """
     return tuple([class_(key, dctnry[key], *args) for key in dctnry])
-
-
 
 
 def dict_string(dctnry, deliminator='', func=lambda x: x):
@@ -42,3 +38,10 @@ def dict_string(dctnry, deliminator='', func=lambda x: x):
             except TypeError:
                 strings[key] = str(func(dctnry[key]))
     return '\n'.join([f'{key}{deliminator} {strings[key]}' for key in dctnry])
+
+
+def orders_of_type(orders, order_type):
+    """ Filters a list of order by type.
+
+    """
+    return [order for order in orders if isinstance(order, order_type)]

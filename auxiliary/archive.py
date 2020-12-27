@@ -17,6 +17,12 @@ class Archive:
         """
         self.entries = []
 
+    def reset(self):
+        """ Method to reset to an empty archive.
+        
+        """
+        self.entries = []
+
     def __iter__(self):
         """ Iterator.
         
@@ -55,12 +61,6 @@ class OrderArchive(Archive):
     
     """
 
-    def __init__(self):
-        """ Constructor.
-        
-        """
-        self.entries = []
-
     def __str__(self, k=None):
         """ Print method.
         
@@ -85,12 +85,6 @@ class PositionArchive(Archive):
     
     """
 
-    def __init__(self):
-        """ Constructor.
-        
-        """
-        self.entries = []
-
     def __str__(self, k=None):
         """ Print method.
         
@@ -107,7 +101,7 @@ class PositionArchive(Archive):
         dcnry = {'season': game.season.name,
                  'phase': game.season.phase,
                  'year': game.season.year,
-                 'units': [{'force': str(unit.force), 'owner': str(unit.owner),
+                 'units': [{'force': str(unit.force), 'power': str(unit.owner),
                             'location': unit.location.id} for unit in game.units],
                  'centers': {str(power): [str(province) for province in
                                           game.supply_centers[power]]
@@ -129,3 +123,13 @@ class PositionArchive(Archive):
 
         """
         return self.last()['units']
+
+    def setup(self, game):
+        """ Setup the game according to the last entry in the archive.
+        
+        """
+        game.supply_centers = self.centers(game)
+        game.units = []
+        game.orders = []
+        for entry in self.units():
+            game.add_unit(**entry, overrule=True)

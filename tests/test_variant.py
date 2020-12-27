@@ -1,22 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-# =============================================================================
-# Imports
-# =============================================================================
+""" Unittests for the variant module.
+"""
 
 import adjudicator.board as bd
 import adjudicator.game as gm
-#import adjudicator.orders as od
 import adjudicator.variant as vr
 import unittest
-#import io
-#import sys
 
-
-# =============================================================================
-# Tests
-# =============================================================================
 
 class TestAdjudicator(unittest.TestCase) :
 
@@ -48,6 +39,10 @@ class TestAdjudicator(unittest.TestCase) :
         germany = self.game.variant.instance('Germany', vr.Power)
         self.assertEqual(type(germany), vr.Power)
         self.assertEqual(germany.name, 'Germany')    
+    
+    def test_unit_sort_string(self):
+        unit = self.game.units[0]
+        self.assertEqual(unit.sort_string(), 'Austria1')
     
 if __name__ == '__main__':
     unittest.main()

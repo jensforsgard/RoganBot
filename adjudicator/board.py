@@ -15,7 +15,6 @@ from auxiliary.lists import (flatten, first_named, attr_select, dict_union)
 from auxiliary.classes import (despecify, make_instances, dict_string)
 
 
-
 class Province:
     """ A province is a ion of the map. 
 
@@ -288,7 +287,7 @@ class Map:
 
 
 #    @__loaded__
-    def info(self, string, require=False):
+    def info(self, string):
         """ Retrieves information as a string.
 
         """
@@ -300,7 +299,7 @@ class Map:
         elif lower == 'abbreviations':
             return dict_string(self.prov_dict)
         raise ValueError(f'Cannot display {string}.')
-            
+
 
 
     def display(self, string):
@@ -372,7 +371,7 @@ class Map:
 
 
 
-#    @__loaded__    
+#    @__loaded__ 
     def locate(self, force, name, origin=None, specifier=None, either=False):
         """ Returns a location identified by partial data.
 
@@ -387,35 +386,26 @@ class Map:
 
         """
         if type(name) in (str, Province):
-
             locations = [location for location in self.locations
                          if location.named(str(name)) and location.force == force]
-
             # Filter by reachable from origin location
             if len(locations) >= 2 and origin is not None:
                 locations = [location for location in locations
                              if origin.id in location.connections]
-
             # Filter by specifier.
             if len(locations) >= 2 and specifier is not None:
                 locations = [location for location in locations
                              if location.name == f'{name} {specifier}']
-
-        else:
-            
+        else:            
             locations = [location for location in self.locations
                          if location.id == name]
-
         if len(locations) > 1 and not either:
             raise MapError(f'There are at least two locations in {name} '
                            'matching the given criteria.')
-
         try:
             return locations[0]
-
         except IndexError:
             return None  # No available location.
-
 
 
 #    @__loaded__
@@ -469,9 +459,7 @@ class Season:
 
     """
 
-
-
-    def __init__(self, name, phase, year, count=0):
+    def __init__(self, year, name='Spring', phase='Pregame', count=0):
         """ Constructor.
 
         """
@@ -480,9 +468,19 @@ class Season:
         self.phase = phase
         self.year = year
 
+    def pregame(self, variant):
+        """ Sets to the pregame mode approproate for the given variant.
 
+        """
+        self.count = 0
+        self.name = 'Spring'
+        self.phase = 'Pregame'
+        self.year = variant.starting_year
 
     def __str__(self):
+        """ Print method.
+        
+        """
         if self.phase == 'Pregame':
             return 'Pregame.'
         elif self.phase == 'Builds':
@@ -490,39 +488,33 @@ class Season:
         else:
             return f'{self.phase} in {self.name} {str(self.year)}.'
 
-
-
     def __set_name_phase__(self):
         """ Deduces name and phase from the count.
 
         """
         k = self.count % 5
-
         if k in [1, 3]:
             self.phase = 'Diplomacy'
         elif k in [2, 4]:
             self.phase = 'Retreats'
         else:
             self.phase = 'Builds'
-        
         if k in [1, 2]:
             self.name = 'Spring'
         else:
             self.name = 'Fall'
 
-
-
-    def progress(self):
+    def progress(self, k=1):
         """ Moves the season forward one phase.
 
         """
         self.year += (self.phase == 'Builds')
         self.count += 1
         self.__set_name_phase__()
+        if k > 1:
+        	self.progress(k-1)
 
-
-
-    def relapse(self):
+    def rollback(self):
         """ Moves the season backwards one phase. 
         
         """

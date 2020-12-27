@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+""" Unittests for the board module.
 
-""" Functions/Mehtods not tested here:
+Functions/Methods which arenot tested here:
     
     bd.Map.check_consistency()
         Method to check that the information stored in a .json file is ok.
@@ -9,18 +10,9 @@
 """
     
 
-
-# =============================================================================
-# Imports
-# =============================================================================
-
 import adjudicator.board as bd
 import unittest
 
-
-# =============================================================================
-# Tests
-# =============================================================================
 
 class TestBoard(unittest.TestCase):
 
@@ -37,7 +29,7 @@ class TestBoard(unittest.TestCase):
         pass
     
     def setUp(self):
-        self.season = bd.Season('Spring', 'Diplomacy', 1900, count=1)
+        self.season = bd.Season(1900, 'Spring', 'Diplomacy', count=1)
     
     def tearDown(self):
         pass
@@ -198,16 +190,16 @@ class TestBoard(unittest.TestCase):
         self.season.progress()
         self.assertEqual(self.season.year, 1901)    
 
-    def test_relapse(self):
+    def test_rollback(self):
         self.season.progress()
         self.season.progress()
         self.season.progress()
-        self.season.relapse()
+        self.season.rollback()
         self.assertEqual(self.season.year, 1900) 
         self.assertEqual(self.season.phase, 'Diplomacy')  
-        self.season.relapse()
+        self.season.rollback()
         self.assertEqual(self.season.phase, 'Retreats')
-        self.season.relapse()
+        self.season.rollback()
         self.assertEqual(self.season.name, 'Spring')         
 
     def test_conclude(self):

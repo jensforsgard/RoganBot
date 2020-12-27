@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+""" Unittests for the itemlist module.
 """
-@author: jensforsgard
-"""
-
 
 import unittest
 import adjudicator.game as gm
@@ -11,8 +9,6 @@ import adjudicator.game as gm
 from auxiliary.itemlist import (__first_appearances__, __appearances__, 
                                 DecoratedItem, ItemList)
 from auxiliary.errors import OrderInputError
-
-
 
 
 class TestBoard(unittest.TestCase):
@@ -31,8 +27,6 @@ class TestBoard(unittest.TestCase):
     
     def tearDown(self):
         pass
-
-
 
     def test_DecoratedItem_translate(self):
         item = DecoratedItem(1, 2)
@@ -86,10 +80,24 @@ class TestBoard(unittest.TestCase):
         with self.assertRaises(OrderInputError):
             i_l.loc(1)
 
-    def test_ItemList_first_after(self):
+    def test_ItelList_pos__negative_entry_(self):
+        i_l = ItemList('A Paris move to Burgundy',
+                       self.game.variant.map.provinces)  
+        self.assertEqual(i_l.pos(-1), 16)
+
+    def test_ItemList_first(self):
         i_l = ItemList('Bur Par Bur', ['Par', 'Bur', 'Mar'])   
-        self.assertEqual(i_l.first_after(3), 'Par')
-        self.assertEqual(i_l.first_after(6), 'Bur')
+        self.assertEqual(i_l.first(3), 'Par')
+        self.assertEqual(i_l.first(6), 'Bur')
+        self.assertEqual(i_l.first(after=1, before=2), None)
+        i_l = ItemList('  ', ['Par', 'Bur', 'Mar'])
+        self.assertEqual(i_l.first(after=1, before=5), None)
+
+    def test_ItemList_getitme_(self):
+        i_l = ItemList('Burgundy Paris Burgundy',
+                       self.game.variant.map.provinces)   
+        self.assertEqual(i_l[0].name, 'Burgundy')
+        self.assertEqual(i_l[1].name, 'Paris')
 
 if __name__ == '__main__':
     unittest.main()

@@ -121,6 +121,12 @@ class Unit:
         self.location = location
         self.province = location.province
 
+    def sort_string(self):
+        """ Returns the string format by which units are sorted.
+        
+        """
+        return f'{self.owner}{self.id}'
+
 
 # =============================================================================
 # The Variant Class

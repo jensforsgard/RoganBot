@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" Functions/Mehtods not tested here, all of which are methods tested through
+""" Unittests for the orders module.
+
+Functions/Mehtods not tested here, all of which are methods tested through
 the test_adjudicator_DATC module:    
     
     od.Move.__stronger_than__()
@@ -32,20 +34,11 @@ the test_adjudicator_DATC module:
     
 """
 
-
-# =============================================================================
-# Imports
-# =============================================================================
-
 import adjudicator.orders as od
 import adjudicator.board as bd
 import adjudicator.game as gm
 import unittest
 
-
-# =============================================================================
-# Tests
-# =============================================================================
 
 class TestOrders(unittest.TestCase):
 
@@ -234,6 +227,43 @@ class TestOrders(unittest.TestCase):
         self.assertTrue(order3.__supports_attack_on_self__(order1))
         self.assertFalse(order3.__supports_attack_on_self__(order2))
 
+    def test__move_sort_string__(self):
+        self.game.order('A Ank - Con')
+        strings = [order.sort_string() for order in self.game.orders]
+        self.assertIn('Turkey20', strings)
+
+
+    # =========================================================================
+    # The Hold Class
+    # =========================================================================
+
+    def test__hold_sort_string__(self):
+        strings = [order.sort_string() for order in self.game.orders]
+        self.assertIn('Turkey20', strings)
+
+
+    # =========================================================================
+    # The Support Class
+    # =========================================================================
+
+    def test__support_sort_string__(self):
+        self.game.order('A Ank S F Smy - Con')
+        strings = [order.sort_string() for order in self.game.orders]
+        self.assertIn('Turkey20', strings)
+
+
+    # =========================================================================
+    # The Convoy Class
+    # =========================================================================
+
+    def test__convoy_sort_string__(self):
+        self.game.order(['F Bre - ENG', 'A Par - Pic'])
+        self.game.adjudicate()
+        self.game.order('F ENG C A Pic - Wal')
+        strings = [order.sort_string() for order in self.game.orders]
+        self.assertIn('France7', strings)
+
+
     # =========================================================================
     # The Retreat Class
     # =========================================================================
@@ -252,6 +282,29 @@ class TestOrders(unittest.TestCase):
         self.game.order(['F TYS - Nap', 'A Apu - Nap'])
         self.game.adjudicate()
         self.assertEqual(len(self.game.units), 24)
+
+    def test__retreat_sort_string__(self):
+        retreat = od.Retreat(25, self.game.units[0], [])
+        self.assertEqual(retreat.sort_string(), 'Austria1')
+
+
+    # =========================================================================
+    # The Disband Class
+    # =========================================================================
+
+    def test__disband_sort_string__(self):
+        disband = od.Disband(25, self.game.powers[0])
+        self.assertEqual(disband.sort_string(), 'Austria25')
+
+
+    # =========================================================================
+    # The Build Class
+    # =========================================================================
+
+    def test__build_sort_string__(self):
+        disband = od.Build(25, self.game.powers[0])
+        self.assertEqual(disband.sort_string(), 'Austria25')
+
 
     # =========================================================================
     # Adjudicator scenarios tests

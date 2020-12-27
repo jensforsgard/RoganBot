@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+""" This module contains error classes.
+
 """
-Created on Fri Dec 11 17:53:26 2020
-
-@author: jensforsgard
-"""
-
-
 
 class MapError(Exception):
 
     def __init__(self, message):
         self.message = message
-
 
 
 class AdjudicationError(Exception):
@@ -21,15 +16,19 @@ class AdjudicationError(Exception):
         self.message = message
 
 
-
 class GameError(Exception):
 
     def __init__(self, message):
         self.message = message
 
 
-
 class OrderInputError(Exception):
 
     def __init__(self, message):
         self.message = message
+
+
+# class OrderError(Exception):
+
+#     def __init__(self, message):
+#         self.message = message
