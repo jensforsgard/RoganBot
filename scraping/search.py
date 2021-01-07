@@ -238,7 +238,10 @@ def search_page(variant, k, webpage, info):
     mess_dict = {'All': ('messageNorm=Yes&messagePub=Yes&messageNon=Yes&'
                          'messageRule=Yes'),
                  'Gunboat': ('messageNorm=No&messagePub=No&messageNon=Yes&'
-                             'messageRule=No')}
+                             'messageRule=No'),
+                 'FullPress': ('messageNorm=Yes&messagePub=No&messageNon=No&'
+                             'messageRule=Yes')}
+
     assert info['Messaging'] in mess_dict.keys()
     messaging = mess_dict[info['Messaging']]
     urls = {'webDiplomacy': ('http://webdiplomacy.net/gamelistings.php?gamelis'
