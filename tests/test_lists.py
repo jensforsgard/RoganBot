@@ -5,8 +5,8 @@
 
 import unittest
 import adjudicator.board as bd
-from auxiliary.lists import (first, first_named, flatten, attr_select,
-                             translate, dict_union)
+from lib.lists import (first, first_named, flatten, attr_select,
+                       translate, dict_union)
 
 
 class TestBoard(unittest.TestCase):

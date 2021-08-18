@@ -27,8 +27,8 @@ import adjudicator.board as bd
 import adjudicator.game as gm
 import adjudicator.orders as od
 import adjudicator.variant as vr
-from auxiliary.itemlist import ItemList
-from auxiliary.archive import (OrderArchive, PositionArchive)
+from lib.itemlist import ItemList
+from lib.archive import (OrderArchive, PositionArchive)
 
 
 class TestAdjudicator(unittest.TestCase) :

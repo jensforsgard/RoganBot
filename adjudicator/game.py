@@ -15,13 +15,12 @@ import adjudicator.variant as vr
 import adjudicator.board as bd
 import graphics.graphics as graphics
 
-from auxiliary.lists import (first, translate, flatten)
-from auxiliary.errors import (OrderInputError, GameError, AdjudicationError)
-from auxiliary.itemlist import ItemList
-from auxiliary.classes import dict_string
-from auxiliary.archive import (OrderArchive, PositionArchive)
-from auxiliary.wrappers import (builds, pregame, province_or_unit, require)
-from auxiliary.parser import Parser
+from lib.lists import (first, flatten)
+from lib.errors import (OrderInputError, GameError, AdjudicationError)
+from lib.classes import dict_string
+from lib.archive import (OrderArchive, PositionArchive)
+from lib.wrappers import (builds, pregame, province_or_unit, require)
+from lib.parser import Parser
 
 
 class Game:

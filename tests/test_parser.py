@@ -6,8 +6,8 @@
 
 import unittest
 import adjudicator.game as gm
-import auxiliary.parser as ps
-from auxiliary.errors import OrderInputError
+import lib.parser as ps
+from lib.errors import OrderInputError
 
 
 class TestAdjudicator(unittest.TestCase) :
@@ -62,7 +62,7 @@ class TestAdjudicator(unittest.TestCase) :
 
     def test_parse_Diplomacy_Move_fleet_convoyed(self):
         with self.assertRaises(OrderInputError):
-            parser = ps.Parser('F Ank - StP via C', self.game)
+            parser = ps.Parser('F Ank - Sev via C', self.game)
             order = parser.new()
 
     def test_parse_Diplomacy_SupportHold(self):

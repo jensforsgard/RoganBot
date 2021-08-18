@@ -6,9 +6,9 @@
 import unittest
 import adjudicator.game as gm
 
-from auxiliary.itemlist import (__first_appearances__, __appearances__, 
-                                DecoratedItem, ItemList)
-from auxiliary.errors import OrderInputError
+from lib.itemlist import (__first_appearances__, __appearances__, 
+                          DecoratedItem, ItemList)
+from lib.errors import OrderInputError
 
 
 class TestBoard(unittest.TestCase):

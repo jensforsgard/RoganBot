@@ -10,9 +10,9 @@
 import json
 
 #from adjudicator.auxiliary import *
-from auxiliary.errors import MapError
-from auxiliary.lists import (flatten, first_named, attr_select, dict_union)
-from auxiliary.classes import (despecify, make_instances, dict_string)
+from lib.errors import MapError
+from lib.lists import (flatten, first_named, attr_select, dict_union)
+from lib.classes import (despecify, make_instances, dict_string)
 
 
 class Province:

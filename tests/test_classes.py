@@ -6,7 +6,7 @@
 import unittest
 
 import adjudicator.board as bd
-from auxiliary.classes import make_instances
+from lib.classes import make_instances
 
 
 class TestBoard(unittest.TestCase):

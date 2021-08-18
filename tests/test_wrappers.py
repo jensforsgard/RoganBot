@@ -5,7 +5,7 @@
 
 import unittest
 import adjudicator.game as gm
-from auxiliary.wrappers import require
+from lib.wrappers import require
 
 
 class TestAdjudicator(unittest.TestCase) :
