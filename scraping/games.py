@@ -12,7 +12,7 @@ Created on Sun May 17 22:43:37 2020
 
 from requests import get
 from bs4 import BeautifulSoup
-from search import destring
+from scraping.search import destring
 import pandas as pd
 import numpy as np
 import re
@@ -52,7 +52,7 @@ def scrape_game(game, variant, page):
             'vDiplomacy': (f'https://www.vdiplomacy.com/board.php?gameID='
                            f'{game}&viewArchive=Orders')}
     webpage = get(urls[page], stream=True)
-    file = open(f'data/games/{variant}/{page}/{game}.html', 'w')
+    file = open(f'scraping/data/games/{variant}/{page}/{game}.html', 'w')
     file.write(str(webpage.content))
     file.close()
 
@@ -61,11 +61,11 @@ def scrape_games(variant, page, wait=3, m=100, verbose=True):
     """ Scrapes games of form a specific page in a specific variant.
 
     """
-    df = pd.read_csv(f'data/{variant}.csv')
+    df = pd.read_csv(f'scraping/data/{variant}.csv')
     df = df[(df.Discarded == False) & (df.Page == page)]
     want = list(df.GameID);
     exist = [try_int(string.replace('.html','')) 
-             for string in os.listdir(f'data/games/{variant}/{page}')]
+             for string in os.listdir(f'scraping/data/games/{variant}/{page}')]
     missing = [k for k in want if k not in exist]
     if verbose:
         print(f'{len(want)} games of {variant} from {page} in the database.\n'
@@ -198,7 +198,7 @@ def game_year_dictionary(gameID, variant, host, year, territories, m=2):
     
     """
     # Read in the game file...
-    file = open(f'data/games/{variant}/{host}/{gameID}.html', 'r')
+    file = open(f'scraping/data/games/{variant}/{host}/{gameID}.html', 'r')
     content = file.read()
     file.close()
     # ...and parse by Beautiful soup
@@ -229,11 +229,11 @@ def load_year(year, variant, host, variants, m=1000):
     powers = destring(variants[variants.Name == variant].Powers.iloc[0])
     territories = variants[variants.Name == variant].Dictionary.iloc[0]
     col1 = f'{powers[0]}S{year}'
-    df = pd.read_csv(f'data/{variant}.csv')
+    df = pd.read_csv(f'scraping/data/{variant}.csv')
     unloaded = df[(df[col1].isnull()) & (df['Discarded']==False)
                   & (df['Manual']==False)].copy()
     existing = [try_int(string.replace('.html','')) for string 
-                in os.listdir(f'data/games/{variant}/{host}/')]
+                in os.listdir(f'scraping/data/games/{variant}/{host}/')]
     load = [i for i in unloaded.index 
             if unloaded.loc[i, 'GameID'] in existing]
     print(f'There are {len(load)} games left to import.')
@@ -242,6 +242,6 @@ def load_year(year, variant, host, variants, m=1000):
                                           host, year, territories, m=len(powers))
         for key in dictionary.keys():
             df[key].loc[i] = dictionary[key]
-    df.to_csv(f'data/{variant}.csv', index=False)
+    df.to_csv(f'scraping/data/{variant}.csv', index=False)
 
     

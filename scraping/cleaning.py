@@ -35,14 +35,14 @@ def discard_short_games(variant, length, dataframe):
         year = int(row.Start.iloc[0])
     except ValueError:
         raise ValueError('Variant does not have valid starting year.')
-    games = pd.read_csv(f'data/{variant}.csv')
+    games = pd.read_csv(f'scraping/data/{variant}.csv')
     def extract_year(turn):
         turn = turn.replace('Spring, ', '')
         turn = turn.replace('Autumn, ', '')
         return int(turn)
     bools = [extract_year(turn) < int(year) + length for turn in games.Turn] 
     games.update(pd.DataFrame({'Discarded': bools}))
-    games.to_csv(f'data/{variant}.csv', index=False)
+    games.to_csv(f'scraping/data/{variant}.csv', index=False)
 
 
 def discard_game(nr, variant):
@@ -53,13 +53,13 @@ def discard_game(nr, variant):
         
     """
 
-    games = pd.read_csv(f'data/{variant}.csv')
+    games = pd.read_csv(f'scraping/data/{variant}.csv')
     for col in games.columns:
         if col not in ['GameID', 'Pot', 'Page', 'Discarded', 'Phase', 'Turn',
                        'Date', 'Manual']:
             games.loc[nr, col] = None
     games.loc[nr, 'Discarded'] = True
-    games.to_csv(f'data/{variant}.csv', index=False)
+    games.to_csv(f'scraping/data/{variant}.csv', index=False)
 
 # =============================================================================
 # Clearning, after scraping game files.
@@ -72,7 +72,7 @@ def first_season(gameID, variant, host='vDiplomacy'):
     """
     
     # Read the game html file from the folder andr parse through Beautiful soup
-    file = open(f'data/games/{variant}/{host}/{gameID}.html', 'r')
+    file = open(f'scraping/data/games/{variant}/{host}/{gameID}.html', 'r')
     content = file.read()
     file.close()
     html = BeautifulSoup(content, 'html.parser')
@@ -95,7 +95,7 @@ def manuals(variant, var_df):
     if year is None:
         raise ValueError('Warning: find_manual_games: No such variant')
     # Load the variant dataframe
-    df = pd.read_csv(f'data/{variant}.csv')    
+    df = pd.read_csv(f'scraping/data/{variant}.csv')    
     for k in df.index:
         if df.loc[k, 'Page'] != 'vDiplomacy':
             df.loc[k, 'Manual'] = False
@@ -105,4 +105,4 @@ def manuals(variant, var_df):
             df.loc[k, 'Manual'] = False
         else:
             df.loc[k, 'Manual'] = True
-    df.to_csv(f'data/{variant}.csv', index = False)
+    df.to_csv(f'scraping/data/{variant}.csv', index = False)

@@ -296,7 +296,7 @@ def scrape_search_pages(variant, webpage, first, last, wait=3):
     Adds an waiting time of _wait_ seconds in between scrapes, for curtesy.
         
     """
-    variants = pd.read_csv('data/variants.csv')
+    variants = pd.read_csv('scraping/data/variants.csv')
     if variant not in list(variants.Name):
         raise ValueError('The variant is not recognized.')
     if webpage not in variants.columns:
@@ -305,7 +305,7 @@ def scrape_search_pages(variant, webpage, first, last, wait=3):
         raise ValueError('Inconsistent page ranges.')
     # Retrieve variant information
     info = variants[variants['Name'] == variant].iloc[0]
-    dataset = pd.read_csv(f'data/{variant}.csv')
+    dataset = pd.read_csv(f'scraping/data/{variant}.csv')
     for k in range(first, last+1):
         # Function search_page returns a list of dictionaries of games not yet
         # in the database. It should return a dataframe which is to be
@@ -316,6 +316,6 @@ def scrape_search_pages(variant, webpage, first, last, wait=3):
                 dataset = dataset.append(dicto, ignore_index=True) 
         time.sleep(wait)
     # Save the updated dataset.
-    dataset.to_csv(f'data/{variant}.csv', index=False)
+    dataset.to_csv(f'scraping/data/{variant}.csv', index=False)
 
 
