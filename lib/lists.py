@@ -75,3 +75,9 @@ def dict_union(dictionary_list):
     return answer
 
 
+def split_at(lst, entry, shift=0):
+    """ Splits a list at the first instance of entry, with a shift.
+    
+    """
+    k = lst.index(entry) + shift
+    return (lst[:k], lst[k:])
