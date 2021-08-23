@@ -9,6 +9,7 @@ import pandas as pd
 
 from positions.parser import GameFile
 from adjudicator.variant import Variant
+from lib.errors import OrderInputError
 
 
 # =============================================================================
@@ -57,16 +58,22 @@ class PositionsDB():
         """
         j = 1
         for k in self.data.index[~self.data.Loaded]:
-            game = GameFile(self.variant.name, self.folder, self.host, str(k))
-            game.run()
-            centers = game.game.current_position()['centers']
-            for key in centers:
-            	self.data.loc[k, centers[key]] = key
-            self.data.loc[k, 'Loaded'] = True
-            if bound is not None:
-                if j >= bound:
-                    break
-            j += 1
+            try:
+                game = GameFile(self.variant.name, self.folder, self.host, str(k))
+                try:
+                    game.run()
+                    centers = game.game.current_position()['centers']
+                    for key in centers:
+                        self.data.loc[k, centers[key]] = key
+                    self.data.loc[k, 'Loaded'] = True
+                except (OrderInputError, ValueError):
+                    print(f'Skipping game {k} due to an adjudication error.')
+                if bound is not None:
+                    if j >= bound:
+                        break
+                j += 1
+            except FileNotFoundError:
+                pass
     
     def save_csv(self):
         """ Saves the dataframe as a csv file in the sub data folder.
