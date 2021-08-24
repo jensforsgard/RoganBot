@@ -469,7 +469,10 @@ class TestAdjudicator(unittest.TestCase):
         self.game.order('Wales supports Yorkshire move to London')
         self.game.order('North Sea S London H')
         self.game.adjudicate()
-        self.assertIn('Austrian Army in London move via convoy to Belgium '
+        # Explicit convoying
+        # self.assertIn('Austrian Army in London move via convoy to Belgium '
+        #               '(fails).', self.game.order_archive.loc(0))
+        self.assertIn('Austrian Army in London move to Belgium '
                       '(fails).', self.game.order_archive.loc(0))
         self.assertIn('French Army in Yorkshire move to London (succeeds).', 
                       self.game.order_archive.loc(0))
@@ -797,7 +800,11 @@ class TestAdjudicator(unittest.TestCase):
         self.game.order('Black Sea supports move Rumania to Armenia')
         self.game.order('Ankara move to Armenia')
         self.game.adjudicate()
-        self.assertIn('Austrian Army in Rumania move via convoy to Armenia '
+        # Explicit convoy rule
+        # self.assertIn('Austrian Army in Rumania move via convoy to Armenia '
+        #               '(fails).', self.game.order_archive.loc(0))
+        # webDip rule adjustment
+        self.assertIn('Austrian Army in Rumania move to Armenia '
                       '(fails).', self.game.order_archive.loc(0))
         self.assertIn('French Army in Ankara move to Armenia (succeeds).', 
                       self.game.order_archive.loc(0))
@@ -1983,14 +1990,19 @@ class TestAdjudicator(unittest.TestCase):
         self.game.delete_unit('Liverpool')
         self.game.delete_unit('London')
         self.game.delete_unit('Edinburgh')
+        self.game.delete_unit('Kiel')
         self.game.add_unit('Fleet', 'England', 'North Sea')
         self.game.add_unit('Army', 'England', 'Holland')
         self.game.order('Belgium move to Holland via Convoy')
         self.game.order('North Sea move to Heligoland Bight')
         self.game.order('Holland move to Kiel')
         self.game.adjudicate()
-        self.assertIn('French Army in Belgium move via convoy to Holland '
-                      '(fails).', self.game.order_archive.loc(0))
+        # Explicit convoying
+        # self.assertIn('French Army in Belgium move via convoy to Holland '
+        #               '(fails).', self.game.order_archive.loc(0))
+        # webDip rule adjustment
+        self.assertIn('French Army in Belgium move to Holland (succeeds).',
+                      self.game.order_archive.loc(0))
 
     def test_6_G_10(self):
         self.game.delete_unit('Brest')
