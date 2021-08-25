@@ -474,7 +474,7 @@ class Game:
         self.__sort_orders__(by='relevance')
         for order in self.orders:
             if isinstance(order, od.Move):
-                order.__adjacent_convoy__(self.orders)
+                order.__adjacent_convoy__(self.orders, self.variant.map)
         counter = 1
         while counter < 3:
             unresolved = self.__unresolved_count__()
