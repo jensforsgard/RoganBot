@@ -36,7 +36,7 @@ class GameFile():
         Parameters
         ----------
         variant: string
-        	map name, as stored in the adjudicator/variants folder.
+            map name, as stored in the adjudicator/variants folder.
         folder: string
             The name of variant in the variants.csv table
         host: string
@@ -131,11 +131,13 @@ class GameFile():
         on the season.
         
         """
-        name = self.game.season.name + ', ' + str(self.game.season.year)
-        try:
-            getattr(self, f'adjudicate_{self.game.season.phase}')(self.orders[name])
-        except KeyError:
-            self.ended = True
+        for j in range(k):
+            name = self.game.season.name + ', ' + str(self.game.season.year)
+            try:
+                getattr(self, f'adjudicate_{self.game.season.phase}')(self.orders[name])
+            except KeyError:
+                self.ended = True
+                pass
 
     def adjudicate_Diplomacy(self, orders):
         """ Method to adjudicate a Diplomacy season.
