@@ -634,7 +634,7 @@ class Game:
         if self.winner is not None and not mute:
             print(f'Game won by {self.winner.name}.')
 
-    def adjudicate(self, mute=False, verbose=False):
+    def adjudicate(self, mute=False, verbose=False, hold=False):
         """ Main method to adjudicat the game.
 
         """
@@ -653,5 +653,5 @@ class Game:
         self.conclude(mute)
         self.__archive_position__()
         # If next phase requires no orders, then move on automatically
-        if len(self.orders) == 0 and self.winner is None:
+        if (not hold) and (len(self.orders) == 0) and (self.winner is None):
             self.adjudicate(mute=mute, verbose=verbose)
