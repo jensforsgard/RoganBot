@@ -78,6 +78,12 @@ class OrderArchive(Archive):
         entry.sort()
         self.entries.append(entry)
 
+    def last_orders(self):
+        """ Returns the last set of orders as entered.
+        
+        """
+        return [order.replace(' (succeeds)', '').replace(' (fails)', '')
+                for order in self.last()]
 
 class PositionArchive(Archive):
     """ A PositionArchive is a collection of positions, stored as dictionaries
