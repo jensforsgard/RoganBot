@@ -28,6 +28,17 @@ class OrderInputError(Exception):
         self.message = message
 
 
+class PuzzleError(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+class ParserError(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+
 # class OrderError(Exception):
 
 #     def __init__(self, message):
