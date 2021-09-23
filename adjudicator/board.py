@@ -14,51 +14,7 @@ from lib.errors import MapError
 from lib.lists import (flatten, first_named, attr_select, dict_union)
 from lib.classes import (despecify, make_instances, dict_string)
 
-from adjudicator import Province
-
-
-
-class Geography:
-    """ A Geography is a container of a unit associated with a province.
-
-    Attributes:
-        name: string
-            Should be unique; primary identifier for geographies.
-        force: Force
-            Only units of this force may be contained in the geography.
-        orders: list of strings
-            The type of orders, encoded by their names, which are available
-            for a unit contained in an instance of the geography.
-
-    """
-
-
-
-    def __init__(self, name, dctnry, map_):
-        """ Constructor.
-
-        Parameters
-        ----------
-        name: string
-        dctnry: dictionary
-            Containing the remaining properties.
-        map_: Map
-            The game map, necessary to initate the force attribute.
-        """
-        self.name = name
-        self.force = map_.instance(dctnry['unit'], Force)
-        self.orders = dctnry['orders']
-
-
-
-    def __str__(self):
-        """ Print format.
-
-        """
-        return self.name
-
-
-
+from adjudicator import (Force, Geography, Province)
 
 class Location:
     """ A location is a geography attached to a province.
@@ -146,39 +102,6 @@ class Location:
 
 
 
-
-class Force:
-    """ A Force is a type of unit.
-    
-    Attributes:
-        name: string
-        may_receive: list of strings
-            List of orders, as strings, which the force may be object of.
-        specifiers: list of strings
-            List of specifiers of locations that can contain the force.
-        short_forms: dictionary
-            Short forms of the specifiers.
-
-    """
-
-
-
-    def __init__(self, name, dctnry):
-        """ Constructor.
-
-        """
-        self.name = name
-        self.may_receive = tuple(dctnry['may receive'])
-        self.specifiers = tuple(dctnry['specifiers'])
-        self.short_forms = dict(zip(dctnry['short forms'], self.specifiers))
-
-
-
-    def __str__(self):
-        """ Print format.
-
-        """
-        return self.name
 
 
 
@@ -283,7 +206,7 @@ class Map:
         # Create all class instances
         self.forces = make_instances(data['forces'], Force)
         self.provinces = make_instances(data['provinces'], Province)
-        self.geographies = make_instances(data['geographies'], Geography, self)
+        self.geographies = make_instances(data['geographies'], Geography, map_=self)
         self.locations = make_instances(data['locations'], Location, self)
 
         # Retrieve the short form dictionaries.

@@ -13,7 +13,7 @@ import adjudicator.variant as vr
 import adjudicator.board as bd
 import graphics.graphics as graphics
 
-from adjudicator import Province
+from adjudicator import (Force, Geography, Province)
 
 from lib.lists import (first, flatten)
 from lib.errors import (OrderInputError, GameError, AdjudicationError)
@@ -80,11 +80,12 @@ class Game:
         return (f'Game variant: {self.variant.name}.\n'
                 f'Game map: {self.variant.map.name}.\n'
                 f'Season: {self.season.__str__()}')
-
+	
     def info(self, string='units', pos=-1):
         """ Retrieves information in a string format.
 
         """
+        # Options with print values should be stored in a dictionary.
         options = {'abbreviations', 'center counts', 'centers', 'map', 'units',
                    'variant', 'order archive', 'orders', 'options',
                    'position archive', 'provinces', 'season', 'supply centers'}
@@ -327,16 +328,16 @@ class Game:
 
         """
         classes = {'power': vr.Power,
-                   'force': bd.Force,
+                   'force': Force,
                    'province': Province,
-                   'geography': bd.Geography}
+                   'geography': Geography}
         if isinstance(class_or_class_name, str):
             class_type = classes[class_or_class_name.lower()]
         else:
             class_type = class_or_class_name
         if getattr(class_type, '__module__', None) == bd.__name__:
             return self.variant.map.instance(name, class_type)
-        elif class_type is Province:
+        elif class_type in (Force, Geography, Province):
             return self.variant.map.instance(name, class_type)
         elif getattr(class_type, '__module__', None) == vr.__name__:
             return self.variant.instance(name, class_type)
@@ -376,8 +377,8 @@ class Game:
         message = 'You cannot manually add unit during the retreat phase.'
         assert overrule or self.season.phase != 'Retreats', message
         # Retrieve classes if input was strings.
-        if not isinstance(force, bd.Force):
-            force = self.instance(force, bd.Force, require=True)
+        if not isinstance(force, Force):
+            force = self.instance(force, Force, require=True)
         if not isinstance(power, vr.Power):
             power = self.instance(power, vr.Power, require=True)
         if not isinstance(location, bd.Location):
@@ -412,6 +413,7 @@ class Game:
                 self.supply_centers[second_power].difference_update(occupied)
             self.supply_centers[power].update(occupied)
 
+	# Should be wrapped in a list_input wrapper
     def order(self, string_or_list):
         """  Main method to input orders. Accepts a string or a list of strings
         as input. Parses the input and replaces (Diplomacy phase) or updates

@@ -15,7 +15,7 @@ def despecify(string, geography):
     return string
 
 
-def make_instances(dctnry, class_, *args):
+def make_instances(dctnry, class_, *args, **kwargs):
     """ Creates a tuple of instances of a class whose identifiers are the
     keys of the dictionary and properties are given by the values of the
     dictionary.
@@ -24,10 +24,10 @@ def make_instances(dctnry, class_, *args):
     
     # This line should be depricated.
     try:
-        return tuple([class_(key, dctnry[key], *args) for key in dctnry])
+        return tuple([class_(key, dctnry[key], *args, **kwargs) for key in dctnry])
      
     except TypeError:
-        return tuple([class_(key, **dctnry[key]) for key in dctnry])
+        return tuple([class_(key, **{**dctnry[key], **kwargs}) for key in dctnry])
 
 
 def dict_string(dctnry, deliminator='', func=lambda x: x):

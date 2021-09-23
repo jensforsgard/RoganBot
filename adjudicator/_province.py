@@ -1,4 +1,4 @@
-""" The Province Class
+""" The Province class
 
 """
 
