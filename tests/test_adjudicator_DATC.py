@@ -8,6 +8,8 @@ import adjudicator.board as bd
 import adjudicator.orders as od
 import unittest
 
+from adjudicator import Province
+
 class TestAdjudicator(unittest.TestCase):
 
     @classmethod

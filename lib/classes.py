@@ -21,7 +21,13 @@ def make_instances(dctnry, class_, *args):
     dictionary.
 
     """
-    return tuple([class_(key, dctnry[key], *args) for key in dctnry])
+    
+    # This line should be depricated.
+    try:
+        return tuple([class_(key, dctnry[key], *args) for key in dctnry])
+     
+    except TypeError:
+        return tuple([class_(key, **dctnry[key]) for key in dctnry])
 
 
 def dict_string(dctnry, deliminator='', func=lambda x: x):

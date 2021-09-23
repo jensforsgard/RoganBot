@@ -6,6 +6,8 @@
 import unittest
 
 import adjudicator.board as bd
+
+from adjudicator import Province
 from lib.classes import make_instances
 
 
@@ -37,9 +39,9 @@ class TestBoard(unittest.TestCase):
     def test_make_instances(self):
         dicnry = {1: {'name': '10', 'short': '11', 'supply_center': '12'},
                   2: {'name': '20', 'short': '21', 'supply_center': '22'}}
-        answer = make_instances(dicnry, bd.Province)
-        self.assertEqual(type(answer[0]), bd.Province)
-        self.assertEqual(type(answer[1]), bd.Province)
+        answer = make_instances(dicnry, Province)
+        self.assertEqual(type(answer[0]), Province)
+        self.assertEqual(type(answer[1]), Province)
         self.assertEqual(answer[0].name,'10')
         self.assertEqual(answer[1].short,'21')
         self.assertEqual(answer[0].supply_center,'12')

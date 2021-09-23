@@ -3,8 +3,6 @@
 """ This mode contains the Game class. An instance of the Game is a game
 of Diplomacy.
 
-The game class is currently a 'monster class', which contains most methods
-to parse input and resolve orders.
 """
 
 import geopandas as geo
@@ -14,6 +12,8 @@ import adjudicator.orders as od
 import adjudicator.variant as vr
 import adjudicator.board as bd
 import graphics.graphics as graphics
+
+from adjudicator import Province
 
 from lib.lists import (first, flatten)
 from lib.errors import (OrderInputError, GameError, AdjudicationError)
@@ -25,44 +25,16 @@ from lib.parser import Parser
 
 class Game:
     """ A game of Diplomacy.
+    How it works: The class holds all information regarding a game of
+    Diplomacy, including the current state of the game. It also holds
+    master methods to adjudicate the game.
 
-    This class holds all information of a game, including the methods to
-    parse and resolve orders, and to adjudicate.
-
-    Attributes:
-        page: string or None
-            Name of host of the game.
-        identifier: string or None
-            Unique identifier of the game.
-        variant: Variant
-        season: Season
-        powers: list of Powers
-            The powers playing in the game.
-        forces: list of Forces
-            The forces appering in the variant.
-        units: list of Units
-            The current units in the game.
-        provinces: list of Provinces
-            The provinces of the map.
-        home_centers: dictionary
-            Dictionary encoding the home centers of each power.
-        supply_centers: dictionary
-            Dictionary encoding the currently owned centers of each power.
-        orders: list of orders
-            List of orders for the units in the game in the current phase.
-        winner: Power or None
-            The winner of the game, or None if no winner has been determined.
-        position_archive: PositionArchive
-        order_archive: OrderArchive
-        graphics: geopandas GeoDataFrame
-            graphical information to plot the game
-        shift: float
-            The shift in position applied in various plotting features. Depends
-            on the projection of the map.
+    Initiate an instance by providing the name, as a string, of the
+    variant of the game.
 
     """
 
-    # Custom short forms, which are map and variant independent.
+    # Custom abbreviations, which are map and variant independent.
     orders_dict = {'-': 'move', 'S': 'support', 'C': 'convoy', 'H': 'hold',
                    'B': 'build', 'D': 'disband', 'R': 'retreat',
                    'A': 'army', 'F': 'fleet', 'St': 'Saint', 
@@ -267,7 +239,7 @@ class Game:
         
         """
         if type(province) is str:
-            return self.instance(province, bd.Province, require=True)
+            return self.instance(province, Province, require=True)
         else:
             return province
 
@@ -356,13 +328,15 @@ class Game:
         """
         classes = {'power': vr.Power,
                    'force': bd.Force,
-                   'province': bd.Province,
+                   'province': Province,
                    'geography': bd.Geography}
         if isinstance(class_or_class_name, str):
             class_type = classes[class_or_class_name.lower()]
         else:
             class_type = class_or_class_name
         if getattr(class_type, '__module__', None) == bd.__name__:
+            return self.variant.map.instance(name, class_type)
+        elif class_type is Province:
             return self.variant.map.instance(name, class_type)
         elif getattr(class_type, '__module__', None) == vr.__name__:
             return self.variant.instance(name, class_type)

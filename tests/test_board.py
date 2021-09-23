@@ -13,6 +13,7 @@ Functions/Methods which arenot tested here:
 import adjudicator.board as bd
 import unittest
 
+from adjudicator import Province
 
 class TestBoard(unittest.TestCase):
 
@@ -98,7 +99,7 @@ class TestBoard(unittest.TestCase):
         provs = self.map.provinces
         pro = provs[17]
         self.assertEqual(len(provs), 75)
-        self.assertIsInstance(pro, bd.Province)
+        self.assertIsInstance(pro, Province)
         self.assertEqual(pro.name, 'Constantinople')
         self.assertEqual(pro.short, 'Con')
         self.assertTrue(pro.supply_center)
@@ -110,7 +111,7 @@ class TestBoard(unittest.TestCase):
         self.assertIsInstance(loc, bd.Location)
         self.assertEqual(loc.name, 'Ionian Sea')
         self.assertIsInstance(loc.geography, bd.Geography)
-        self.assertIsInstance(loc.province, bd.Province)
+        self.assertIsInstance(loc.province, Province)
         self.assertIsInstance(loc.connections, tuple)
         self.assertEqual(loc.connections, (0, 1, 3, 7, 31, 41, 63, 105, 109))
         self.assertEqual(loc.province.name, 'Ionian Sea')
@@ -126,28 +127,28 @@ class TestBoard(unittest.TestCase):
     def test_supplies(self):
         scs = self.map.supply_centers
         self.assertEqual(len(scs), 34)
-        self.assertIsInstance(scs[0], bd.Province)
+        self.assertIsInstance(scs[0], Province)
 
     def test_intance(self):
         answer = self.map.instance('Inland', bd.Geography)
         self.assertEqual(type(answer), bd.Geography)
         self.assertEqual(answer.name, 'Inland')
-        answer = self.map.instance('Denmark', bd.Province)
-        self.assertEqual(type(answer), bd.Province)
+        answer = self.map.instance('Denmark', Province)
+        self.assertEqual(type(answer), Province)
         self.assertEqual(answer.name, 'Denmark')
         answer = self.map.instance('Army', bd.Force)
         self.assertEqual(type(answer), bd.Force)
         self.assertEqual(answer.name, 'Army')
 
     def test_intances(self):
-        answer = self.map.instances(['Denmark', 'Burgundy'], bd.Province)
+        answer = self.map.instances(['Denmark', 'Burgundy'], Province)
         self.assertEqual(len(answer), 2)
         self.assertEqual(answer[0].name, 'Denmark')
         self.assertEqual(answer[1].name, 'Burgundy')
-        self.assertEqual(type(answer[0]), bd.Province)
+        self.assertEqual(type(answer[0]), Province)
 
     def test_locations_of(self):
-        province = self.map.instance('Spain', bd.Province)
+        province = self.map.instance('Spain', Province)
         answer = [loc.name for loc in self.map.locations_of(province)]
         self.assertIn('Spain', answer)
         self.assertIn('Spain (south coast)', answer)
@@ -164,8 +165,8 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(answer.name, 'Spain (north coast)')   
 
     def test_has_path(self):
-        source = self.map.instance('Brest', bd.Province)
-        target = self.map.instance('Wales', bd.Province)
+        source = self.map.instance('Brest', Province)
+        target = self.map.instance('Wales', Province)
         force = self.map.instance('Fleet', bd.Force)
         locs = self.map.locate(force, 'English Channel')
         answer = self.map.has_path(source, target, [locs])   

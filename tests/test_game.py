@@ -27,6 +27,9 @@ import adjudicator.board as bd
 import adjudicator.game as gm
 import adjudicator.orders as od
 import adjudicator.variant as vr
+
+from adjudicator import Province
+
 from lib.itemlist import ItemList
 from lib.archive import (OrderArchive, PositionArchive)
 
@@ -258,8 +261,8 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertEqual(1, len(centers))    
 
     def test_instance(self):
-        entity = self.game.instance('Bulgaria', bd.Province)
-        self.assertEqual(type(entity), bd.Province)
+        entity = self.game.instance('Bulgaria', Province)
+        self.assertEqual(type(entity), Province)
         self.assertEqual(entity.name, 'Bulgaria')
         entity = self.game.instance('Germany', vr.Power)
         self.assertEqual(type(entity), vr.Power)
@@ -296,21 +299,21 @@ class TestAdjudicator(unittest.TestCase) :
         unit = self.game.unit_in('Armenia')
         self.assertEqual(unit.owner.name, 'Germany')
         self.assertEqual(unit.force.name, 'Army')   
-        province = self.game.instance('Armenia', bd.Province)
+        province = self.game.instance('Armenia', Province)
         unit = self.game.unit_in(province)
         self.assertEqual(unit.owner.name, 'Germany')
         self.assertEqual(unit.force.name, 'Army')   
 
     def test_delete_unit(self):
         self.game.delete_unit('Berlin')
-        province = self.game.instance('Munich', bd.Province)
+        province = self.game.instance('Munich', Province)
         self.game.delete_unit(province)
         unit = self.game.unit_in('Kiel')
         self.game.delete_unit(unit)
         self.assertEqual(len(self.game.units), 19)
 
     def test___adjust_supply_centers__(self):
-        munich = self.game.instance('Munich', bd.Province)
+        munich = self.game.instance('Munich', Province)
         russia = self.game.instance('Russia', vr.Power)
         germany = self.game.instance('Germany', vr.Power)
         self.game.delete_unit(munich)

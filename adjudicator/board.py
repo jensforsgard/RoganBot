@@ -14,47 +14,7 @@ from lib.errors import MapError
 from lib.lists import (flatten, first_named, attr_select, dict_union)
 from lib.classes import (despecify, make_instances, dict_string)
 
-
-class Province:
-    """ A province is a ion of the map. 
-
-    Attributes:
-        id: integer
-            Should be unique; is used as secondary identifier.
-        name: string
-            Sould be unique; is used as primary identifyer.
-        short: string
-            A three letter abbreviation of the name.
-        supply_center: boolean
-            Whether the province contains a supply center or not.
-
-    """
-
-
-
-    def __init__(self, idn, dcnry):
-        """ Constructor.
-        
-        Parameters
-        ----------
-        idn: integer
-            The id number of the province.
-        dctnry: dictionary
-            A dictionary encoding the remaining properties.
-
-        """
-        self.id = int(idn)
-        for key in dcnry:
-            setattr(self, key, dcnry[key])
-
-
-
-    def __str__(self):
-        """ Print format.
-
-        """
-        return self.name
-
+from adjudicator import Province
 
 
 

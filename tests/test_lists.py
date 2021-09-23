@@ -5,6 +5,9 @@
 
 import unittest
 import adjudicator.board as bd
+
+from adjudicator import Province
+
 from lib.lists import (first, first_named, flatten, attr_select,
                        translate, dict_union)
 
@@ -37,7 +40,7 @@ class TestBoard(unittest.TestCase):
     def test_first_named(self):
         first = first_named(self.map.provinces, 'Burgundy')
         self.assertEqual(first.name, 'Burgundy')
-        self.assertIsInstance(first, bd.Province)
+        self.assertIsInstance(first, Province)
         self.assertFalse(first.supply_center)
 
     def test_flatten(self):
