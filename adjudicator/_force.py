@@ -8,8 +8,8 @@ class Force:
     Parameters
     ----------
         name : string
-        	The name of the Force.
-        	
+            The name of the Force.
+            
         may_receive : list of strings
             List of orders, encoded by strings, that the force may receive.
 
@@ -23,26 +23,26 @@ class Force:
     Attributes
     ----------
         name : string
-        	See Parameters.
-        	
+            See Parameters.
+            
         may_receive : list of strings
-        	See Parameters.
+            See Parameters.
 
         specifiers : list of strings
-        	See Parameters.
+            See Parameters.
 
         short : dictionary
             Dictionary of short forms of the specifiers, where short forms are keys
             and full forms are values.
 
-	Notes
-	-----
-	Names of forces should be unique, as they are used as the primary 
-	identifier of a force.
+    Notes
+    -----
+    Names of forces should be unique, as they are used as the primary 
+    identifier of a force.
 
-	On the classic map, the Army force has no specifiers, since each province
-	has at most one location for an Army. The Fleet force has two specifiers,
-	`(south coast)` and `(north coast)`, with short forms `(sc)` and `(nc)`.
+    On the classic map, the Army force has no specifiers, since each province
+    has at most one location for an Army. The Fleet force has two specifiers,
+    `(south coast)` and `(north coast)`, with short forms `(sc)` and `(nc)`.
 
     """
 
