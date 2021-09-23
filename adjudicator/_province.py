@@ -45,10 +45,3 @@ class Province:
 
         """
         return self.name
-
-    def __repr__(self):
-        """ Representation.
-        
-        """
-        return (f"Province(idn={self.idn}, name={self.name}, "
-                f"short={self.short}, supply_center={self.supply_center})")

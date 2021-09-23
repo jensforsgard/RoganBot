@@ -1,4 +1,4 @@
-""" Unittests for the Province class.
+""" Unittests for the Force class.
 
 The tests should be run from the base directory.
 
@@ -6,17 +6,17 @@ The tests should be run from the base directory.
 
 import unittest
 
-from adjudicator import Province
+from adjudicator import Force
 
 class TestBoard(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.province = Province(
-            14,
-            name='Burgundy',
-            short='Bur',
-            supply_center=False
+        cls.force = Force(
+            name='Army',
+            may_receive=['Hold'],
+            specifiers=['A', 'B'],
+            short=['a', 'b']
         )
 
     @classmethod
@@ -31,25 +31,26 @@ class TestBoard(unittest.TestCase):
 
     def test__init__(self):
         self.assertEqual(
-            self.province.idn,
-            14
+            self.force.name,
+            'Army'
         )
         self.assertEqual(
-            self.province.name,
-            'Burgundy'
+            self.force.may_receive,
+            tuple(['Hold'])
         )
         self.assertEqual(
-            self.province.short,
-            'Bur'
+            self.force.specifiers,
+            ('A', 'B')
         )
-        self.assertFalse(
-            self.province.supply_center
+        self.assertEqual(
+            self.force.short_forms,
+            {'a': 'A', 'b': 'B'}
         )
 
     def test__str__(self):
         self.assertEqual(
-            self.province.__str__(),
-            'Burgundy'
+            self.force.__str__(),
+            'Army'
         )
 
 if __name__ == '__main__':

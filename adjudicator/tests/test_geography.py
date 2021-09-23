@@ -6,7 +6,7 @@ The tests should be run from the base directory.
 
 import unittest
 
-from adjudicator import Force
+from adjudicator import Geography
 from adjudicator.board import Map
 
 class TestBoard(unittest.TestCase):
@@ -15,7 +15,13 @@ class TestBoard(unittest.TestCase):
     def setUpClass(cls):
         cls.map = Map('Classic')
         cls.map.load()
-        cls.inland = cls.map.geographies[0]
+
+        cls.geography = Geography(
+            name='Inland',
+            map_=cls.map,
+            force='Army',
+            orders=['Hold']
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -27,18 +33,24 @@ class TestBoard(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test__init__(self):
+        self.assertEqual(
+            self.geography.name,
+            'Inland'
+        )
+        self.assertEqual(
+            self.geography.force.name,
+            'Army'
+        )
+        self.assertEqual(
+            self.geography.orders,
+            ['Hold']
+        )
 
     def test__str__(self):
         self.assertEqual(
-            self.inland.__str__(),
+            self.geography.__str__(),
             'Inland'
-        )
-
-    def test__repr__(self):
-        self.assertEqual(
-            self.inland.__repr__(),
-            ("Geography(name=Inland, map=Classic, force=Army, "
-             "orders=['Move', 'Support', 'Hold'])")
         )
 
 if __name__ == '__main__':

@@ -7,21 +7,35 @@ from adjudicator import Force
 class Geography:
     """ A Geography is a container for a unit of a specified force.
 
-    Parameters / Attributes
-    -----------------------
+    Parameters
+    ----------
         name : string
             The name of the geography.
 
         map_ : Map
             The game map which the Geography belongs to. 
 
+        force : Force or string
+            Specifying the type of Force that may be contained in an
+            instance of Geography. If a string is provided, then the string
+            should uniquely identify the force as specified by the
+            `map_.instance` method.
+
+        orders : list of strings
+            The type of orders, encoded by their names, which are available
+            for a unit contained in an instance of Geography.
+
+    Attributes
+    ----------
+        name : string
+            See Parameters.
+
         force : Force
             Specifying the type of Force that may be contained in an
             instance of Geography.
 
         orders : list of strings
-            The type of orders, encoded by their names, which are available
-            for a unit contained in an instance of Geography.
+            See Parameters.
 
     Notes
     -----
@@ -47,7 +61,6 @@ class Geography:
 
         """
         self.name = name
-        self.map_ = map_
         self.orders = orders
 
         self.force = map_.instance(force, Force)
@@ -57,10 +70,3 @@ class Geography:
 
         """
         return self.name
-
-    def __repr__(self):
-        """ Representation.
-        
-        """
-        return (f"Geography(name={self.name}, map={self.map_.name}, "
-                f"force={self.force.name}, orders={self.orders})")
