@@ -9,95 +9,7 @@ from lib.errors import MapError
 from lib.lists import (flatten, first_named, attr_select, dict_union)
 from lib.classes import (despecify, make_instances, dict_string)
 
-from adjudicator import (Force, Geography, Province)
-
-class Location:
-    """ A location is a geography attached to a province.
-    
-    The location specifies adjacent (i.e., reachable) locations.
-
-    Attributes:
-        id: integer
-            Should be unique; is used as primary identifier.
-        name: string
-            Not necessarily unique.
-        geography: Geography
-        force: Force
-            Same as the force of the geography.
-        province: Province
-        connections: list of integers
-            A list of all adjacent locations encoded by their ids.
-
-    """
-
-
-
-    def __init__(self, idn, dctnry, map_):
-        """ Constructor.
-
-        Parameters
-        ----------
-        idn: integer
-            The id of the location.
-        dctnry: dictionary
-            Containing the remaining defining properties.
-        map_: Map
-            The game map, necessary to initate the geography and the
-            province attributes.
-
-        """
-
-        self.id = int(idn)
-        self.name = dctnry['name']
-        self.connections = tuple(dctnry['connections'])
-
-        self.geography = map_.instance(dctnry['geography'], Geography)
-        self.force = self.geography.force
-
-        province_name = despecify(self.name, self.geography)
-        self.province = first_named(map_.provinces, province_name)
-
-
-
-    def __str__(self):
-        """ Print format.
-
-        """
-        return self.name
-    
-    
-
-    def reaches_location(self, location):
-        """ Tests if the instance reaches a given location.
-
-        """
-        try:
-            return location.id in self.connections
-
-        except AttributeError:
-            return location in self.connections
-
-
-
-    def reaches_province(self, map_, province):
-        """ Tests if the instance reaches any location associated to a given
-        province. Needs the map to determine all locations of the province.
-
-        """
-        ids = [location.id for location in map_.locations_of(province)]
-        return next((True for nr in ids if nr in self.connections), False)
-
-
-
-    def named(self, name):
-        """ Tests if the instance is associated with the given name.
-
-        """
-        return self.name == name or self.province.name == name
-
-
-
-
+from adjudicator import (Force, Geography, Location, Province)
 
 
 
@@ -125,8 +37,6 @@ class Map:
 
     """
 
-
-
     def __init__(self, name):
         """ Constructor.
 
@@ -134,15 +44,11 @@ class Map:
         self.name = name
         self.loaded = False
 
-
-
     def __str__(self):
         """ Print format.
 
         """
         return self.name
-
-
 
     # def __loaded__(func):
     #     """ Wrapper function that test if a map object has been loaded. Only
@@ -162,8 +68,6 @@ class Map:
         
     #     return wrapper
 
-
-
 #    @__loaded__
     def info(self, string):
         """ Retrieves information as a string.
@@ -178,15 +82,11 @@ class Map:
             return dict_string(self.prov_dict)
         raise ValueError(f'Cannot display {string}.')
 
-
-
     def display(self, string):
         """ Prints some entities associated to the map.
 
         """
         print(self.info(string))
-
-
 
     def load(self):
         """ Loads the map information from the JSON file in the maps folder.
@@ -201,8 +101,8 @@ class Map:
         # Create all class instances
         self.forces = make_instances(data['forces'], Force)
         self.provinces = make_instances(data['provinces'], Province)
-        self.geographies = make_instances(data['geographies'], Geography, map_=self)
-        self.locations = make_instances(data['locations'], Location, self)
+        self.geographies = make_instances(data['geographies'], Geography, map=self)
+        self.locations = make_instances(data['locations'], Location, map=self)
 
         # Retrieve the short form dictionaries.
         self.force_dict = dict_union([fce.short_forms for fce in self.forces])
@@ -213,8 +113,9 @@ class Map:
                                                 'supply_center'))
 
         self.loaded = True
-
-
+    
+    	### Should check consistencies; that the index of a location is
+    	### equal to its position in the self.locations list.
     
     def instance(self, name, class_):
         """ Finds the instance of a given class with a given name.
@@ -230,15 +131,11 @@ class Map:
             objects = getattr(self, class_)            
         return next((obj for obj in objects if obj.name == name), None)
 
-
-
     def instances(self, lst, class_):
         """ Finds instances of a given class with given names.
         
         """
         return [self.instance(name, class_) for name in lst]
-
-
 
 #    @__loaded__
     def locations_of(self, province):
@@ -246,8 +143,6 @@ class Map:
 
         """
         return attr_select(self.locations, 'province', province)
-
-
 
 #    @__loaded__ 
     def locate(self, force, name, origin=None, specifier=None, either=False):
@@ -285,17 +180,15 @@ class Map:
         except IndexError:
             return None  # No available location.
 
-
 #    @__loaded__
     def one_adjacent(self, locations, province):
-        """ Tests if one location from a list of locaions is adjacent to
+        """ Tests if one location from a list of locations is adjacent to
         one location associated to a given province.
         
         """
         return next((True for location in locations
-                     if location.reaches_province(self, province)),
+                     if location.reaches_province(province)),
                     False)
-        
 
 #    @__loaded__
     def has_path(self, source, target, via):
@@ -307,7 +200,7 @@ class Map:
         # The first step is special because we're checking adjacency to the
         # source province, and not the other locations.
         new = [location for location in via
-               if location.reaches_province(self, source)]
+               if location.reaches_province(source)]
         reached = new.copy()
         arrived = self.one_adjacent(reached, target)
 
@@ -320,6 +213,3 @@ class Map:
             reached = reached + new
 
         return arrived
-
-
-

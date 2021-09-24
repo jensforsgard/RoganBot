@@ -12,14 +12,14 @@ class Geography:
         name : string
             The name of the geography.
 
-        map_ : Map
+        map : Map
             The game map which the Geography belongs to. 
 
         force : Force or string
             Specifying the type of Force that may be contained in an
             instance of Geography. If a string is provided, then the string
             should uniquely identify the force as specified by the
-            `map_.instance` method.
+            `map.instance` method.
 
         orders : list of strings
             The type of orders, encoded by their names, which are available
@@ -56,14 +56,14 @@ class Geography:
 
     """
 
-    def __init__(self, name, map_, force, orders):
+    def __init__(self, name, map, force, orders):
         """ Constructor.
 
         """
         self.name = name
         self.orders = orders
 
-        self.force = map_.instance(force, Force)
+        self.force = map.instance(force, Force)
 
     def __str__(self):
         """ Print format.

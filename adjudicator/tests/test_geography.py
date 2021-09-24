@@ -18,7 +18,7 @@ class TestBoard(unittest.TestCase):
 
         cls.geography = Geography(
             name='Inland',
-            map_=cls.map,
+            map=cls.map,
             force='Army',
             orders=['Hold']
         )

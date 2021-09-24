@@ -35,26 +35,6 @@ class TestBoard(unittest.TestCase):
     def tearDown(self):
         pass
 
-
-    # =========================================================================
-    # Tests for the Location class.
-    # =========================================================================
-
-    def test_reaches_location(self):
-        self.assertTrue(self.location.reaches_location(5))
-        self.assertTrue(self.location.reaches_location(self.map.locations[91]))
-        self.assertFalse(self.location.reaches_location(15))
-
-    def test_reaches_province(self):
-        province = self.map.locations[91].province
-        self.assertTrue(self.location.reaches_province(self.map, province))
-
-    def test_named(self):
-        location = self.map.locations[-23]
-        self.assertTrue(location.named('Saint Petersburg (south coast)'))
-        self.assertTrue(location.named('Saint Petersburg'))
-
-
     # =========================================================================
     # Tests for the Map class.
     # =========================================================================

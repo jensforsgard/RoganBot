@@ -193,7 +193,7 @@ class Game:
         
         """
         self.season.rollback()  # Includes consistency check
-        orders = self.order_archive.last()  # Remeber the last phase's orders
+        orders = self.order_archive.last()  # Remember the last phase's orders
         self.order_archive.rollback()
         self.position_archive.rollback()
         self.position_archive.setup(self)  # Setup according to last archive
@@ -450,7 +450,7 @@ class Game:
         self.__sort_orders__(by='relevance')
         for order in self.orders:
             if isinstance(order, od.Move):
-                order.__adjacent_convoy__(self.orders, self.variant.map)
+                order.__adjacent_convoy__(self.orders)
         counter = 1
         while counter < 3:
             unresolved = self.__unresolved_count__()
