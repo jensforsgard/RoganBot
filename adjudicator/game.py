@@ -13,7 +13,7 @@ import adjudicator.variant as vr
 import adjudicator.board as bd
 import graphics.graphics as graphics
 
-from adjudicator import (Force, Geography, Province)
+from adjudicator import (Force, Geography, Province, Season)
 
 from lib.lists import (first, flatten)
 from lib.errors import (OrderInputError, GameError, AdjudicationError)
@@ -56,7 +56,7 @@ class Game:
         self.identifier = identifier
         self.variant = vr.Variant(variant_name)
         self.variant.load()
-        self.season = bd.Season(self.variant.starting_year)
+        self.season = Season(self.variant.starting_year)
         # Immutables
         self.powers = self.variant.powers
         self.forces = self.variant.map.forces
@@ -179,7 +179,7 @@ class Game:
         """ Resets the game to Pregame settings.
 
         """
-        self.season.pregame(self.variant)
+        self.season.reset(self.variant)
         self.units = []
         self.orders = []
         self.position_archive.reset()

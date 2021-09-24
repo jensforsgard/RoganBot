@@ -122,7 +122,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.reset()
         self.assertEqual(self.game.season.name,'Spring')
         self.assertEqual(self.game.season.phase,'Pregame')
-        self.assertEqual(self.game.season.year,1901)
+        self.assertEqual(self.game.season.year, 1900)
         self.assertEqual(self.game.units, [])
         self.assertEqual(self.game.supply_centers, {})
         self.assertEqual(self.game.home_centers, {})

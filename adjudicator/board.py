@@ -1,11 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 @author: jensforsgard
 """
-
-
-
 
 import json
 
@@ -327,89 +322,4 @@ class Map:
         return arrived
 
 
-
-
-class Season:
-    """ The class that keeps track of the season of the game.
-
-    Attributes:
-        name: string
-        phase: string
-            The name of the phase.
-        year: integer
-        count: integer
-            The order of the season.
-
-    """
-
-    def __init__(self, year, name='Spring', phase='Pregame', count=0):
-        """ Constructor.
-
-        """
-        self.count = count
-        self.name = name
-        self.phase = phase
-        self.year = year
-
-    def pregame(self, variant):
-        """ Sets to the pregame mode approproate for the given variant.
-
-        """
-        self.count = 0
-        self.name = 'Spring'
-        self.phase = 'Pregame'
-        self.year = variant.starting_year
-
-    def __str__(self):
-        """ Print method.
-        
-        """
-        if self.phase == 'Pregame':
-            return 'Pregame.'
-        elif self.phase == 'Builds':
-            return f'Builds in {str(self.year)}.'
-        else:
-            return f'{self.phase} in {self.name} {str(self.year)}.'
-
-    def __set_name_phase__(self):
-        """ Deduces name and phase from the count.
-
-        """
-        k = self.count % 5
-        if k in [1, 3]:
-            self.phase = 'Diplomacy'
-        elif k in [2, 4]:
-            self.phase = 'Retreats'
-        else:
-            self.phase = 'Builds'
-        if k in [1, 2]:
-            self.name = 'Spring'
-        else:
-            self.name = 'Fall'
-
-    def progress(self, k=1):
-        """ Moves the season forward one phase.
-
-        """
-        self.year += (self.phase == 'Builds')
-        self.count += 1
-        self.__set_name_phase__()
-        if k > 1:
-        	self.progress(k-1)
-
-    def rollback(self):
-        """ Moves the season backwards one phase. 
-        
-        """
-        assert self.count > 1, ('Cannot relapse to before starting season.')
-        self.count -= 1
-        self.__set_name_phase__()
-        self.year -= (self.phase == 'Builds')
-
-
-
-    def conclude(self):
-        self.phase = 'Postgame'
-        self.name = '-'
-        self.count += 1
 

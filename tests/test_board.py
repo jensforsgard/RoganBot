@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """ Unittests for the board module.
 
-Functions/Methods which arenot tested here:
+Functions/Methods which are not tested here:
     
     bd.Map.check_consistency()
         Method to check that the information stored in a .json file is ok.
@@ -13,7 +13,7 @@ Functions/Methods which arenot tested here:
 import adjudicator.board as bd
 import unittest
 
-from adjudicator import Province
+from adjudicator import Province, Season
 
 class TestBoard(unittest.TestCase):
 
@@ -30,7 +30,7 @@ class TestBoard(unittest.TestCase):
         pass
     
     def setUp(self):
-        self.season = bd.Season(1900, 'Spring', 'Diplomacy', count=1)
+        self.season = Season(1900, 'Spring', 'Diplomacy', count=1)
     
     def tearDown(self):
         pass
@@ -174,41 +174,6 @@ class TestBoard(unittest.TestCase):
         answer = self.map.has_path(source, target, [])   
         self.assertTrue(not answer)
 
-
-    # =========================================================================
-    # Tests for the Season class.
-    # =========================================================================
-
-    def test_progress(self):
-        self.season.progress()
-        self.assertEqual(self.season.phase, 'Retreats')
-        self.season.progress()
-        self.assertEqual(self.season.name, 'Fall')        
-        self.season.progress()
-        self.assertEqual(self.season.name, 'Fall')    
-        self.season.progress()
-        self.assertEqual(self.season.phase, 'Builds')   
-        self.season.progress()
-        self.assertEqual(self.season.year, 1901)    
-
-    def test_rollback(self):
-        self.season.progress()
-        self.season.progress()
-        self.season.progress()
-        self.season.rollback()
-        self.assertEqual(self.season.year, 1900) 
-        self.assertEqual(self.season.phase, 'Diplomacy')  
-        self.season.rollback()
-        self.assertEqual(self.season.phase, 'Retreats')
-        self.season.rollback()
-        self.assertEqual(self.season.name, 'Spring')         
-
-    def test_conclude(self):
-        self.season.conclude()
-        self.assertEqual(self.season.year, 1900) 
-        self.assertEqual(self.season.phase, 'Postgame')  
-        self.assertEqual(self.season.name, '-')      
-   
 
 
 if __name__ == '__main__':

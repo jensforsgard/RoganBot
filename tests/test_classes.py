@@ -7,7 +7,7 @@ import unittest
 
 import adjudicator.board as bd
 
-from adjudicator import Province
+from adjudicator import Province, Season
 from lib.classes import make_instances
 
 
@@ -26,7 +26,7 @@ class TestBoard(unittest.TestCase):
         pass
     
     def setUp(self):
-        self.season = bd.Season('Spring', 'Diplomacy', 1900, count=1)
+        self.season = Season(1900, 'Spring', 'Diplomacy', count=1)
     
     def tearDown(self):
         pass
