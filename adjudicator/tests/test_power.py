@@ -19,7 +19,7 @@ class TestBoard(unittest.TestCase):
         pass
     
     def setUp(self):
-        cls.power = Power(
+        self.power = Power(
             name='Germany',
             genitive='German',
             home_centers=['Berlin', 'Munich', 'Kiel']
@@ -38,7 +38,7 @@ class TestBoard(unittest.TestCase):
             'German'
         )
         self.assertEqual(
-            self.power.supply_centers,
+            self.power.home_centers,
             ['Berlin', 'Munich', 'Kiel']
         )
 

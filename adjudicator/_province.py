@@ -3,7 +3,7 @@
 """
 
 class Province:
-    """ A province is an area on the map.  
+    """ A Province is an area on the map.  
 
     Parameters / Attributes
     -----------------------

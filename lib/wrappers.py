@@ -4,7 +4,7 @@
 
 """
 
-from adjudicator.variant import Unit
+from adjudicator import Unit
 
 
 def require(func):

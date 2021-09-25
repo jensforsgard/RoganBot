@@ -1,5 +1,5 @@
-""" The :mod:`adjudicator` contains all classes necessary to play
-a game of Diplomacy.
+""" The :mod:`adjudicator` contains all classes necessary 
+to play a game of Diplomacy.
 
 """
 
@@ -9,6 +9,7 @@ from ._location import Location
 from ._power import Power
 from ._province import Province
 from ._season import Season
+from ._unit import Unit
 
 from ._map import Map
 
@@ -19,5 +20,6 @@ __all__ = [
     "Map",
     "Power",
     "Province",
-    "Season"
+    "Season",
+    "Unit"
 ]
