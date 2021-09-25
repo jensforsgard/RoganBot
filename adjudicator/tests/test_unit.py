@@ -6,8 +6,7 @@ The tests should be run from the base directory.
 
 import unittest
 
-from adjudicator import Unit
-from adjudicator.variant import Variant
+from adjudicator import Unit, Variant
 
 class TestBoard(unittest.TestCase):
 

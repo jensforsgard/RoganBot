@@ -12,6 +12,7 @@ from ._season import Season
 from ._unit import Unit
 
 from ._map import Map
+from ._variant import Variant
 
 __all__ = [
     "Force",
@@ -21,5 +22,6 @@ __all__ = [
     "Power",
     "Province",
     "Season",
-    "Unit"
+    "Unit",
+    "Variant"
 ]

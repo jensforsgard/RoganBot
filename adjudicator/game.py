@@ -9,10 +9,9 @@ import geopandas as geo
 from fiona.errors import DriverError
 
 import adjudicator.orders as od
-import adjudicator.variant as vr
 import graphics.graphics as graphics
 
-from adjudicator import Force, Geography, Location, Power, Province, Season
+from adjudicator import *
 
 from lib.lists import (first, flatten)
 from lib.errors import (OrderInputError, GameError, AdjudicationError)
@@ -53,7 +52,7 @@ class Game:
         """
         self.page = page
         self.identifier = identifier
-        self.variant = vr.Variant(variant_name)
+        self.variant = Variant(variant_name)
         self.variant.load()
         self.season = Season(self.variant.starting_year)
         # Immutables
@@ -385,7 +384,7 @@ class Game:
         # Check that the given location is available.
         if not self.unit_in(location.province, any_=True) is None:
             raise GameError('Named province already contains a unit.')
-        unit = vr.Unit(self.__next_unit_id__(), power, force, location)
+        unit = Unit(self.__next_unit_id__(), power, force, location)
         self.units.append(unit)
         if self.season.phase == 'Diplomacy':
             self.orders.append(od.Hold(unit))
