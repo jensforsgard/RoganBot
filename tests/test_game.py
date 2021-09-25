@@ -23,10 +23,9 @@ import unittest
 import io
 import sys
 from geopandas import GeoDataFrame
-from adjudicator import Force, Geography, Location
+from adjudicator import Force, Geography, Location, Power
 import adjudicator.game as gm
 import adjudicator.orders as od
-import adjudicator.variant as vr
 
 from adjudicator import Province
 
@@ -264,8 +263,8 @@ class TestAdjudicator(unittest.TestCase) :
         entity = self.game.instance('Bulgaria', Province)
         self.assertEqual(type(entity), Province)
         self.assertEqual(entity.name, 'Bulgaria')
-        entity = self.game.instance('Germany', vr.Power)
-        self.assertEqual(type(entity), vr.Power)
+        entity = self.game.instance('Germany', Power)
+        self.assertEqual(type(entity), Power)
         self.assertEqual(entity.name, 'Germany')
         entity = self.game.instance('Fleet', Force)
         self.assertEqual(type(entity), Force)
@@ -314,8 +313,8 @@ class TestAdjudicator(unittest.TestCase) :
 
     def test___adjust_supply_centers__(self):
         munich = self.game.instance('Munich', Province)
-        russia = self.game.instance('Russia', vr.Power)
-        germany = self.game.instance('Germany', vr.Power)
+        russia = self.game.instance('Russia', Power)
+        germany = self.game.instance('Germany', Power)
         self.game.delete_unit(munich)
         self.game.add_unit('Army', russia, 'Munich')
         self.game.__adjust_supply_centers__()
@@ -392,7 +391,7 @@ class TestAdjudicator(unittest.TestCase) :
     def test_conclude(self):
         self.game.conclude(True)
         self.assertIsNone(self.game.winner)
-        russia = self.game.instance('Russia', vr.Power)
+        russia = self.game.instance('Russia', Power)
         self.game.supply_centers[russia] = range(18)
         self.game.conclude(True)
         self.assertEqual(self.game.winner, russia)      
