@@ -27,7 +27,7 @@ from adjudicator import Force, Geography, Location, Power
 import adjudicator.game as gm
 import adjudicator.orders as od
 
-from adjudicator import Province
+from adjudicator import Build, Province
 
 from lib.itemlist import ItemList
 from lib.archive import (OrderArchive, PositionArchive)
@@ -217,7 +217,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         power = next((p for p in self.game.powers if p.name == 'Germany'))
         order = self.game.adjustment_order(1, power)
-        self.assertEqual(type(order), od.Build)
+        self.assertEqual(type(order), Build)
         power = next((p for p in self.game.powers if p.name == 'Russia'))
         order = self.game.adjustment_order(1, power)
         self.assertEqual(type(order), od.Disband)

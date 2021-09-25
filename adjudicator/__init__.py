@@ -1,8 +1,11 @@
 """ The :mod:`adjudicator` contains all classes necessary 
-to play a game of Diplomacy.
+to play a game of Diplomacy, and may be used as a stand
+alone module. See the jupyter notebook `examples/game.ipynb`
+for a detailed user guide.
 
 """
 
+from ._build import Build
 from ._force import Force
 from ._geography import Geography
 from ._location import Location
@@ -15,6 +18,7 @@ from ._map import Map
 from ._variant import Variant
 
 __all__ = [
+    "Build",
     "Force",
     "Geography",
     "Location",

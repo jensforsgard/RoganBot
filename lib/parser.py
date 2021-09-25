@@ -5,6 +5,9 @@
 """
 
 import adjudicator.orders as od
+
+from adjudicator import Build
+
 from lib.errors import OrderInputError
 from lib.itemlist import ItemList
 from lib.lists import translate
@@ -330,7 +333,7 @@ class Parser:
         """
         if isinstance(self.previous, od.Disband):
             self.parseBuildsDisband()
-        elif isinstance(self.previous, od.Build):
+        elif isinstance(self.previous, Build):
             self.parseBuildsBuild()
 
     @Decorators.load_provinces
@@ -348,8 +351,8 @@ class Parser:
                                       self.provinces.loc(0),
                                       specifier=self.specifiers.loc(0, require=False),
                                       require=True)
-            self.previous.set_force(self.forces.loc(0))
-            self.previous.set_location(target)
+            self.previous.force = self.forces.loc(0)
+            self.previous.location = target
 
     @Decorators.load_provinces
     def parseBuildsDisband(self):

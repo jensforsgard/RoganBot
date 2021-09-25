@@ -507,7 +507,7 @@ class Game:
         """
         # It is faster to resolve adjustment 'globally' intsead of calling
         # resolve methods for each separate adjustment order.
-        province_methods = {od.Build: self.open_home_centers,
+        province_methods = {Build: self.open_home_centers,
                             od.Disband: self.occupied_provinces}
         for power in self.powers:
             orders = self.build_orders_of(power)
@@ -551,7 +551,7 @@ class Game:
         for order in self.orders:
             if isinstance(order, od.Disband):
                 self.delete_unit(order.unit)
-            if isinstance(order, od.Build) and not order.failed:
+            if isinstance(order, Build) and not order.failed:
                 self.add_unit(order.force, order.owner, order.location)
 
     def __setup_diplomacy__(self):
@@ -592,7 +592,7 @@ class Game:
             count = len(self.supply_centers[power])-len(self.units_of(power))
             if count > 0:
                 count = min(count, len(self.open_home_centers(power)))
-                self.orders += [od.Build(j+1, power) for j in range(count)]
+                self.orders += [Build(j+1, power) for j in range(count)]
             elif count < 0:
                 self.orders += [od.Disband(j+1, power) for j in range(-count)]
 
