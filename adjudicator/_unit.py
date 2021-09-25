@@ -60,7 +60,6 @@ class Unit:
         """ Print format.
 
         """
-        assert isinstance(suffix, str)
         return (f'{self.owner.genitive} {self.force.name} in '
                 f'{self.location.name}{suffix}')
 
