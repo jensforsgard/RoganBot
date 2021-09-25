@@ -23,7 +23,7 @@ import unittest
 import io
 import sys
 from geopandas import GeoDataFrame
-import adjudicator.board as bd
+from adjudicator import Force, Geography, Location
 import adjudicator.game as gm
 import adjudicator.orders as od
 import adjudicator.variant as vr
@@ -32,6 +32,7 @@ from adjudicator import Province
 
 from lib.itemlist import ItemList
 from lib.archive import (OrderArchive, PositionArchive)
+from lib.classes import dict_string
 
 
 class TestAdjudicator(unittest.TestCase) :
@@ -72,8 +73,7 @@ class TestAdjudicator(unittest.TestCase) :
                   "'Monrovia', 'Freetown']\n"
                   "- move\nS support\nC convoy\nH hold\nB build\n"
                   "D disband\nR retreat\nA army\nF fleet\nSt Saint\n"
-                  "destroy disband\nCon Conakry\nMon Monrovia\nFre Fre"
-                  "etown\n")
+                  "destroy disband\n['Con', 'Mon', 'Fre']\n")
         self.assertEqual(capturedOutput.getvalue(), string)
 
     def test_current_position(self):
@@ -267,17 +267,17 @@ class TestAdjudicator(unittest.TestCase) :
         entity = self.game.instance('Germany', vr.Power)
         self.assertEqual(type(entity), vr.Power)
         self.assertEqual(entity.name, 'Germany')
-        entity = self.game.instance('Fleet', bd.Force)
-        self.assertEqual(type(entity), bd.Force)
+        entity = self.game.instance('Fleet', Force)
+        self.assertEqual(type(entity), Force)
         self.assertEqual(entity.name, 'Fleet')
-        entity = self.game.instance('Inland', bd.Geography)
-        self.assertEqual(type(entity), bd.Geography)
+        entity = self.game.instance('Inland', Geography)
+        self.assertEqual(type(entity), Geography)
         self.assertEqual(entity.name, 'Inland')
 
     def test_locate(self):
-        force = self.game.instance('Fleet', bd.Force)
+        force = self.game.instance('Fleet', Force)
         location = self.game.locate(force, 'Spain (south coast)')
-        self.assertEqual(type(location), bd.Location)
+        self.assertEqual(type(location), Location)
         self.assertEqual(location.name, 'Spain (south coast)')
         self.assertEqual(location.force.name, 'Fleet')
         self.assertEqual(location.geography.name, 'Coast')

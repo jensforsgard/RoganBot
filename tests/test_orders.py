@@ -35,10 +35,10 @@ the test_adjudicator_DATC module:
 """
 
 import adjudicator.orders as od
-import adjudicator.board as bd
 import adjudicator.game as gm
 import unittest
 
+from adjudicator import Force
 
 class TestOrders(unittest.TestCase):
 
@@ -46,8 +46,8 @@ class TestOrders(unittest.TestCase):
     def setUpClass(cls):
         cls.game = gm.Game('Classic')
         cls.game.start()
-        cls.army = cls.game.variant.map.instance('Army', bd.Force)
-        cls.fleet = cls.game.variant.map.instance('Fleet', bd.Force)
+        cls.army = cls.game.variant.map.instance('Army', Force)
+        cls.fleet = cls.game.variant.map.instance('Fleet', Force)
         
     @classmethod
     def tearDownClass(cls):

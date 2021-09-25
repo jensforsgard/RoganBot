@@ -6,8 +6,7 @@ The tests should be run from the base directory.
 
 import unittest
 
-from adjudicator import Geography
-from adjudicator.board import Map
+from adjudicator import Geography, Map
 
 class TestBoard(unittest.TestCase):
 

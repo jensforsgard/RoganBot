@@ -6,8 +6,9 @@
 # =============================================================================
 
 import json
-import adjudicator.board as bd
 
+from adjudicator import Map
+from lib.classes import make_instances
 
 # =============================================================================
 # Error classes
@@ -189,8 +190,8 @@ class Variant:
         self.starting_year = data['starting year']
         self.starting_positions = data['starting positions']
         self.win_condition = data['win condition']
-        self.powers = bd.make_instances(data['powers'], Power)
-        self.map = bd.Map(data['map'])
+        self.powers = make_instances(data['powers'], Power)
+        self.map = Map(data['map'])
         self.map.load()
         self.unit_colors = data['unit colors']
         self.province_colors = data['province colors']

@@ -5,17 +5,15 @@
 
 import unittest
 
-import adjudicator.board as bd
-
-from adjudicator import Province, Season
-from lib.classes import make_instances
+from adjudicator import Map, Province, Season
+from lib.classes import make_instances, despecify
 
 
 class TestBoard(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.map = bd.Map('Classic')
+        cls.map = Map('Classic')
         cls.map.load()
         cls.province = cls.map.provinces[34]
         cls.location = cls.map.locations[28]
@@ -34,7 +32,7 @@ class TestBoard(unittest.TestCase):
     def test_despecify(self):
         geo = self.geography
         string = 'Fleet (south coast).'
-        self.assertEqual(bd.despecify(string, geo), 'Fleet.')
+        self.assertEqual(despecify(string, geo), 'Fleet.')
 
     def test_make_instances(self):
         dicnry = {1: {'name': '10', 'short': '11', 'supply_center': '12'},

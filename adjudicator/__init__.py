@@ -9,10 +9,13 @@ from ._location import Location
 from ._province import Province
 from ._season import Season
 
+from ._map import Map
+
 __all__ = [
     "Force",
     "Geography",
     "Location",
+    "Map",
     "Province",
     "Season"
 ]

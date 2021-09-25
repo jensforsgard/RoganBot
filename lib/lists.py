@@ -64,15 +64,15 @@ def translate(lst, *dicts):
 
 
 
-def dict_union(dictionary_list):
-    """ Joins a list of dictionaries into one dictionary.
-
-    """
-    answer = {}
-    for entry in dictionary_list:
-        answer.update(entry)
-
-    return answer
+#def dict_union(dictionary_list):
+#    """ Joins a list of dictionaries into one dictionary.
+#
+#    """
+#    answer = {}
+#    for entry in dictionary_list:
+#        answer.update(entry)
+#
+#    return answer
 
 
 def split_at(lst, entry, shift=0):

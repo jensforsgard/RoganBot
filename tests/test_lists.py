@@ -4,19 +4,17 @@
 """
 
 import unittest
-import adjudicator.board as bd
 
-from adjudicator import Province, Season
+from adjudicator import Map, Province, Season
 
-from lib.lists import (first, first_named, flatten, attr_select,
-                       translate, dict_union)
+from lib.lists import (first, first_named, flatten, attr_select, translate)
 
 
 class TestBoard(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.map = bd.Map('Classic')
+        cls.map = Map('Classic')
         cls.map.load()
         cls.location = cls.map.locations[28]
         cls.geography = cls.location.geography
@@ -55,11 +53,11 @@ class TestBoard(unittest.TestCase):
         lst = translate([1,2,3,4], {2:5, 4:2})
         self.assertEqual(lst, [1,5,3,2])
 
-    def test_dict_union(self):
-        lst = [{1:2}, {3:4}]
-        dcnry = dict_union(lst)
-        self.assertEqual(dcnry[1], 2)
-        self.assertEqual(dcnry[3], 4)
+#    def test_dict_union(self):
+#        lst = [{1:2}, {3:4}]
+#        dcnry = dict_union(lst)
+#        self.assertEqual(dcnry[1], 2)
+#        self.assertEqual(dcnry[3], 4)
 
 if __name__ == '__main__':
     unittest.main()

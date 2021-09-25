@@ -3,10 +3,11 @@
 """ Unittests for the variant module.
 """
 
-import adjudicator.board as bd
 import adjudicator.game as gm
 import adjudicator.variant as vr
 import unittest
+
+from adjudicator import Force
 
 
 class TestAdjudicator(unittest.TestCase) :
@@ -27,7 +28,7 @@ class TestAdjudicator(unittest.TestCase) :
         pass
 
     def test_move_to(self):
-        army = self.game.variant.map.instance('Army', bd.Force)
+        army = self.game.variant.map.instance('Army', Force)
         burgundy = self.game.variant.map.locate(army, 'Burgundy')
         unit = self.game.unit_in('Constantinople')
         unit.move_to(burgundy)

@@ -4,11 +4,11 @@
 """
 
 import adjudicator.game as gm
-import adjudicator.board as bd
 import adjudicator.orders as od
 import unittest
 
 from adjudicator import Province
+from lib.errors import MapError
 
 class TestAdjudicator(unittest.TestCase):
 
@@ -105,7 +105,7 @@ class TestAdjudicator(unittest.TestCase):
                       self.game.order_archive.loc(0))
 
     def test_6_B_1(self):
-        with self.assertRaises(bd.MapError):
+        with self.assertRaises(MapError):
             self.game.add_unit('Fleet', 'France',  'Portugal')
             self.game.order('Portugal move to Spain')
 
@@ -236,7 +236,7 @@ class TestAdjudicator(unittest.TestCase):
                       'Constantinople (fails).', self.game.order_archive.loc(0))
 
     def test_6_B_14(self):
-        with self.assertRaises(bd.MapError):
+        with self.assertRaises(MapError):
             self.game.delete_unit('Saint Petersburg')
             self.game.adjudicate()
             self.game.adjudicate()
@@ -781,7 +781,7 @@ class TestAdjudicator(unittest.TestCase):
                       self.game.order_archive.loc(0))
 
     def test_6_D_30(self):
-        with self.assertRaises(bd.MapError):
+        with self.assertRaises(MapError):
             self.game.delete_unit('Constantinople')
             self.game.add_unit('Fleet', 'Austria', 'Aegean Sea')
             self.game.add_unit('Fleet', 'Austria', 'Constantinople')

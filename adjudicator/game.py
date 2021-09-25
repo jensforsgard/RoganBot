@@ -10,10 +10,9 @@ from fiona.errors import DriverError
 
 import adjudicator.orders as od
 import adjudicator.variant as vr
-import adjudicator.board as bd
 import graphics.graphics as graphics
 
-from adjudicator import (Force, Geography, Province, Season)
+from adjudicator import Force, Geography, Location, Province, Season
 
 from lib.lists import (first, flatten)
 from lib.errors import (OrderInputError, GameError, AdjudicationError)
@@ -104,7 +103,7 @@ class Game:
         elif string == 'provinces':
             return self.variant.map.info(string)
         elif string == 'supply centers':
-            return self.variant.map.info(string)
+            return self.variant.map.info('supply_centers')
         elif self.season.phase == 'Pregame':
             raise GameError('Option "{string}" not available in Pregame phase.')
         elif string == 'centers':
@@ -335,9 +334,7 @@ class Game:
             class_type = classes[class_or_class_name.lower()]
         else:
             class_type = class_or_class_name
-        if getattr(class_type, '__module__', None) == bd.__name__:
-            return self.variant.map.instance(name, class_type)
-        elif class_type in (Force, Geography, Province):
+        if class_type in (Force, Geography, Province):
             return self.variant.map.instance(name, class_type)
         elif getattr(class_type, '__module__', None) == vr.__name__:
             return self.variant.instance(name, class_type)
@@ -381,7 +378,7 @@ class Game:
             force = self.instance(force, Force, require=True)
         if not isinstance(power, vr.Power):
             power = self.instance(power, vr.Power, require=True)
-        if not isinstance(location, bd.Location):
+        if not isinstance(location, Location):
             location = self.locate(force, location, require=True)
         # Check that the given location is available.
         if not self.unit_in(location.province, any_=True) is None:

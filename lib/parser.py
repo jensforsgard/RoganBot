@@ -32,8 +32,8 @@ class Parser:
         words = [word.replace('.', '') for word in string.split(' ')]
         words = translate(words, 
                           self.game.orders_dict, 
-                          self.map.prov_dict,
-                          self.map.force_dict)        
+                          self.map.abbreviations,
+                          self.map.force_abbreviations)        
         # Due to spaces in province names, we need the whole string.
         return ' '.join(words).lower()
 
