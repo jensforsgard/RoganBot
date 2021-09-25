@@ -6,6 +6,7 @@ a game of Diplomacy.
 from ._force import Force
 from ._geography import Geography
 from ._location import Location
+from ._power import Power
 from ._province import Province
 from ._season import Season
 
@@ -16,6 +17,7 @@ __all__ = [
     "Geography",
     "Location",
     "Map",
+    "Power",
     "Province",
     "Season"
 ]

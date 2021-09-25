@@ -7,7 +7,7 @@
 
 import json
 
-from adjudicator import Map
+from adjudicator import Map, Power
 from lib.classes import make_instances
 
 # =============================================================================
@@ -25,39 +25,6 @@ class VariantError(Exception):
 # The Power Class
 # =============================================================================
 
-class Power:
-    """ This is a class of which an instance is power (or great power),
-    partaking in a game.
-
-    Attributes:
-        name : string
-            The name of the power.
-        genetive : string
-            The genetive form of the name, for display purpuses.
-        home_centers : list of strings
-            A list of home center names, recorded as strings.
-
-    """
-
-    def __init__(self, name, dctnry):
-        """ The constructor for the Power class.
-
-        Parameters
-        ----------
-        name : string
-        dctnry : dictionary
-            A dictionary containing the remaining information.
-
-        """
-        self.name = name
-        self.genitive = dctnry['genitive']
-        self.home_centers = dctnry['home centers']
-
-    def __str__(self, suffix='.'):
-        """ Print format.
-
-        """
-        return self.name
 
 
 # =============================================================================

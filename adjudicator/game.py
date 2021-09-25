@@ -12,7 +12,7 @@ import adjudicator.orders as od
 import adjudicator.variant as vr
 import graphics.graphics as graphics
 
-from adjudicator import Force, Geography, Location, Province, Season
+from adjudicator import Force, Geography, Location, Power, Province, Season
 
 from lib.lists import (first, flatten)
 from lib.errors import (OrderInputError, GameError, AdjudicationError)
@@ -326,7 +326,7 @@ class Game:
         """ Returns an instance of a class identified by its name.
 
         """
-        classes = {'power': vr.Power,
+        classes = {'power': Power,
                    'force': Force,
                    'province': Province,
                    'geography': Geography}
@@ -336,6 +336,8 @@ class Game:
             class_type = class_or_class_name
         if class_type in (Force, Geography, Province):
             return self.variant.map.instance(name, class_type)
+        if class_type == Power:
+            return self.variant.instance(name, class_type)
         elif getattr(class_type, '__module__', None) == vr.__name__:
             return self.variant.instance(name, class_type)
         else:
@@ -376,8 +378,8 @@ class Game:
         # Retrieve classes if input was strings.
         if not isinstance(force, Force):
             force = self.instance(force, Force, require=True)
-        if not isinstance(power, vr.Power):
-            power = self.instance(power, vr.Power, require=True)
+        if not isinstance(power, Power):
+            power = self.instance(power, Power, require=True)
         if not isinstance(location, Location):
             location = self.locate(force, location, require=True)
         # Check that the given location is available.
