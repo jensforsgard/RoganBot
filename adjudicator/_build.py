@@ -59,7 +59,6 @@ class Build:
         self.location = location
 
         self.resolved = False
-        self.failed = False
 
     def __str__(self):
         """ Print format.
@@ -90,17 +89,19 @@ class Build:
         except AttributeError:
             return None
 
-    def invalid_action(self, *args):
-        """ Method to adjust the order if deemed invalid.
-
-        Method has the same format as for other order classes.
-
-        """
-        self.failed = True
-
     def postpone(self):
         """ Sets as a postponed order.
         
         """
         self.force = None
         self.location = None
+
+    def invalid_action(self, *args):
+        """ The action to take if the order is invalid.
+
+        For build order, it means the build is postponed. In fact,
+        this method only exists to provide consistency between the
+        Build and Disband classes.
+
+        """
+        self.postpone()

@@ -54,12 +54,6 @@ class TestBoard(unittest.TestCase):
             'Austrian Army in Norway.'
         )
 
-    def test_unit_type(self):
-        self.assertEqual(
-            self.unit.unit_type(),
-            'Army'
-        )
-
     def test_move_to(self):
         self.unit.move_to(
         	self.variant.map.locations[65]

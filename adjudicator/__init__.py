@@ -6,6 +6,7 @@ for a detailed user guide.
 """
 
 from ._build import Build
+from ._disband import Disband
 from ._force import Force
 from ._geography import Geography
 from ._location import Location
@@ -19,6 +20,7 @@ from ._variant import Variant
 
 __all__ = [
     "Build",
+    "Disband",
     "Force",
     "Geography",
     "Location",

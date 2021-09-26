@@ -69,8 +69,8 @@ class TestOrders(unittest.TestCase):
     def test_invalid_action(self):
         self.build.invalid_action()
 
-        self.assertTrue(
-            self.build.failed
+        self.assertIsNone(
+            self.build.location
         )
 
     def test_postpone(self):

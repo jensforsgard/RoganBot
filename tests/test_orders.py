@@ -29,7 +29,6 @@ the test_adjudicator_DATC module:
     od.Convoy.__legalize__()
     od.Convoy.__resolve_dislodged__()
     od.Convoy.resolve()
-    od.Disband.invalid_action()
     
 """
 
@@ -285,15 +284,6 @@ class TestOrders(unittest.TestCase):
     def test__retreat_sort_string__(self):
         retreat = od.Retreat(25, self.game.units[0], [])
         self.assertEqual(retreat.sort_string(), 'Austria1')
-
-
-    # =========================================================================
-    # The Disband Class
-    # =========================================================================
-
-    def test__disband_sort_string__(self):
-        disband = od.Disband(25, self.game.powers[0])
-        self.assertEqual(disband.sort_string(), 'Austria25')
 
     # =========================================================================
     # Adjudicator scenarios tests

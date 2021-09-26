@@ -6,10 +6,10 @@ class Unit:
     """ An unit is a playing piece, located on the map, and
     belonging to one of the players.
 
-	Parameters
-	----------
+    Parameters
+    ----------
     id : integer
-    	The id number of the unit. Should be unique.
+        The id number of the unit. Should be unique.
 
     owner : Power
         The power the unit belongs to.
@@ -23,16 +23,16 @@ class Unit:
     Attributes
     ----------
     id : integer
-    	See Parameters.
+        See Parameters.
 
     owner : Power
-    	See Parameters.
+        See Parameters.
 
     force : Force
-    	See Parameters.
+        See Parameters.
 
     location : Location
-    	See Parameters.
+        See Parameters.
 
     specifiers : list of strings
         A list of the specifiers which may appear in the names
@@ -53,9 +53,6 @@ class Unit:
         self.force = force
         self.location = location
 
-        self.specifiers = force.specifiers
-        self.province = location.province
-
     def __str__(self, suffix='.'):
         """ Print format.
 
@@ -63,18 +60,25 @@ class Unit:
         return (f'{self.owner.genitive} {self.force.name} in '
                 f'{self.location.name}{suffix}')
 
-    def unit_type(self):
-        """ Returns the name of the force of the unit.
-
+    @property
+    def specifiers(self):
+        """ specifiers getter.
+        
         """
-        return self.force.name
+        return self.force.specifiers
+    
+    @property
+    def province(self):
+        """ province getter.
+        
+        """
+        return self.location.province
 
     def move_to(self, location):
         """ Changes the unit's location and province.
 
         """
         self.location = location
-        self.province = location.province
 
     def sort_string(self):
         """ Returns the string by which units are sorted.

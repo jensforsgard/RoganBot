@@ -6,7 +6,7 @@
 
 import adjudicator.orders as od
 
-from adjudicator import Build
+from adjudicator import Build, Disband
 
 from lib.errors import OrderInputError
 from lib.itemlist import ItemList
@@ -312,7 +312,7 @@ class Parser:
         
         """
         if len(self.provinces) == 1:  # interpret as a disband order.
-            self.previous.order = od.Disband(self.previous.id, 
+            self.previous.order = Disband(self.previous.id, 
                                              self.previous.unit.owner,
                                              self.previous.unit)
         else:  # interpret as a retreat order.
@@ -331,7 +331,7 @@ class Parser:
         Gives no output.
         
         """
-        if isinstance(self.previous, od.Disband):
+        if isinstance(self.previous, Disband):
             self.parseBuildsDisband()
         elif isinstance(self.previous, Build):
             self.parseBuildsBuild()
@@ -360,7 +360,7 @@ class Parser:
         Gives no output.
         
         """
-        self.previous.set_unit(self.game.unit_in(self.provinces.loc(0), True))
+        self.previous.unit = self.game.unit_in(self.provinces.loc(0), True)
 
     @Decorators.load_provinces
     @Decorators.identify_unit
