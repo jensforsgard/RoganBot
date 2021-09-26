@@ -7,7 +7,7 @@ import adjudicator.game as gm
 import adjudicator.orders as od
 import unittest
 
-from adjudicator import Province
+from adjudicator import Province, Retreat
 from lib.errors import MapError
 
 class TestAdjudicator(unittest.TestCase):
@@ -176,7 +176,7 @@ class TestAdjudicator(unittest.TestCase):
         self.game.order('F Con - Bul (s)')
         self.game.adjudicate()
         self.assertEqual(len(self.game.orders), 1)
-        self.assertTrue(isinstance(self.game.orders[0], od.Retreat))
+        self.assertTrue(isinstance(self.game.orders[0], Retreat))
 
     def test_6_B_8(self):
         self.game.add_unit('Fleet', 'Austria', 'Black Sea')

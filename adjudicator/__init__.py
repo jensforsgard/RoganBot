@@ -17,6 +17,7 @@ from ._unit import Unit
 
 from ._map import Map
 from ._variant import Variant
+from ._retreat import Retreat
 
 __all__ = [
     "Build",
@@ -27,6 +28,7 @@ __all__ = [
     "Map",
     "Power",
     "Province",
+    "Retreat",
     "Season",
     "Unit",
     "Variant"

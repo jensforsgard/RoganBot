@@ -80,6 +80,12 @@ class Unit:
         """
         self.location = location
 
+    def reaches(self, location):
+        """ Checks if the unit can reach a given location.
+        
+        """
+        return self.location.reaches_location(location)
+
     def sort_string(self):
         """ Returns the string by which units are sorted.
         

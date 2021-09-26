@@ -261,30 +261,6 @@ class TestOrders(unittest.TestCase):
         strings = [order.sort_string() for order in self.game.orders]
         self.assertIn('France7', strings)
 
-
-    # =========================================================================
-    # The Retreat Class
-    # =========================================================================
-
-    def test_resolve(self):
-        self.game.delete_unit('Venice')
-        self.game.delete_unit('Naples')
-        self.game.add_unit('Fleet', 'Austria', 'Tyrrhenian Sea')
-        self.game.add_unit('Army', 'Austria', 'Venice')
-        self.game.add_unit('Army', 'France', 'Apulia')
-        self.game.add_unit('Fleet', 'France', 'Western Mediterranean')
-        self.game.add_unit('Fleet', 'France', 'Tunis')
-        self.game.order(['A Ven - Apu', 'A Rom S A Ven - Apu'])
-        self.game.order(['F WMS - TYS', 'F Tun S F WMS - TYS'])
-        self.game.adjudicate()
-        self.game.order(['F TYS - Nap', 'A Apu - Nap'])
-        self.game.adjudicate()
-        self.assertEqual(len(self.game.units), 24)
-
-    def test__retreat_sort_string__(self):
-        retreat = od.Retreat(25, self.game.units[0], [])
-        self.assertEqual(retreat.sort_string(), 'Austria1')
-
     # =========================================================================
     # Adjudicator scenarios tests
     # =========================================================================
@@ -312,11 +288,6 @@ class TestOrders(unittest.TestCase):
         self.game.adjudicate()
         self.assertEqual(self.game.season.name, 'Fall')
         self.assertEqual(self.game.season.phase, 'Diplomacy')
-
-
-    # =========================================================================
-    # Test the Retreat class
-    # =========================================================================
 
 if __name__ == '__main__':
     unittest.main()

@@ -56,12 +56,20 @@ class TestBoard(unittest.TestCase):
 
     def test_move_to(self):
         self.unit.move_to(
-        	self.variant.map.locations[65]
+            self.variant.map.locations[65]
         )
 
         self.assertEqual(
             self.unit.province.name,
             'North Africa'
+        )
+
+    def test_reaches(self):
+        lid = self.unit.location.connections[0]
+        location = self.variant.map.locations[lid]
+    
+        self.assertTrue(
+            self.unit.reaches(location)
         )
 
     def test_sort_string(self):

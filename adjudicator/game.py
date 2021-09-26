@@ -78,7 +78,7 @@ class Game:
         return (f'Game variant: {self.variant.name}.\n'
                 f'Game map: {self.variant.map.name}.\n'
                 f'Season: {self.season.__str__()}')
-	
+    
     def info(self, string='units', pos=-1):
         """ Retrieves information in a string format.
 
@@ -389,6 +389,13 @@ class Game:
         if self.season.phase == 'Diplomacy':
             self.orders.append(od.Hold(unit))
 
+    def add_units(self, list_of_units):
+        """ Adds several units to the game.
+        
+        """
+        for unit in list_of_units:
+            self.add_unit(*unit)
+
     @province_or_unit
     def delete_unit(self, unit):
         """ Deletes a unit from the game.
@@ -411,7 +418,14 @@ class Game:
                 self.supply_centers[second_power].difference_update(occupied)
             self.supply_centers[power].update(occupied)
 
-	# Should be wrapped in a list_input wrapper
+    def clear(self):
+        """ Method to clear the board from all units.
+        
+        """
+        while len(self.units) > 0:
+            self.delete_unit(self.units[0])
+
+    # Should be wrapped in a list_input wrapper
     def order(self, string_or_list):
         """  Main method to input orders. Accepts a string or a list of strings
         as input. Parses the input and replaces (Diplomacy phase) or updates
@@ -579,7 +593,7 @@ class Game:
                 unit_blocked = blocked
             else:
                 unit_blocked = blocked + [order.province]
-            retreats.append(od.Retreat(0, object_order.unit, unit_blocked))
+            retreats.append(Retreat(0, object_order.unit, unit_blocked))
         self.orders = retreats
 
     def __setup_builds__(self):
