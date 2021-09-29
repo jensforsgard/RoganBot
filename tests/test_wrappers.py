@@ -5,7 +5,7 @@
 
 import unittest
 import adjudicator.game as gm
-from lib.wrappers import require
+# from lib.wrappers import require
 
 
 class TestAdjudicator(unittest.TestCase) :
@@ -25,15 +25,15 @@ class TestAdjudicator(unittest.TestCase) :
     def tearDown(self):
         pass
 
-    def test_require(self):
-        @require
-        def f(x, require=False):
-            return x
-        self.assertIsNone(f(None))
-        self.assertIsNone(f(None, require=False))
-        self.assertEqual(f(1), 1)
-        with self.assertRaises(ValueError):
-            f(None, require=True)
+#    def test_require(self):
+#        @require
+#        def f(x, require=False):
+#            return x
+#        self.assertIsNone(f(None))
+#        self.assertIsNone(f(None, require=False))
+#        self.assertEqual(f(1), 1)
+#        with self.assertRaises(ValueError):
+#            f(None, require=True)
         
         
 

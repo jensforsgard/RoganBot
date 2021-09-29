@@ -3,7 +3,7 @@
 """
 
 from adjudicator import Disband
-from adjudicator.orders import Move
+from adjudicator._orders import Move
 
 class Retreat:
     """ A Retreat is an order for a unit that was dislodged. 
@@ -64,7 +64,6 @@ class Retreat:
 
         self.order = Disband(0, unit.owner, unit)
 
-        self.resolved = False
         self.legal = None
         self.disbands = None
 
@@ -110,13 +109,6 @@ class Retreat:
         except AttributeError:
             self._disbands = value
 
-        try:
-            if self._legal is not None:
-                self.resolved = True
-
-        except AttributeError:
-            pass        
-
     @property
     def legal(self):
         """ legal getter.
@@ -132,59 +124,26 @@ class Retreat:
         try:
             if self._legal is None:
                 self._legal = value
+
         except AttributeError:
             self._legal = value
-
-        try:
-            if self._disbands is not None:
-                self.resolved = True
-
-        except AttributeError:
-            pass    
-
+ 
     @property
     def resolved(self):
         """ resolved getter.
         
         """
-        return self._resolved
+        try:
+            return (self.legal is not None) and (self.disbands is not None)
     
-    @resolved.setter
-    def resolved(self, value):
-        """ resolved setter.
-        
-        """
-        if not value:
-            self._resolved = False
-            return
-
-        assert not self.resolved, 'Order is already resolved.'
-
-        if value:
-            self._resolved = (
-                (self.legal is not None) and (self.disbands is not None)
-            )
-        
-        else:
-            self._resolved = False
+        except AttributeError:
+            return Fase
 
     def sort_string(self):
         """ Returns the string format by which orders are sorted.
         
         """
         return self.unit.sort_string()
-
-    def reset(self):
-        """ Resets the order to an _unordered_ retreat,
-        which is equivalent to a disband order.
-
-        """
-        self.order = Disband(self.id, self.unit.owner, self.unit)
-        
-        # Surpassing the check that the order is not resolved. 
-        self._resolved = False
-        self._legal = None
-        self._disbands = None
 
     def resolve(self, variant, orders, verbose=False):
         """ Resolves a retreat order.

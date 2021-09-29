@@ -100,27 +100,13 @@ class TestOrders(unittest.TestCase):
         self.retreat.legal = False
         self.retreat.disbands = True
         self.assertTrue(
-            self.retreat._resolved
+            self.retreat.resolved
         )
 
     def test_sort_string(self):
         self.assertEqual(
             self.retreat.sort_string(),
             'Austria1'
-        )
-
-    def test_reset(self):
-        self.retreat.disbands = True
-        self.retreat.legal = True
-        self.retreat.reset()
-        self.assertIsNone(
-            self.retreat.disbands
-        )
-        self.assertIsNone(
-            self.retreat.legal
-        )
-        self.assertFalse(
-            self.retreat.resolved
         )
 
     def test_resolve(self):

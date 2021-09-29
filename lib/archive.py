@@ -136,6 +136,6 @@ class PositionArchive(Archive):
         """
         game.supply_centers = self.centers(game)
         game.units = []
-        game.orders = []
+        game.__setup__()
         for entry in self.units():
             game.add_unit(**entry, overrule=True)

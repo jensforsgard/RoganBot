@@ -11,21 +11,25 @@ from ._force import Force
 from ._geography import Geography
 from ._location import Location
 from ._power import Power
+from ._order import Order
 from ._province import Province
+from ._retreat import Retreat
 from ._season import Season
 from ._unit import Unit
 
+from ._convoy import Convoy
 from ._map import Map
 from ._variant import Variant
-from ._retreat import Retreat
 
 __all__ = [
     "Build",
+    "Convoy",
     "Disband",
     "Force",
     "Geography",
     "Location",
     "Map",
+    "Order",
     "Power",
     "Province",
     "Retreat",

@@ -4,9 +4,9 @@
 
 """
 
-import adjudicator.orders as od
+import adjudicator._orders as od
 
-from adjudicator import Build, Disband
+from adjudicator import Build, Convoy, Disband
 
 from lib.errors import OrderInputError
 from lib.itemlist import ItemList
@@ -179,7 +179,7 @@ class Parser:
                     obj.previous
                 except AttributeError:
                     if obj.game.season.phase != 'Builds':
-                        obj.previous = obj.game.order_in(obj.provinces.loc(0), require=True)
+                        obj.previous = obj.game.orders.order_in(obj.provinces.loc(0), require=True)
                     else:
                         obj.previous = obj.game.adjustment_order(obj.numbers.loc(0), obj.powers.loc(0))
                 return func(*args, **kwargs)
@@ -301,7 +301,7 @@ class Parser:
         target = self.game.locate(self.object.force, 
                                   self.provinces.loc(2 - self.reversed).name,
                                   require=True)
-        return od.Convoy(self.unit, od.Move(self.object, True, target))
+        return Convoy(self.unit, od.Move(self.object, True, target))
 
     @Decorators.load_provinces
     @Decorators.identify_order

@@ -95,10 +95,10 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         parser = ps.Parser('A Bur - Bel', self.game)
         parser.new()
-        self.assertEqual(str(self.game.orders[0]), 'The Army in Burgundy retreats to Belgium.')
+        self.assertEqual(str(self.game.orders.orders[0]), 'The Army in Burgundy retreats to Belgium.')
         parser = ps.Parser('A Gal disbands', self.game)
         parser.new()
-        self.assertEqual(str(self.game.orders[1]), 'The Army in Galicia disbands.')
+        self.assertEqual(str(self.game.orders.orders[1]), 'The Army in Galicia disbands.')
 
     def test_parse_Builds(self):
         self.game.delete_unit('Paris')
@@ -106,7 +106,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         parser = ps.Parser('France Build 1 A Par', self.game)
         parser.new()
-        self.assertEqual(str(self.game.orders[0]), 'French build no. 1 is Army in Paris.')
+        self.assertEqual(str(self.game.orders.orders[0]), 'French build no. 1 is Army in Paris.')
         
     def test_old(self):
         parser = ps.Parser('A Par - Bur', self.game)

@@ -22,12 +22,14 @@ Methods which are not tested here, but tested by test_adjudicator_DATC
 import unittest
 import io
 import sys
-from geopandas import GeoDataFrame
-from adjudicator import Force, Geography, Location, Power
+
 import adjudicator.game as gm
 import adjudicator.orders as od
 
-from adjudicator import Build, Province
+from geopandas import GeoDataFrame
+from adjudicator import (
+    Build, Disband, Force, Geography, Location, Power, Province
+)
 
 from lib.itemlist import ItemList
 from lib.archive import (OrderArchive, PositionArchive)
@@ -38,21 +40,21 @@ class TestAdjudicator(unittest.TestCase) :
 
     @classmethod
     def setUpClass(cls):
-        cls.gameFvA = gm.Game('ClassicFvA')
-        cls.gameRPS = gm.Game('RPS')
-        cls.game = gm.Game('Classic')
+        pass
 
     @classmethod
     def tearDownClass(cls):
         pass
 
     def setUp(self):
-        self.game.reset()
-        self.game.start()
-        self.gameFvA.reset()
+        self.gameFvA = gm.Game('ClassicFvA')
         self.gameFvA.start()
-        self.gameRPS.reset()
+
+        self.gameRPS = gm.Game('RPS')
         self.gameRPS.start()
+
+        self.game = gm.Game('Classic')
+        self.game.start()
 
     def tearDown(self):
         pass
@@ -125,7 +127,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertEqual(self.game.units, [])
         self.assertEqual(self.game.supply_centers, {})
         self.assertEqual(self.game.home_centers, {})
-        self.assertEqual(self.game.orders, [])
+        self.assertEqual(len(self.game.orders), 0)
         self.assertIs(self.game.winner, None)
         self.assertIsInstance(self.game.position_archive, PositionArchive)
         self.assertIsInstance(self.game.order_archive, OrderArchive)
@@ -158,19 +160,6 @@ class TestAdjudicator(unittest.TestCase) :
         for location in self.game.variant.map.locations:
             self.assertIn(location.name, names)
 
-    def test___sort_orders_by_relevance__(self):
-        self.gameFvA.add_unit('Fleet', 'France', 'Gulf of Lyon')
-        self.gameFvA.order(['GoL C Mar - Tus', 'A Mar - Tus',
-                            'A Tri S Vie H'])
-        self.gameFvA.__sort_orders__(by='relevance')
-        orders = [order.__str__() for order in self.gameFvA.orders]
-        answer = ['French Fleet in Gulf of Lyon convoys Marseilles to Tuscany '
-                  '[unresolved].', 'French Army in Marseilles move to Tuscany '
-                  '[unresolved].', 'Austrian Fleet in Trieste supports the Arm'
-                  'y in Vienna holds [unresolved].', 'Austrian Army in Budapes'
-                  't holds [unresolved].']
-        self.assertEqual(orders[:4], answer)
-
     def test_unit_in(self):
         province = next((prov for prov in self.game.provinces
                           if prov.name == 'Berlin'), None)
@@ -186,30 +175,6 @@ class TestAdjudicator(unittest.TestCase) :
         with self.assertRaises(ValueError):
             self.game.unit_in(province, require=True)
 
-    def test_order_of(self):
-        self.game.order('A Budapest move to Vienna.')
-        unit = self.game.units[0]
-        self.assertEqual(unit.location.name, 'Budapest')
-        order = self.game.order_of(unit)
-        self.assertEqual(type(order), od.Move)
-        self.assertEqual(order.target.name, 'Vienna')
-        
-    def test_order_in(self):
-        self.game.order('A Budapest move to Vienna.')
-        province = next((prov for prov in self.game.provinces
-                          if prov.name == 'Budapest'), None)
-        order = self.game.order_in(province)
-        self.assertEqual(type(order), od.Move)
-        self.assertEqual(order.target.name, 'Vienna')
-
-    def test_order_in_require(self):
-        province = next((prov for prov in self.game.provinces
-                          if prov.name == 'Finland'), None)
-        self.assertEqual(self.game.order_in(province), None)
-        self.assertEqual(self.game.order_in(province, require=False), None)
-        with self.assertRaises(ValueError):
-            self.game.order_in(province, require=True)
-        
     def test_adjustment_order(self):
         self.game.order(['A Ber - Sil', 'A War - Pru'])
         self.game.adjudicate()
@@ -220,7 +185,7 @@ class TestAdjudicator(unittest.TestCase) :
         self.assertEqual(type(order), Build)
         power = next((p for p in self.game.powers if p.name == 'Russia'))
         order = self.game.adjustment_order(1, power)
-        self.assertEqual(type(order), od.Disband)
+        self.assertEqual(type(order), Disband)
 
     def test_units_of(self):
         power = next((p for p in self.game.powers if p.name == 'Germany'))
@@ -338,10 +303,10 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.adjudicate()
         self.game.adjudicate()
         self.game.order('Germany B 1 A Ber')
-        self.assertFalse(self.game.orders[0].resolved)
+        self.assertFalse(self.game.orders.orders[0].resolved)
         self.game.__resolve_builds__()
-        self.assertTrue(self.game.orders[0].resolved)
-        order = self.game.orders[0].__str__()
+        self.assertTrue(self.game.orders.orders[0].resolved)
+        order = self.game.orders.orders[0].__str__()
         self.assertEqual(order, 'German build no. 1 is Army in Berlin.')
 
     def test__resolve_retreats__(self):
@@ -395,23 +360,6 @@ class TestAdjudicator(unittest.TestCase) :
         self.game.supply_centers[russia] = range(18)
         self.game.conclude(True)
         self.assertEqual(self.game.winner, russia)      
-
-    def test___sort_orders__(self):
-        self.game.order(['A Bud - Gal', 'F Lon - NTH', 'A Lvp - Yor',
-                         'A Par - Bur', 'A Mar S Par - Bur', 'A Mun - Bur',
-                         'A Ven - Tyr'])
-        self.game.adjudicate()
-        self.game.order(['A Yor - Nwy via C', 'F NTH C Yor - Nwy', 
-                         'A Tyr - Mun', 'A Bur S A Tyr - Mun'])
-        self.game.adjudicate()
-        self.game.order('A Mun - Boh')
-        self.game.adjudicate()
-        info = self.game.info('orders')
-        expected = ('English build no. 1 is postponed.\nGerman disband no. 1 '
-                    'is by default.\nItalian build no. 1 is postponed.')
-        self.assertEqual(info, expected)
-        self.game.__sort_orders__()
-        self.assertEqual(info, expected)
 
 if __name__ == '__main__':
     unittest.main()

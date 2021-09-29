@@ -4,23 +4,8 @@
 
 """
 
+
 from adjudicator import Unit
-
-
-def require(func):
-    """ Throws an error if an output is required but not generated.
-
-    """
-    def wrapper(*args, **kwargs):
-        require = False
-        if 'require' in kwargs:
-            require = kwargs['require']
-            del kwargs['require']
-        value = func(*args, **kwargs)
-        if require and value is None:
-            raise ValueError("Output requested but 'None' obtained.")
-        return value
-    return wrapper
 
 
 def pregame(func):
@@ -35,7 +20,7 @@ def pregame(func):
 
 
 def builds(func):
-    """ Asserts that we are in apregame phase.
+    """ Asserts that we are in a build phase.
     
     """
     def wrapper(*args, **kwargs):
