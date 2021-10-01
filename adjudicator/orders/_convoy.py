@@ -102,8 +102,6 @@ class Convoy(Order):
                 f"{self.province} convoys "
                 f"{self.object_order.__str__('convoy')} {resolution}.")
 
-
-
     def __legalize__(self, orders):
         """ Method to resolve the legality of a convoy.
 
@@ -127,27 +125,31 @@ class Convoy(Order):
 
         """
         if self.min_status < 'valid':
-            results = [order.failed for order in orders
-                       if order.name == 'move'
-                       and order.target.province is self.province]
-
+            results = orders.all_moves_to(self.province)
+    
             return None if (None in results) else (False in results)
 
     def resolve(self, variant, orders, verbose=False):
         """ Main method to resolve a convoy order.
 
+		The variant is included since it is needed for the Support class.
+
         """
-        if not self.max_hold == self.min_hold:
+        # Compute hold strengths
+        if not self.__resolved__('hold'):
             self.__compute_hold_strengths__(orders)
 
+		# Check legality
         if self.min_status == 'illegal':
             self.__legalize__(orders)
 
+		# If legal, check dislodgement status
         if self.min_status > 'illegal':
 
             # dislodged can be True, False, or None. If the value is None,
             # then whether the fleet is dislodged or not depends on other
             # orders which are not yet resolved.
+
             dislodged = self.resolve_dislodged(orders)
 
             if dislodged is True:

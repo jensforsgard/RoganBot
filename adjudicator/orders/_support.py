@@ -84,7 +84,7 @@ class Support(Order):
         return self.object_order.target.province is province
 
     def __legalize__(self, orders, game_map, verbose=False):
-        """ Method to resolve legality of the move.
+        """ Method to resolve legality of the support order.
 
         """
         relevant = next((order for order in orders
