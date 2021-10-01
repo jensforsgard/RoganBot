@@ -42,6 +42,9 @@ class Unit:
         The Province asociated with the current location of the 
         unit. An alias for `self.location.province`
 
+    sort_string : string
+        The string used to sort units.
+
     """
 
     def __init__(self, id, owner, force, location):
@@ -74,6 +77,13 @@ class Unit:
         """
         return self.location.province
 
+    @property
+    def sort_string(self):
+        """ sort_string getter.
+        
+        """
+        return f'{self.owner}{self.id}'
+
     def move_to(self, location):
         """ Changes the unit's location and province.
 
@@ -85,9 +95,3 @@ class Unit:
         
         """
         return self.location.reaches_location(location)
-
-    def sort_string(self):
-        """ Returns the string by which units are sorted.
-        
-        """
-        return f'{self.owner}{self.id}'

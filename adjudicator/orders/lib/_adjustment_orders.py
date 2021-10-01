@@ -6,7 +6,7 @@
 from adjudicator.orders.lib import OrderCollection
 
 
-class BuildOrders(OrderCollection):
+class AdjustmentOrders(OrderCollection):
     """ An instance of BuildOrders is a collection of orders
     for a build phase.
 

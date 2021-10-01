@@ -8,12 +8,12 @@ from ._order_status import OrderStatus
 from ._order import Order
 
 from ._order_collection import OrderCollection
-from ._build_orders import BuildOrders
+from ._adjustment_orders import AdjustmentOrders
 from ._diplomacy_orders import DiplomacyOrders
 from ._retreat_orders import RetreatOrders
 
 __all__ = [
-    "BuildOrders",
+    "AdjustmentOrders",
     "DiplomacyOrders",
     "Order",
     "OrderCollection"

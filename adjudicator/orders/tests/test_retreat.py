@@ -105,7 +105,7 @@ class TestOrders(unittest.TestCase):
 
     def test_sort_string(self):
         self.assertEqual(
-            self.retreat.sort_string(),
+            self.retreat.sort_string,
             'Austria1'
         )
 

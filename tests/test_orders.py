@@ -112,7 +112,7 @@ class TestOrders(unittest.TestCase):
 
     def test__move_sort_string__(self):
         self.game.order('A Ank - Con')
-        strings = [order.sort_string() for order in self.game.orders]
+        strings = [order.sort_string for order in self.game.orders]
         self.assertIn('Turkey20', strings)
 
     # =========================================================================
@@ -121,7 +121,7 @@ class TestOrders(unittest.TestCase):
 
     def test__support_sort_string__(self):
         self.game.order('A Ank S F Smy - Con')
-        strings = [order.sort_string() for order in self.game.orders]
+        strings = [order.sort_string for order in self.game.orders]
         self.assertIn('Turkey20', strings)
 
     # =========================================================================

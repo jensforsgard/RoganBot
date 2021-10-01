@@ -26,7 +26,8 @@ class TestBoard(unittest.TestCase):
         self.order._min_status = OrderStatus('illegal')
         self.order._max_status = OrderStatus('valid')
 
-        self.order.province = 1
+        self.order.unit = Mock()
+        self.order.unit.location.province = 1
 
     def tearDown(self):
         pass

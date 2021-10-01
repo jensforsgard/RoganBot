@@ -75,19 +75,6 @@ class Support(Order):
                 f"{self.unit.location.name} supports "
                 f"{self.object_order.__str__('support')}{resolution}.")
 
-    @property
-    def province(self):
-        """ province getter.
-        
-        """
-        return self.unit.location.province
-
-    def sort_string(self):
-        """ Returns the string format by which units are sorted.
-        
-        """
-        return self.unit.sort_string()
-
     def __supports_move_on__(self, province):
         """ Method to test whether self supports a move into a province.
 
@@ -177,10 +164,3 @@ class Support(Order):
         if self.min_status > 'illegal':
             self.__resolve_attacked__(orders, verbose)
             self.__resolve_left_alone__(orders, verbose)
-
-    @property
-    def resolved(self):
-        """
-
-        """
-        return self.__resolved__('status') and self.__resolved__('hold')

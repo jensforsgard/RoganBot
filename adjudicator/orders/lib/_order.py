@@ -21,6 +21,13 @@ class Order:
     max_status : OrderStatus
         The maximum status of the order, as currently deduced.
     
+    resolved : bool
+        Whether the order is resolved or not.
+    
+    sort_string : string
+        The string representation of the order that is used for
+        sorting the orders in a game.
+    
     """
 
     @property
@@ -81,6 +88,35 @@ class Order:
         """
         del self._max_status
 
+    @property
+    def province(self):
+        """ province getter.
+        
+        """
+        return self.unit.location.province
+
+    @property
+    def resolved(self):
+        """ resolved getter.
+        
+        The class :cls:adjudicator.Move overrides this method.
+        
+        """
+        return self.__resolved__('status') and self.__resolved__('hold')
+
+    @property
+    def sort_string(self):
+        """ sort_string getter.
+        
+        """
+        return self.unit.sort_string
+
+    def __resolved__(self, attr):
+        """ Method to test if an attribute is resolved.
+
+        """
+        return getattr(self, f'max_{attr}') == getattr(self, f'min_{attr}')
+
     def reset(self, max_hold=34):
         """ Method to reset an order.
 
@@ -99,12 +135,6 @@ class Order:
         """
         if getattr(self, attr) is None:
             setattr(self, attr, value)
-
-    def __resolved__(self, attr):
-        """ Method to test if an attribute is resolved.
-
-        """
-        return getattr(self, f'max_{attr}') == getattr(self, f'min_{attr}')
 
     def __compute_hold_strengths__(self, orders):
         """  Method to compute hold strengths.

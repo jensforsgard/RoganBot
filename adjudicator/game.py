@@ -14,7 +14,7 @@ from adjudicator.orders import (
     Build, Disband, Hold, Move, Retreat, Support
 )
 from adjudicator.orders.lib import (
-    BuildOrders, DiplomacyOrders, RetreatOrders
+    AdjustmentOrders, DiplomacyOrders, RetreatOrders
 )
 from adjudicator.wrappers import require
 
@@ -480,7 +480,6 @@ class Game:
                 order.set_('cutting', False)
                 order.set_('dislodging', False)
                 order.set_('failed', False)
-                order.set_resolved()
 
     def __resolve_retreats__(self, verbose=False):
         """ Method to resolve retreats.
@@ -569,7 +568,7 @@ class Game:
         
         else:
             self.__adjust_supply_centers__()
-            self.orders = BuildOrders(
+            self.orders = AdjustmentOrders(
                 Build,
                 Disband,
                 self.supply_centers,
@@ -600,13 +599,16 @@ class Game:
         self.__archive_orders__()
         if self.__unresolved_count__() != 0:
             raise AdjudicationError('Resolution ended with unresolved orders.')
+
         # Execute orders
         getattr(self, f'__execute_{self.season.phase.lower()}__')()
         self.season.progress()  # N.B. this will change the season.phase
+
         # Setup next phase
         self.__setup__()
         self.conclude(mute)
         self.__archive_position__()
+
         # If next phase requires no orders, then move on automatically
         if (not hold) and (len(self.orders) == 0) and (self.winner is None):
             self.adjudicate(mute=mute, verbose=verbose)

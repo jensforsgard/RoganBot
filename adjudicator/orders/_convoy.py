@@ -4,7 +4,7 @@
 
 from yaml import load, Loader
 
-from adjudicator.orders.lib import Order, OrderStatus
+from adjudicator.orders.lib import Order
 
 
 with open('adjudicator/config.yaml', 'r') as file:
@@ -102,25 +102,7 @@ class Convoy(Order):
                 f"{self.province} convoys "
                 f"{self.object_order.__str__('convoy')} {resolution}.")
 
-    @property
-    def province(self):
-        """ province getter.
-        
-        """
-        return self.unit.location.province
 
-    @property
-    def resolved(self):
-        """ resolved getter.
-        
-        """
-        return self.__resolved__('status') and self.__resolved__('hold')
-
-    def sort_string(self):
-        """ Returns the string format by which units are sorted.
-        
-        """
-        return self.unit.sort_string()
 
     def __legalize__(self, orders):
         """ Method to resolve the legality of a convoy.

@@ -7,14 +7,14 @@ The tests should be run from the base directory.
 
 import unittest
 
-from adjudicator.orders.lib import BuildOrders
+from adjudicator.orders.lib import AdjustmentOrders
 
 
 class TestOrders(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.orders = BuildOrders(
+        cls.orders = AdjustmentOrders(
         	lambda x, y: (x, y),
         	lambda x, y: (x, -y),
         	scs={1: [0], 2: [0, 0, 0, 0], 3: [0, 0, 0]},

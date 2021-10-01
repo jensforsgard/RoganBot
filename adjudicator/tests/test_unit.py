@@ -74,7 +74,7 @@ class TestBoard(unittest.TestCase):
 
     def test_sort_string(self):
         self.assertEqual(
-            self.unit.sort_string(),
+            self.unit.sort_string,
             'Austria1'
         )
 

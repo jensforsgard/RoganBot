@@ -68,8 +68,6 @@ class Hold(Order):
         self.max_hold = max_hold
         self.min_hold = 1
 
-        self.province = unit.location.province
-
     def __str__(self, context='self'):
         """  Method to print a hold order.
 
@@ -83,20 +81,6 @@ class Hold(Order):
         
         else:
             return f'the {self.unit.force} in {self.unit.location} holds'
-
-    def sort_string(self):
-        """ Returns the string format by which units are sorted.
-        An alias for `self.unit.sort_string`.
-        
-        """
-        return self.unit.sort_string()
-
-    @property
-    def resolved(self):
-        """ resolved getter.
-        
-        """
-        return self.__resolved__('status') and self.__resolved__('hold')
 
     def resolve(self, variant, orders, verbose=False):
         """ Method to resolve status.

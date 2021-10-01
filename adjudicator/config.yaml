@@ -5,9 +5,6 @@
 # order dependencies, choosing a good order has some
 # effect on efficiency.
 
-# WARNING: Values are also used as identifiers for
-# order types and must be unique.
-
 relevance:
     convoy: 1
     hold: 4

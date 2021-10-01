@@ -50,6 +50,9 @@ class Retreat:
     
     resolved : boolean
         Whether the order is resolved.
+    
+    sort_string : string
+        The string representation by which orders are sorted.
 
     Notes
     -----
@@ -145,11 +148,12 @@ class Retreat:
         except AttributeError:
             return Fase
 
+    @property
     def sort_string(self):
         """ Returns the string format by which orders are sorted.
         
         """
-        return self.unit.sort_string()
+        return self.unit.sort_string
 
     def resolve(self, variant, orders, verbose=False):
         """ Resolves a retreat order.
