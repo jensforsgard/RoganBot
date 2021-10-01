@@ -20,7 +20,6 @@ the test_adjudicator_DATC module:
     od.Move.__resolve_opposed__()
     od.Move.__resolve_support_on_self__()
     od.Move.__resolve_attack__()
-    od.Hold.resolve()
     od.Support.__supports_move_on__()
     od.Support.__legalize__()
     od.Support.__resolve_attacked__()
@@ -64,84 +63,6 @@ class TestOrders(unittest.TestCase):
                           if isinstance(order, Move)), None)
     def tearDown(self):
         pass
-
-    # =========================================================================
-    # Tests for the Diplomacy_Order class.
-    # =========================================================================
-
-    def test_reset(self):
-        self.game.__resolve_diplomacy__()
-        self.assertEqual(self.move.min_status, 'valid')
-        self.assertTrue(self.move.resolved)
-        self.move.reset()
-        self.assertEqual(self.move.max_status, 'valid')
-        self.assertEqual(self.move.min_status, 'illegal')
-        self.assertEqual(self.move.max_hold, 1)
-        self.assertEqual(self.move.min_hold, 1)
-        self.assertFalse(self.move.resolved)
-        
-    def test_set_(self):
-        self.assertIsNone(self.move.cutting)
-        self.move.set_('cutting', True)
-        self.assertTrue(self.move.cutting)
-        self.move.set_('cutting', False)
-        self.assertTrue(self.move.cutting)
-    
-    def test_moves(self):
-        self.game.__resolve_diplomacy__()
-        moves = [order.__str__() for order in self.game.orders 
-                 if order.moves()]
-        self.assertEqual(moves, ['French Army in Marseilles move via convoy to'
-                                 ' Tuscany (succeeds).'])
-
-    def test___resolved__(self):
-        order = self.game.orders.order_of(self.game.unit_in('Trieste'))
-        self.assertFalse(order.__resolved__('hold'))
-        order.resolve(self.game.variant, self.game.orders)
-        self.assertTrue(order.__resolved__('hold'))
-
-    def test___object_equivalent__(self):
-        order = self.game.orders.order_of(self.game.unit_in('Budapest'))
-        hold = Hold(order.unit)
-        move = Move(order.unit, False, order.object_order.target)
-        self.assertTrue(order.__object_equivalent__(hold))
-        self.assertFalse(order.__object_equivalent__(move))
-
-    def test___compute_hold_strengths__(self):
-        order = self.game.orders.order_of(self.game.unit_in('Marseilles'))
-        order.__compute_hold_strengths__(self.game.orders)
-        self.assertEqual(order.max_hold, 1)
-        order = self.game.orders.order_of(self.game.unit_in('Trieste'))
-        order.__compute_hold_strengths__(self.game.orders)
-        self.assertEqual(order.max_hold, 1)
-        self.game.order('F Nap S A Rom H')
-        order = self.game.orders.order_of(self.game.unit_in('Rome'))
-        order.__compute_hold_strengths__(self.game.orders)
-        self.assertEqual(order.max_hold, 2)
-
-    def test_blocks(self):
-        self.game.__resolve_diplomacy__()
-        order = self.game.orders.order_of(self.game.unit_in('Constantinople'))
-        self.assertEqual(order.blocks()[0].name, 'Constantinople')
-        self.game.__resolve_diplomacy__()
-        order = self.game.orders.order_of(self.game.unit_in('Munich'))
-        self.assertEqual(order.blocks()[0].name, 'Munich')
-
-    def test_set_illegal(self):
-        self.move.set_illegal()
-        self.assertEqual(self.move.max_status, 'illegal')
-        self.assertFalse(self.move.cutting)
-        self.assertFalse(self.move.dislodging)
-        self.assertTrue(self.move.failed)
-        self.assertTrue(self.move.resolved)
-        self.assertEqual(max(self.move.max_move.values()), 0)
-        self.assertEqual(max(self.move.min_move.values()), 0)
-    
-    def test_set_resolved(self):
-        self.move.set_resolved()
-        self.assertFalse(self.move.resolved)
-        self.move.resolve(self.game.variant, self.game.orders)
-        self.assertTrue(self.move.resolved)
 
     # =========================================================================
     # Tests for the Move class.
@@ -194,16 +115,6 @@ class TestOrders(unittest.TestCase):
         strings = [order.sort_string() for order in self.game.orders]
         self.assertIn('Turkey20', strings)
 
-
-    # =========================================================================
-    # The Hold Class
-    # =========================================================================
-
-    def test__hold_sort_string__(self):
-        strings = [order.sort_string() for order in self.game.orders]
-        self.assertIn('Turkey20', strings)
-
-
     # =========================================================================
     # The Support Class
     # =========================================================================
@@ -212,18 +123,6 @@ class TestOrders(unittest.TestCase):
         self.game.order('A Ank S F Smy - Con')
         strings = [order.sort_string() for order in self.game.orders]
         self.assertIn('Turkey20', strings)
-
-
-#    # =========================================================================
-#    # The Convoy Class
-#    # =========================================================================
-#
-#    def test__convoy_sort_string__(self):
-#        self.game.order(['F Bre - ENG', 'A Par - Pic'])
-#        self.game.adjudicate()
-#        self.game.order('F ENG C A Pic - Wal')
-#        strings = [order.sort_string() for order in self.game.orders]
-#        self.assertIn('France7', strings)
 
     # =========================================================================
     # Adjudicator scenarios tests

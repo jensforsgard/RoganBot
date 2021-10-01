@@ -46,10 +46,10 @@ class Convoy(Order):
         Dictionary of possible statuses and their ordering.
         Class attribute.
 
-    max_status : string
+    max_status : OrderStatus
         The maximal status of the move as currently known.
     
-    min_status : string
+    min_status : OrderStatus
         The minimal status of the move as currently known.
     
     max_hold : integer
