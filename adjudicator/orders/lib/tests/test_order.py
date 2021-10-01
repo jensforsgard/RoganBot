@@ -1,4 +1,4 @@
-""" Unittests for :cls:adjudicator.orders.Order
+""" Unittests for :cls:adjudicator.orders.lib.Order
 
 The tests should be run from the base directory.
 
@@ -8,7 +8,7 @@ import unittest
 
 from unittest.mock import Mock, MagicMock
 
-from adjudicator.orders import Order, OrderStatus
+from adjudicator.orders.lib import Order, OrderStatus
 
 
 class TestBoard(unittest.TestCase):
@@ -119,10 +119,10 @@ class TestBoard(unittest.TestCase):
 
     def test___object_equivalent___1(self):
         
-        self.order.relevance = 3
+        self.order.name = 'hold'
         
         mock = Mock()
-        mock.relevance = 1
+        mock.name = 'hold'
         mock.province = 1
         
         self.assertTrue(
@@ -131,10 +131,10 @@ class TestBoard(unittest.TestCase):
 
     def test___object_equivalent___2(self):
         
-        self.order.relevance = 2
+        self.order.name = 'move'
         
         mock = Mock()
-        mock.relevance = 1
+        mock.name = 'hold'
         mock.province = 1
         
         self.assertFalse(
@@ -143,10 +143,10 @@ class TestBoard(unittest.TestCase):
 
     def test___object_equivalent___3(self):
         
-        self.order.relevance = 1
+        self.order.name = 'hold'
         
         mock = Mock()
-        mock.relevance = 2
+        mock.name = 'move'
         mock.province = 1
         
         self.assertFalse(
@@ -155,10 +155,10 @@ class TestBoard(unittest.TestCase):
 
     def test___object_equivalent___4(self):
         
-        self.order.relevance = 1
+        self.order.name = 'hold'
         
         mock = Mock()
-        mock.relevance = 3
+        mock.name = 'support'
         mock.province = 2
         
         self.assertFalse(

@@ -2,7 +2,9 @@
 
 """
 
+
 from random import choice
+
 
 class Disband:
     """ A Disband is an order to remove a unit from the game.
@@ -118,7 +120,7 @@ class Disband:
         
             # Existing units that have been ordered to disbans
             gone = [order.unit for order in orders
-                    if isinstance(order, Disband)
+                    if order.name == 'disband'
                     and order.unit is not None]
             
             # Units belonging to `self.owner` that has not already

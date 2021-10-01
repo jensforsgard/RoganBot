@@ -1,4 +1,4 @@
-""" Unittests for :cls:adjudicator.orders.RetreatOrders
+""" Unittests for :cls:adjudicator.orders.lib.RetreatOrders
 
 The tests should be run from the base directory.
 
@@ -8,7 +8,7 @@ import unittest
 
 from unittest.mock import Mock, MagicMock
 
-from adjudicator.orders import RetreatOrders
+from adjudicator.orders.lib import RetreatOrders
 
 
 class TestOrders(unittest.TestCase):

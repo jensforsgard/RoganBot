@@ -1,52 +1,65 @@
-""" Unittests for the Disband class.
+""" Unittests for :cls:adjudicator.orders.lib.Disband
 
 The tests should be run from the base directory.
 
 """
 
+
 import unittest
 
-from adjudicator import Unit
+from unittest.mock import Mock, MagicMock
 
 from adjudicator.orders import Disband
 
-from adjudicator.game import Game
 
 class TestOrders(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.game = Game('Classic')
-        cls.game.start()
-        
-        cls.owner = cls.game.powers[0]
+        cls.owner = Mock()
+        cls.owner.genitive = 'Austrian'
+        cls.owner.__str__ = MagicMock(return_value='Austria')
         
     @classmethod
     def tearDownClass(cls):
         pass
     
     def setUp(self):
+        self.unit = Mock()
+        self.unit.owner = self.owner
+        self.unit.force = 'Army'
+        self.unit.location.province.name = 'Budapest'
+
         self.disband = Disband(
             id=1,
             owner=self.owner,
-            unit=self.game.units_of(self.owner)[0]
+            unit=self.unit
         )
 
     def tearDown(self):
         pass
 
-    def test___init__(self):
+    def test___init___1(self):
         self.assertEqual(
             self.disband.id,
             1
         )
+
+    def test___init___2(self):
         self.assertEqual(
             self.disband.owner,
             self.owner
         )
+
+    def test___init___3(self):
         self.assertEqual(
-            self.disband.unit.owner,
-            self.owner
+            self.disband.unit,
+            self.unit
+        )
+
+    def test___init___4(self):
+        self.assertFalse(
+            self.disband.resolved
         )
 
     def test___str__(self):
@@ -61,35 +74,10 @@ class TestOrders(unittest.TestCase):
             'Budapest'
         )
 
-    def test_unit(self):
-        unit = self.disband.unit
-        
-        self.disband.unit = None
-        self.assertIsNone(
-            self.disband.unit
-        )
-
-        self.disband.unit = unit
+    def test_sort_string(self):
         self.assertEqual(
-            self.disband.unit,
-            unit
-        )
-
-    def test_invalid_action(self):
-        self.disband.unit = None
-        
-        self.disband.invalid_action(
-            self.game.units_of(self.owner),
-            []
-        )
-
-        self.assertIsInstance(
-            self.disband.unit,
-            Unit
-        )
-        self.assertEqual(
-            self.disband.unit.owner,
-            self.owner
+            self.disband.sort_string(),
+            'Austria1'
         )
 
     def test_postpone(self):
@@ -98,6 +86,35 @@ class TestOrders(unittest.TestCase):
         self.assertIsNone(
             self.disband.unit
         )
+
+    def test_unit_1(self):
+        self.disband.unit = None
+        self.assertIsNone(
+            self.disband.unit
+        )
+
+    def test_unit_2(self):
+        self.disband.unit = None
+        self.disband.unit = self.unit
+
+        self.assertEqual(
+            self.disband.unit,
+            self.unit
+        )
+
+    def test_invalid_action(self):
+        self.disband.unit = None
+        
+        self.disband.invalid_action(
+            [self.unit],
+            []
+        )
+
+        self.assertEqual(
+            self.disband.unit.owner,
+            self.owner
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

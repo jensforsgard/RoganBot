@@ -1,4 +1,4 @@
-""" Unittests for :cls:adjudicator.orders.DiplomacyOrders
+""" Unittests for :cls:adjudicator.orders.lib.DiplomacyOrders
 
 The tests should be run from the base directory.
 
@@ -8,7 +8,7 @@ import unittest
 
 from unittest.mock import Mock, MagicMock
 
-from adjudicator.orders import DiplomacyOrders
+from adjudicator.orders.lib import DiplomacyOrders
 
 
 class TestOrders(unittest.TestCase):

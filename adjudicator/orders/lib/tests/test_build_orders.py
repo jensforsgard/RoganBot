@@ -1,4 +1,4 @@
-""" Unittests for :cls:adjudicator.orders.BuildOrders
+""" Unittests for :cls:adjudicator.orders.lib.BuildOrders
 
 The tests should be run from the base directory.
 
@@ -7,7 +7,7 @@ The tests should be run from the base directory.
 
 import unittest
 
-from adjudicator.orders import BuildOrders
+from adjudicator.orders.lib import BuildOrders
 
 
 class TestOrders(unittest.TestCase):

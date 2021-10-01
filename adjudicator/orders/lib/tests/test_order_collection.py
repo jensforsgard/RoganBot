@@ -1,4 +1,4 @@
-""" Unittests for :cls:`adjudicator.orders.OrderCollection`
+""" Unittests for :cls:`adjudicator.orders.lib.OrderCollection`
 
 The tests should be run from the base directory.
 
@@ -8,7 +8,7 @@ import unittest
 
 from unittest.mock import Mock, MagicMock
 
-from adjudicator.orders import OrderCollection
+from adjudicator.orders.lib import OrderCollection
 
 
 class TestOrders(unittest.TestCase):
@@ -127,9 +127,9 @@ class TestOrders(unittest.TestCase):
         )
 
     def test_aids(self):
-        self.element1.relevance = 1
-        self.element2.relevance = 2
-        self.element3.relevance = 3
+        self.element1.name = 'convoy'
+        self.element2.name = 'move'
+        self.element3.name = 'support'
 
         order = Mock()
         order.__object_equivalent__ = MagicMock(return_value=True)
