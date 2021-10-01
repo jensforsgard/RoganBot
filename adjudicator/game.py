@@ -1,21 +1,19 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-""" This mode contains the Game class. An instance of the Game is a game
-of Diplomacy.
+""" The Game class
 
 """
 
 import geopandas as geo
 from fiona.errors import DriverError
 
-import adjudicator._orders as od
 import graphics.graphics as graphics
 
 from adjudicator import (
-    Build, Disband, Force, Geography, Location, Power, Province, Retreat, 
-    Season, Unit, Variant
+    Force, Geography, Location, Power, Province, Season, Unit, Variant
 )
 from adjudicator.orders import (
+    Build, Disband, Hold, Move, Retreat, Support
+)
+from adjudicator.orders.lib import (
     BuildOrders, DiplomacyOrders, RetreatOrders
 )
 from adjudicator.wrappers import require
@@ -70,7 +68,7 @@ class Game:
         self.units = []
         self.home_centers = {}
         self.supply_centers = {}
-        self.orders = DiplomacyOrders(od.Hold)
+        self.orders = DiplomacyOrders(Hold)
         self.winner = None
         self.position_archive = PositionArchive()
         self.order_archive = OrderArchive()
@@ -186,7 +184,7 @@ class Game:
         """
         self.season.reset(self.variant)
         self.units = []
-        self.orders = DiplomacyOrders(od.Hold)
+        self.orders = DiplomacyOrders(Hold)
         self.position_archive.reset()
         self.order_archive.reset()
         self.supply_centers = {}
@@ -365,7 +363,7 @@ class Game:
         unit = Unit(self.__next_unit_id__(), power, force, location)
         self.units.append(unit)
         if self.season.phase == 'Diplomacy':
-            self.orders.insert(od.Hold(unit))
+            self.orders.insert(Hold(unit))
 
     def add_units(self, list_of_units):
         """ Adds several units to the game.
@@ -440,7 +438,7 @@ class Game:
         """
         self.orders.sort(by='relevance')
         for order in self.orders:
-            if isinstance(order, od.Move):
+            if isinstance(order, Move):
                 order.__adjacent_convoy__(self.orders)
 
         counter = 1
@@ -468,7 +466,7 @@ class Game:
         """
         assert self.season.phase == 'Diplomacy'
         for order in self.orders:
-            if isinstance(order, od.Move) and order.convoy and not order.resolved:
+            if isinstance(order, Move) and order.convoy and not order.resolved:
                 order.set_('cutting', False)
                 order.set_('dislodging', False)
 
@@ -478,7 +476,7 @@ class Game:
         """
         assert self.season.phase == 'Diplomacy'
         for order in self.orders:
-            if isinstance(order, od.Move) and not order.resolved:
+            if isinstance(order, Move) and not order.resolved:
                 order.set_('cutting', False)
                 order.set_('dislodging', False)
                 order.set_('failed', False)
@@ -524,7 +522,7 @@ class Game:
 
         """
         for order in self.orders:
-            if isinstance(order, od.Move) and order.moves():
+            if isinstance(order, Move) and order.moves():
                 order.unit.move_to(order.target)
 
     def __execute_retreats__(self):
@@ -534,7 +532,7 @@ class Game:
         for retreat in self.orders:
             if isinstance(retreat.order, Disband) or retreat.disbands:
                 self.delete_unit(retreat.order.unit)
-            elif isinstance(retreat.order, od.Move):
+            elif isinstance(retreat.order, Move):
                 retreat.unit.move_to(retreat.order.target)
 
     def __execute_builds__(self):
@@ -564,7 +562,7 @@ class Game:
         
         """
         if self.season.phase == 'Diplomacy':
-            self.orders = DiplomacyOrders(od.Hold, self.units)
+            self.orders = DiplomacyOrders(Hold, self.units)
         
         elif self.season.phase == 'Retreats':
             self.orders = RetreatOrders(Retreat, self.orders)

@@ -3,7 +3,7 @@
 """
 
 
-from adjudicator.lib import flatten, isorderinstance
+from adjudicator.lib import flatten
 from adjudicator.wrappers import require
 
 
@@ -85,7 +85,7 @@ class OrderCollection:
         
         """
         return [entry for entry in self.orders
-                if isorderinstance(entry, string)
+                if entry.name == string
                 and order.__object_equivalent__(entry.object_order)]
 
     def blocks(self):

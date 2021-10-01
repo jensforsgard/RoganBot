@@ -3,8 +3,7 @@
 """
 
 
-from adjudicator.lib import isorderinstance
-from adjudicator.orders import OrderStatus
+from adjudicator.orders.lib import OrderStatus
 
 
 class Order:
@@ -145,5 +144,5 @@ class Order:
 
         """
         return (order.province is self.province
-                and not isorderinstance(self, 'move')
-                and not isorderinstance(order, 'move'))
+                and not self.name == 'move'
+                and not order.name == 'move')

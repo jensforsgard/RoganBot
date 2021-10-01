@@ -20,6 +20,9 @@ class Disband:
 
     Attributes
     ----------
+    name : string
+        class attribute: 'disband'
+
     id : integer
         See Parameters.
 
@@ -36,6 +39,8 @@ class Disband:
         Whether the order is resolved or not.
 
     """
+
+    name = 'disband'
 
     def __init__(self, id, owner, unit=None):
         """ Constructor.

@@ -32,11 +32,13 @@ the test_adjudicator_DATC module:
     
 """
 
-import adjudicator._orders as od
 import adjudicator.game as gm
 import unittest
 
-from adjudicator import Build, Convoy, Force
+from adjudicator import Force
+
+from adjudicator.orders import Build, Convoy, Hold, Move
+
 
 class TestOrders(unittest.TestCase):
 
@@ -59,19 +61,9 @@ class TestOrders(unittest.TestCase):
         self.game.order(['A Mun - Ber', 'F GoL C A Mar - Tus', 
                          'A Mar - Tus via C', 'A Bud S A Vie - Gal'])
         self.move = next((order for order in self.game.orders 
-                          if isinstance(order, od.Move)), None)
+                          if isinstance(order, Move)), None)
     def tearDown(self):
         pass
-
-    def test_orders_of_type(self):
-        moves = od.orders_of_type(self.game.orders, 'move')
-        self.assertEqual(len(moves), 2)
-        holds = od.orders_of_type(self.game.orders, 'hold')
-        self.assertEqual(len(holds), 19)
-        convoys = od.orders_of_type(self.game.orders, 'convoy')
-        self.assertEqual(len(convoys), 1)
-        supports = od.orders_of_type(self.game.orders, 'support')
-        self.assertEqual(len(supports), 1)
 
     # =========================================================================
     # Tests for the Diplomacy_Order class.
@@ -110,16 +102,10 @@ class TestOrders(unittest.TestCase):
 
     def test___object_equivalent__(self):
         order = self.game.orders.order_of(self.game.unit_in('Budapest'))
-        hold = od.Hold(order.unit)
-        move = od.Move(order.unit, False, order.object_order.target)
+        hold = Hold(order.unit)
+        move = Move(order.unit, False, order.object_order.target)
         self.assertTrue(order.__object_equivalent__(hold))
         self.assertFalse(order.__object_equivalent__(move))
-
-    def test___object_of__(self):
-        order = self.game.orders.order_of(self.game.unit_in('Marseilles'))
-        convoy = order.__object_of__(self.game.orders, 'convoy')
-        self.assertEqual(len(convoy), 1)
-        self.assertEqual(type(convoy[0]), Convoy)
 
     def test___compute_hold_strengths__(self):
         order = self.game.orders.order_of(self.game.unit_in('Marseilles'))

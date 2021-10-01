@@ -23,6 +23,9 @@ class Build:
 
     Attributes
     ----------
+    name : string
+        class attribute: 'build'
+    
     id : integer
         See Parameters.
     
@@ -47,6 +50,8 @@ class Build:
         Whether the order is resolved.
 
     """
+
+    name = 'build'
 
     def __init__(self, id, owner, force=None, location=None):
         """ Constructor.
@@ -97,10 +102,10 @@ class Build:
         self.location = None
 
     def invalid_action(self, *args):
-        """ The action to take if the order is invalid.
+        """ The action to take if the order is invalid. For build order,
+        it means the build is postponed.
 
-        For build order, it means the build is postponed. In fact,
-        this method only exists to provide consistency between the
+        This method only exists to provide consistency between the
         Build and Disband classes.
 
         """

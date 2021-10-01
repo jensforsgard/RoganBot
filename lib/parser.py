@@ -4,9 +4,8 @@
 
 """
 
-import adjudicator._orders as od
 
-from adjudicator import Build, Convoy, Disband
+from adjudicator.orders import Build, Convoy, Disband, Hold, Move, Support
 
 from lib.errors import OrderInputError
 from lib.itemlist import ItemList
@@ -234,7 +233,7 @@ class Parser:
         """ Returns a persed move order during the Diplomacy phase.
         
         """
-        return od.Hold(self.unit)
+        return Hold(self.unit)
 
     @Decorators.is_convoy
     @Decorators.load_specifiers
@@ -247,7 +246,7 @@ class Parser:
         specifier = self.specifiers.first(after=self.provinces.pos(1))
         target = self.game.locate(self.unit.force, self.provinces.loc(1),
                                    self.unit.location, specifier, require=True)
-        return od.Move(self.unit, self.convoy, target)
+        return Move(self.unit, self.convoy, target)
 
     @Decorators.is_reversed
     @Decorators.identify_object
@@ -264,7 +263,7 @@ class Parser:
         """ Returns a parsed support hold order.
         
         """
-        return od.Support(self.unit, od.Hold(self.object))    
+        return Support(self.unit, Hold(self.object))    
 
     @Decorators.load_specifiers
     def parseSupportMove(self):
@@ -282,7 +281,7 @@ class Parser:
                                   self.provinces.loc(2 - self.reversed),
                                   self.object.location, specifier, 
                                   either=True, require=True)
-        return od.Support(self.unit, od.Move(self.object, False, target))
+        return Support(self.unit, Move(self.object, False, target))
 
     @Decorators.is_reversed
     @Decorators.identify_object
@@ -301,7 +300,7 @@ class Parser:
         target = self.game.locate(self.object.force, 
                                   self.provinces.loc(2 - self.reversed).name,
                                   require=True)
-        return Convoy(self.unit, od.Move(self.object, True, target))
+        return Convoy(self.unit, Move(self.object, True, target))
 
     @Decorators.load_provinces
     @Decorators.identify_order
@@ -321,7 +320,7 @@ class Parser:
                                       self.provinces.loc(1),
                                       self.previous.unit.location,
                                       specifier, require=True)
-            self.previous.order = od.Move(self.previous.unit, False, target)
+            self.previous.order = Move(self.previous.unit, False, target)
 
     @Decorators.load_numbers
     @Decorators.load_powers

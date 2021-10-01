@@ -3,7 +3,7 @@
 """
 
 
-from adjudicator.orders import OrderCollection
+from adjudicator.orders.lib import OrderCollection
 
 
 class RetreatOrders(OrderCollection):

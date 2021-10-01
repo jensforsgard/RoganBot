@@ -1,4 +1,4 @@
-""" Unittests for the Build class.
+""" Unittests for :cls:adjudicator.Build
 
 The tests should be run from the base directory.
 
@@ -6,43 +6,64 @@ The tests should be run from the base directory.
 
 import unittest
 
-from adjudicator import Build, Variant
+from unittest.mock import Mock, MagicMock
+
+from adjudicator.orders import Build
+
 
 class TestOrders(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.variant = Variant('Classic')
-        cls.variant.load()
+        cls.power = Mock()
+        cls.power.genitive = 'Austrian'
+        cls.power.name = 'Austria'
+        cls.power.__str__ = MagicMock(return_value='Austria')
+        
+        cls.force = Mock()
+        cls.force.name = 'Army'
+        
+        cls.location = Mock()
+        cls.location.name = 'Adriatic Sea'
+        cls.location.province = Mock()
+        cls.location.province.name = 'Adriatic Sea'
         
     @classmethod
     def tearDownClass(cls):
         pass
     
     def setUp(self):
+
+
         self.build = Build(
             id=1,
-            owner=self.variant.powers[0],
-            force=self.variant.map.forces[0],
-            location=self.variant.map.locations[0]
+            owner=self.power,
+            force=self.force,
+            location=self.location
         )
 
     def tearDown(self):
         pass
 
-    def test___init__(self):
+    def test___init__1(self):
         self.assertEqual(
             self.build.id,
             1
         )
+
+    def test___init__2(self):
         self.assertEqual(
             self.build.owner.name,
             'Austria'
         )
+        
+    def test___init__3(self):
         self.assertEqual(
             self.build.force.name,
             'Army'
         )
+
+    def test___init__4(self):
         self.assertEqual(
             self.build.location.name,
             'Adriatic Sea'
@@ -66,8 +87,15 @@ class TestOrders(unittest.TestCase):
             'Adriatic Sea'
         )
 
-    def test_invalid_action(self):
-        self.build.invalid_action()
+    def test_postpone(self):
+        self.build.postpone()
+
+        self.assertIsNone(
+            self.build.force
+        )
+
+    def test_postpone(self):
+        self.build.postpone()
 
         self.assertIsNone(
             self.build.location
@@ -77,14 +105,16 @@ class TestOrders(unittest.TestCase):
         self.build.postpone()
 
         self.assertIsNone(
-            self.build.force
+            self.build.province
         )
+
+    def test_invalid_action(self):
+        self.build.invalid_action()
+
         self.assertIsNone(
             self.build.location
         )
-        self.assertIsNone(
-            self.build.province
-        )
+
 
 if __name__ == '__main__':
     unittest.main()

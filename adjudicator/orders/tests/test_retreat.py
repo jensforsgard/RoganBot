@@ -6,7 +6,7 @@ The tests should be run from the base directory.
 
 import unittest
 
-from adjudicator import Disband, Retreat
+from adjudicator.orders import Disband, Retreat
 
 from adjudicator.game import Game
 

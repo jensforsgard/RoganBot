@@ -1,23 +1,25 @@
-""" The :mod:`adjudicator.orders` contains auxiliary classes
-used by the adjudicator module when handling orders and
-collections of orders.
+""" The :mod:`adjudicator.orders` contains classes describing
+different types of orders.
 
 """
 
-from ._order_status import OrderStatus
-from ._order import Order
+from ._build import Build
+from ._convoy import Convoy
+from ._disband import Disband
+from ._hold import Hold
+from ._support import Support
 
-from ._order_collection import OrderCollection
+from ._move import Move
 
-from ._build_orders import BuildOrders
-from ._diplomacy_orders import DiplomacyOrders
-from ._retreat_orders import RetreatOrders
+from ._retreat import Retreat
+
 
 __all__ = [
-    "BuildOrders",
-    "DiplomacyOrders",
-    "Order",
-    "OrderCollection"
-    "OrderStatus",
-    "RetreatOrders"
+    "Build",
+    "Convoy",
+    "Disband",
+    "Hold",
+    "Move",
+    "Support",
+    "Retreat"
 ]

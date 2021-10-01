@@ -4,8 +4,7 @@
 
 from yaml import load, Loader
 
-from adjudicator.lib import isorderinstance
-from adjudicator.orders import Order, OrderStatus
+from adjudicator.orders.lib import Order, OrderStatus
 
 
 with open('adjudicator/config.yaml', 'r') as file:
@@ -26,6 +25,9 @@ class Convoy(Order):
 
     Attributes
     ----------
+    name : string
+        class attribute: 'convoy'
+    
     unit : Unit
         See Parameters.
     
@@ -67,6 +69,8 @@ class Convoy(Order):
     """
 
     relevance = RELEVANCE['convoy']
+
+    name = 'convoy'
 
     def __init__(self, unit, object_order, max_hold=34):
         """ Constructor.
@@ -127,7 +131,7 @@ class Convoy(Order):
         if convoyed is None or convoyed.unit.force.name == 'Fleet':
             self.max_status = 'illegal'
 
-        elif not isorderinstance(convoyed, 'move'):
+        elif not convoyed.name == 'move':
             self.max_status = 'illegal'
 
         elif convoyed.target is not self.object_order.target:
@@ -142,7 +146,7 @@ class Convoy(Order):
         """
         if self.min_status < 'valid':
             results = [order.failed for order in orders
-                       if isorderinstance(order, 'move')
+                       if order.name == 'move'
                        and order.target.province is self.province]
 
             return None if (None in results) else (False in results)

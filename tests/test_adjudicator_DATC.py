@@ -4,10 +4,11 @@
 """
 
 import adjudicator.game as gm
-import adjudicator.orders as od
 import unittest
 
-from adjudicator import Province, Retreat
+from adjudicator import Province
+from adjudicator.orders import Hold, Retreat
+
 from lib.errors import MapError
 
 class TestAdjudicator(unittest.TestCase):

@@ -2,8 +2,9 @@
 
 """
 
-from adjudicator import Disband
-from adjudicator._orders import Move
+
+from adjudicator.orders import Disband, Move
+
 
 class Retreat:
     """ A Retreat is an order for a unit that was dislodged. 
@@ -23,6 +24,9 @@ class Retreat:
 
     Attributes
     ----------
+    name : string
+        class attribute: 'retreat'
+
     id : integer
         See Parameters.
 
@@ -53,6 +57,8 @@ class Retreat:
     order, or because the given move order failed (for any reason).
 
     """
+
+    name = 'retreat'
 
     def __init__(self, id, unit, forbidden):
         """ Constructor.

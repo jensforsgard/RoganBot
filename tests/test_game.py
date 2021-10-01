@@ -24,11 +24,14 @@ import io
 import sys
 
 import adjudicator.game as gm
-import adjudicator.orders as od
 
 from geopandas import GeoDataFrame
 from adjudicator import (
-    Build, Disband, Force, Geography, Location, Power, Province
+    Force, Geography, Location, Power, Province
+)
+
+from adjudicator.orders import (
+    Build, Disband
 )
 
 from lib.itemlist import ItemList
