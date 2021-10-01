@@ -126,6 +126,19 @@ class TestOrders(unittest.TestCase):
             self.element1
         )
 
+    def test_aids(self):
+        self.element1.relevance = 1
+        self.element2.relevance = 2
+        self.element3.relevance = 3
+
+        order = Mock()
+        order.__object_equivalent__ = MagicMock(return_value=True)
+
+        self.assertEqual(
+            self.collection.aids(order, 'support'),
+            [self.element3]
+        )
+
     def test_blocks_1(self):
         self.assertEqual(
             set(self.collection.blocks()),
@@ -148,8 +161,8 @@ class TestOrders(unittest.TestCase):
         self.collection.sort()
 
         self.assertEqual(
-        	self.collection.orders,
-        	[self.element3, self.element2, self.element1]
+            self.collection.orders,
+            [self.element3, self.element2, self.element1]
         )
 
 if __name__ == '__main__':

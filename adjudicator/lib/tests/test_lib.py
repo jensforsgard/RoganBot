@@ -4,7 +4,9 @@
 
 import unittest
 
-from adjudicator.lib import flatten
+from unittest.mock import Mock
+
+from adjudicator.lib import flatten, isorderinstance
 
 
 class TestAdjudicator(unittest.TestCase) :
@@ -29,6 +31,21 @@ class TestAdjudicator(unittest.TestCase) :
             [1,2,3,4]
         )
 
+    def test_isorderintsance_true(self):
+        self.order = Mock()
+        self.order.relevance = 2
+        
+        self.assertTrue(
+            isorderinstance(self.order, 'move')
+        )
+
+    def test_isorderintsance_false(self):
+        self.order = Mock()
+        self.order.relevance = 1
+        
+        self.assertFalse(
+            isorderinstance(self.order, 'move')
+        )
 
 if __name__ == '__main__':
     unittest.main()

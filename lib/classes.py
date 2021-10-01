@@ -5,12 +5,6 @@ information extraction.
 
 """
 
-from yaml import load, Loader
-
-
-with open('adjudicator/config.yaml', 'r') as file:
-    RELEVANCE = load(file, Loader)['relevance']
-
 
 def despecify(string, geography):
     """ Removes the specifiers of the geography from the string.
@@ -53,14 +47,8 @@ def dict_string(dctnry, deliminator='', func=lambda x: x):
     return '\n'.join([f'{key}{deliminator} {strings[key]}' for key in dctnry])
 
 
-def isorderinstance(order, string):
-    """ Tests if an order is of a given instance.
-    
-    """
-    return order.relevance == RELEVANCE[string.lower()]
-
-def orders_of_type(orders, string):
-    """ Filters a list of order by type.
-
-    """
-    return [order for order in orders if isorderinstance(order, string)]
+#def orders_of_type(orders, string):
+#    """ Filters a list of order by type.
+#
+#    """
+#    return [order for order in orders if isorderinstance(order, string)]

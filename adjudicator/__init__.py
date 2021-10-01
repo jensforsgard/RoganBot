@@ -11,7 +11,6 @@ from ._force import Force
 from ._geography import Geography
 from ._location import Location
 from ._power import Power
-from ._order import Order
 from ._province import Province
 from ._retreat import Retreat
 from ._season import Season
@@ -29,7 +28,6 @@ __all__ = [
     "Geography",
     "Location",
     "Map",
-    "Order",
     "Power",
     "Province",
     "Retreat",

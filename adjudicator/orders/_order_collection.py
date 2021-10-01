@@ -3,7 +3,7 @@
 """
 
 
-from adjudicator.lib import flatten
+from adjudicator.lib import flatten, isorderinstance
 from adjudicator.wrappers import require
 
 
@@ -78,6 +78,15 @@ class OrderCollection:
         """
         generator = (order for order in self if order.unit is unit)
         return next(generator, None)
+
+    def aids(self, order, string, **kwargs):
+        """ Retrieves the list of orders of type `string` which are acting
+        on the given order.
+        
+        """
+        return [entry for entry in self.orders
+                if isorderinstance(entry, string)
+                and order.__object_equivalent__(entry.object_order)]
 
     def blocks(self):
         """ Returns the list or provinces which are blocked by a set of

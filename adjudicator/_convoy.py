@@ -4,10 +4,8 @@
 
 from yaml import load, Loader
 
-from adjudicator import Order
-from adjudicator.orders import OrderStatus
-
-from lib.classes import isorderinstance
+from adjudicator.lib import isorderinstance
+from adjudicator.orders import Order, OrderStatus
 
 
 with open('adjudicator/config.yaml', 'r') as file:
@@ -147,14 +145,7 @@ class Convoy(Order):
                        if isorderinstance(order, 'move')
                        and order.target.province is self.province]
 
-            if False in results:
-                return True
-
-            elif None in results:
-                return None
-
-            else:
-                return False
+            return None if (None in results) else (False in results)
 
     def resolve(self, variant, orders, verbose=False):
         """ Main method to resolve a convoy order.
@@ -168,9 +159,9 @@ class Convoy(Order):
 
         if self.min_status > 'illegal':
 
-        	# dislodged can be True, False, or None. If the value is None,
-        	# then whether the fleet is dislodged or not depends on other
-        	# orders which are not yet resolved.
+            # dislodged can be True, False, or None. If the value is None,
+            # then whether the fleet is dislodged or not depends on other
+            # orders which are not yet resolved.
             dislodged = self.resolve_dislodged(orders)
 
             if dislodged is True:

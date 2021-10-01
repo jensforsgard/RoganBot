@@ -5,6 +5,7 @@ collections of orders.
 """
 
 from ._order_status import OrderStatus
+from ._order import Order
 
 from ._order_collection import OrderCollection
 
@@ -15,8 +16,8 @@ from ._retreat_orders import RetreatOrders
 __all__ = [
     "BuildOrders",
     "DiplomacyOrders",
+    "Order",
     "OrderCollection"
     "OrderStatus",
-    "RetreatOrders",
-    "require"
+    "RetreatOrders"
 ]
