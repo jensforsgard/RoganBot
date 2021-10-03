@@ -16,9 +16,9 @@ from adjudicator.orders import (
 from adjudicator.orders.lib import (
     AdjustmentOrders, DiplomacyOrders, RetreatOrders
 )
-from adjudicator.wrappers import require
+from adjudicator.lib import flatten, require
 
-from lib.lists import (first, flatten)
+from lib.lists import first
 from lib.errors import (OrderInputError, GameError, AdjudicationError)
 from lib.classes import dict_string
 from lib.archive import (OrderArchive, PositionArchive)
@@ -424,15 +424,15 @@ class Game:
             else:
                 raise OrderInputError('No orders expected for the current phase.')
 
-    def __resolve_orders__(self, verbose=False):
+    def __resolve_orders__(self):
         """ Method to resolve orders.
 
         """
         for order in self.orders:
             if not(order.resolved):
-                order.resolve(self.variant, self.orders, verbose)
+                order.resolve(self.variant, self.orders)
 
-    def __resolve_diplomacy__(self, verbose=False):
+    def __resolve_diplomacy__(self):
         """ Method to resolve orders during the diplomacy phase.
 
         """
@@ -447,7 +447,7 @@ class Game:
             # Set larger initial value  to start the second loop
             previous = unresolved + 1
             while previous > unresolved:
-                self.__resolve_orders__(verbose)
+                self.__resolve_orders__()
                 previous = unresolved
                 unresolved = self.__unresolved_count__()
                 if unresolved == 0:
@@ -460,7 +460,7 @@ class Game:
                 self.__resolve_circular_movement__()
             counter += 1
 
-    def __resolve_paradoxes__(self, verbose=False):
+    def __resolve_paradoxes__(self):
         """ Method to resolve paradoxes.
 
         """
@@ -481,18 +481,18 @@ class Game:
                 order.set_('dislodging', False)
                 order.set_('failed', False)
 
-    def __resolve_retreats__(self, verbose=False):
+    def __resolve_retreats__(self):
         """ Method to resolve retreats.
 
         """
         counter = 1  # Might need two for loops.
         while counter < len(self.orders) + 1:
-            self.__resolve_orders__(verbose)
+            self.__resolve_orders__()
             if self.__unresolved_count__() == 0:
                 break
             counter += 1
 
-    def __resolve_builds__(self, verbose=False):
+    def __resolve_builds__(self):
         """ Method to resolve builds.
 
         """
@@ -588,14 +588,14 @@ class Game:
         if self.winner is not None and not mute:
             print(f'Game won by {self.winner.name}.')
 
-    def adjudicate(self, mute=False, verbose=False, hold=False):
+    def adjudicate(self, mute=False, hold=False):
         """ Main method to adjudicat the game.
 
         """
         assert self.winner is None
 
         # Resolve orders
-        getattr(self, f'__resolve_{self.season.phase.lower()}__')(verbose)
+        getattr(self, f'__resolve_{self.season.phase.lower()}__')()
         self.__archive_orders__()
         if self.__unresolved_count__() != 0:
             raise AdjudicationError('Resolution ended with unresolved orders.')
@@ -611,4 +611,4 @@ class Game:
 
         # If next phase requires no orders, then move on automatically
         if (not hold) and (len(self.orders) == 0) and (self.winner is None):
-            self.adjudicate(mute=mute, verbose=verbose)
+            self.adjudicate(mute=mute)

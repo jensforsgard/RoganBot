@@ -116,15 +116,6 @@ class TestOrders(unittest.TestCase):
         self.assertIn('Turkey20', strings)
 
     # =========================================================================
-    # The Support Class
-    # =========================================================================
-
-    def test__support_sort_string__(self):
-        self.game.order('A Ank S F Smy - Con')
-        strings = [order.sort_string for order in self.game.orders]
-        self.assertIn('Turkey20', strings)
-
-    # =========================================================================
     # Adjudicator scenarios tests
     # =========================================================================
 

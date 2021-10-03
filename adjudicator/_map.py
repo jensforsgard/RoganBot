@@ -151,6 +151,7 @@ class Map:
 
         try:
             objects = getattr(self, attributes[class_])
+
         except KeyError:
             objects = getattr(self, class_)
     

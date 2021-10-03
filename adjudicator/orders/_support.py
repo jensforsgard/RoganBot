@@ -3,52 +3,71 @@
 """
 
 
+from yaml import load, Loader
+
 from adjudicator.orders.lib import Order
 
 
+with open('adjudicator/config.yaml', 'r') as file:
+    RELEVANCE = load(file, Loader)['relevance']
+
+
 class Support(Order):
-    """ A Support is an order for to a unit to aid an 'object unit' in its
-    order.
+    """ A Support is an order for to a unit to aid an 
+    `object unit` in their order.
+
+    Parameters
+    ----------
+    unit : Unit
+        The unit the order is given to.
+    
+    object_order : Order
+        The order which is supported
+
+    max_hold : integer
+        The maximum hold strength.
 
     Attributes:
+    -----------
     name : string
-    	class attribute: 'support'
+        class attribute: 'support'
     
-        relevance : intger
-            The relevance of the move relative other types of orders; sorting
-            by relevance gives a faster adjudication process.
-        unit : Unit
-            The unit the order is given to.
-        province : Province
-            The current province of the unit.
-        object_order : Order
-            The order to which support is given.
-        statuses : dictionary
-            Dictionary of statuses and their ordering.
-        max_status : string
-            The maximal status of the move as currently known.
-        min_status : string
-            The minimal status of the move as currently known.
-        max_hold : integer
-            The maximal hold strength of the unit.
-        min_hold : integer
-            The minimal hold strength of the unit.
-        resolved : boolean or None
-            Whether the move is resolved or not.
+    relevance : intger
+        The relevance of the move relative other types of orders;
+        sorting by relevance gives a faster adjudication process.
+    
+    unit : Unit
+        See Parameters.
+
+    province : Province
+        The current province of the unit.
+
+    object_order : Order
+        The order to which support is given.
+
+    max_status : string
+        The maximal status of the move as currently known.
+
+    min_status : string
+        The minimal status of the move as currently known.
+
+    max_hold : integer
+        The maximal hold strength of the unit.
+
+    min_hold : integer
+        The minimal hold strength of the unit.
+
+    resolved : boolean or None
+        Whether the move is resolved or not.
 
     """
 
-    relevance = 3
+    relevance = RELEVANCE['support']
 
     name = 'support'
 
     def __init__(self, unit, object_order, max_hold=34):
-        """ The constructor for the Support class.
-
-        Parameters
-        ----------
-        unit : Unit
-        object_order : Order
+        """ Constructor.
 
         """
         self.unit = unit
@@ -65,102 +84,89 @@ class Support(Order):
         if not(self.resolved):
             resolution = ' [unresolved]'
 
+        elif self.max_status < 'valid':
+            resolution = ' (fails)'
+        
         else:
-            if self.max_status < 'valid':
-                resolution = ' (fails)'
-            else:
-                resolution = ' (succeeds)'
+            resolution = ' (succeeds)'
 
         return (f"{self.unit.owner.genitive} {self.unit.force} in "
-                f"{self.unit.location.name} supports "
+                f"{self.unit.location} supports "
                 f"{self.object_order.__str__('support')}{resolution}.")
 
     def __supports_move_on__(self, province):
         """ Method to test whether self supports a move into a province.
 
         """
-        if not self.object_order.name == 'move':
+        try:
+            return self.object_order.target.province is province
+        
+        except AttributeError:
             return False
-        return self.object_order.target.province is province
 
-    def __legalize__(self, orders, game_map, verbose=False):
-        """ Method to resolve legality of the support order.
+    def __legalize__(self, orders, game_map):
+        """ Method to resolve the legality of the support order.
 
         """
-        relevant = next((order for order in orders
-                         if order.unit is self.object_order.unit), None)
+        # The `relevant` order is the order of the unit being supported
+        relevant = orders.order_of(self.object_order.unit)
 
-        reached = [location.province for location in game_map.locations
-                   if location.id in self.unit.location.connections]
+        reached = [game_map.locations[k].province 
+                   for k in self.unit.location.connections]
 
-        # These two lines should be irrelevant?
-        if relevant is None:
-            self.max_status = 'illegal'
+        # If the object order is a hold, then the support is legal
+        # as long as the `relevant` order is not a move.
+        if self.object_order.name == 'hold':
 
-        elif self.object_order.name == 'hold':
-            if relevant.name == 'move':
-                self.max_status = 'illegal'
-            elif relevant.province in reached:
+            if (relevant.province in reached) and (relevant.name != 'move'):
                 self.min_status = 'cut'
+
             else:
                 self.max_status = 'illegal'
 
+        # If the object order is a move, then the support is legal only
+        # if the `relevant` order is a move into the same province.
         elif self.object_order.name == 'move':
-            if verbose:
-                print('\tSupporting a move order.')
-            if not relevant.name == 'move':
-                self.max_status = 'illegal'
-            elif relevant.target.province in reached:
+
+            if (relevant.name == 'move') and (relevant.target.province in reached):
                 self.min_status = 'cut'
-                if verbose:
-                    print("\tmin_status increased to 'cut'.")
 
             else:
                 self.max_status = 'illegal'
+        
+        # It is possible to, formally, support convoys and supports,
+        # but such orders are not legal.
         else:
+
             self.max_status = 'illegal'
 
-    def __resolve_attacked__(self, orders, verbose=False):
+    def __resolve_attacked__(self, orders):
         """ Method to resolve whether the support is cut.
 
         """
-        targets = [order.target.province for order in orders
-                   if order.name == 'move'
-                   and order.cutting is True
-                   and order.unit.owner != self.unit.owner]
+        relevant = orders.all_moves_to(
+            self.province,
+            attr='cutting',
+            exclude_power=self.unit.owner
+        )
 
-        if self.province in targets:
+        # If attacked, reduce max_status
+        if True in relevant:
             self.max_status = 'cut'
-            if verbose:
-                print("\tUnit is attacked; max_status is 'cut'.")
 
-    def __resolve_left_alone__(self, orders, verbose=False):
-        """ Method to resolve whether the support is not cut.
-
-        """
-        targets = [order.target.province for order in orders
-                   if order.name == 'move'
-                   and order.cutting is not False
-                   and order.unit.owner != self.unit.owner]
-
-        if not(self.province in targets):
+        # If not attacked, increase min_status
+        elif None not in relevant:
             self.min_status = 'valid'
-            if verbose:
-                print("\tUnit is left alone; min_status is 'valid'.")
 
-    def resolve(self, variant, orders, verbose=False):
+    def resolve(self, variant, orders):
         """ Main method to resolve a support.
 
         """
-        if verbose:
-            print(f'Resolving support of unit in {self.unit.province}.')
-
         if not self.__resolved__('hold'):
             self.__compute_hold_strengths__(orders)
 
         if self.min_status == 'illegal':
-            self.__legalize__(orders, variant.map, verbose)
+            self.__legalize__(orders, variant.map)
 
         if self.min_status > 'illegal':
-            self.__resolve_attacked__(orders, verbose)
-            self.__resolve_left_alone__(orders, verbose)
+            self.__resolve_attacked__(orders)

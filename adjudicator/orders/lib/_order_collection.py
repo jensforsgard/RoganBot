@@ -3,8 +3,7 @@
 """
 
 
-from adjudicator.lib import flatten
-from adjudicator.wrappers import require
+from adjudicator.lib import flatten, require
 
 
 class OrderCollection:
@@ -88,14 +87,15 @@ class OrderCollection:
                 if entry.name == string
                 and order.__object_equivalent__(entry.object_order)]
 
-    def all_moves_to(self, province):
+    def all_moves_to(self, province, attr='failed', exclude_power=None):
         """ Retrieves the `failed` status for all moves form the order
         collection whose target is in the given province.
         
         """
-        return [entry.failed for entry in self.orders
+        return [getattr(entry, attr) for entry in self.orders
                 if entry.name == 'move'
-                and entry.target.province is province]
+                and entry.target.province is province
+                and entry.unit.owner != exclude_power]
 
     def blocks(self):
         """ Returns the list or provinces which are blocked by a set of
